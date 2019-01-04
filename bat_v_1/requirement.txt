@@ -1,0 +1,5 @@
+## pip install django-crispy-forms
+
+## Super user Detail
+unm: admin
+pass: Batsystem@1029

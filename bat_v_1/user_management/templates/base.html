@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dore jQuery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="{% static 'app/fonts/iconsmind/style.css'%}" />
+    <link rel="stylesheet" href="{% static 'app/fonts/simple-line-icons/css/simple-line-icons.css'%}" />
+    <link rel="stylesheet" href="{% static 'app/css/vendor/bootstrap.min.css'%}" />
+    <link rel="stylesheet" href="{% static 'app/css/vendor/bootstrap-float-label.min.css'%}" />
+    <link rel="stylesheet" href="{% static 'app/css/main.css'%}" />
+</head>
+{% block body %}
+{% endblock %}
+<script src="{% static 'app/js/vendor/jquery-3.3.1.min.js'%}"></script>
+<script src="{% static 'app/js/vendor/bootstrap.bundle.min.js'%}"></script>
+<script src="{% static 'app/js/dore.script.js'%}"></script>
+<script src="{% static 'app/js/scripts.js'%}"></script>
+</html>
