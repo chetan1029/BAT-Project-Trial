@@ -13,6 +13,7 @@
       {% if user.is_authenticated %}
           <a class="btn btn-primary" href="{% url 'products:update_product' pk=product.pk %}">Edit</a>
           <a class="btn btn-primary" href="{% url 'products:delete_product' pk=product.pk %}">Delete</a>
+          <a class="btn btn-primary" href="{% url 'products:packagemeasurement_list'%}">Package Measurement</a>
       {% endif %}
   <hr>
 

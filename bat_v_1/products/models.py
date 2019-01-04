@@ -49,7 +49,7 @@ class Product(models.Model):
     model_number = models.CharField(max_length=200,blank=True)
     size = models.ForeignKey(Size,on_delete=models.CASCADE,blank=True,null=True)
     color = models.ForeignKey(Color,on_delete=models.CASCADE,blank=True,null=True)
-    weight = models.DecimalField(max_digits=5, decimal_places=3)
+    weight = models.DecimalField(max_digits=6, decimal_places=2)
     category = models.ForeignKey(Category,on_delete=models.CASCADE)
     detail = models.TextField(blank=True)
     status = models.CharField(max_length=20,choices=PRODUCT_STATUS)
@@ -69,14 +69,14 @@ class PackageMeasurement(models.Model):
 
     title = models.CharField(max_length=100)
     product = models.ForeignKey(Product,on_delete=models.CASCADE)
-    length = models.DecimalField(max_digits=5, decimal_places=2)
-    width = models.DecimalField(max_digits=5, decimal_places=2)
-    depth = models.DecimalField(max_digits=5, decimal_places=2)
-    weight = models.DecimalField(max_digits=5, decimal_places=3)
+    length = models.DecimalField(max_digits=6, decimal_places=2)
+    width = models.DecimalField(max_digits=6, decimal_places=2)
+    depth = models.DecimalField(max_digits=6, decimal_places=2)
+    weight = models.DecimalField(max_digits=6, decimal_places=2)
     unit = models.CharField(max_length=30,choices=UNIT_TYPE)
 
     def get_absolute_url(self):
-        return reverse('products:productmeasurement_detail',kwargs={'pk':self.pk})
+        return reverse('products:packagemeasurement_list')
 
     def __str__(self):
         return self.title
