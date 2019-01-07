@@ -31,7 +31,7 @@
           {% csrf_token %}
           {{form|crispy}}
           <button type="submit" class="btn btn-primary mb-0">Submit</button>
-          <a href="{% url 'products:packagemeasurement_list' %}" class="btn btn-danger mb-0">Cancle</a>
+          <a href="{% url 'products:packagemeasurement_list' product_id %}" class="btn btn-danger mb-0">Cancel</a>
         </form>
 
       </div>

@@ -3,117 +3,176 @@
 {% load staticfiles %}
 {% block content %}
 <div class="row">
-        <div class="col-12">
-            <div class="mb-3">
-                <h1>Products</h1>
-                <div class="float-sm-right text-zero">
-                    <a href="{% url 'products:create_product' %}" class="btn btn-primary btn-lg top-right-button mr-1">Add Product</a>
+  <div class="col-12">
+    <div class="mb-3">
+      <h1>Products</h1>
+      <div class="float-sm-right text-zero">
+        <a href="{% url 'products:create_product' %}" class="btn btn-primary btn-lg top-right-button mr-1">Add Product</a>
 
-                    <div class="btn-group">
-                        <div class="btn btn-primary btn-lg pl-4 pr-0 check-button">
-                            <label class="custom-control custom-checkbox mb-0 d-inline-block">
-                                <input type="checkbox" class="custom-control-input" id="checkAll">
-                                <span class="custom-control-label"></span>
-                            </label>
-                        </div>
-                        <button type="button" class="btn btn-lg btn-primary dropdown-toggle dropdown-toggle-split pl-2 pr-2"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                        </div>
-                    </div>
-                </div>
-                <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
-                    <ol class="breadcrumb pt-0">
-                        <li class="breadcrumb-item">
-                            <a href="{% url 'dashboard' %}">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="#">Basic</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">Products</li>
-                    </ol>
-                </nav>
-
-            </div>
-
-            <div class="mb-2">
-                <a class="btn pt-0 pl-0 d-inline-block d-md-none" data-toggle="collapse" href="#displayOptions"
-                    role="button" aria-expanded="true" aria-controls="displayOptions">
-                    Display Options
-                    <i class="simple-icon-arrow-down align-middle"></i>
-                </a>
-                <div class="collapse d-md-block" id="displayOptions">
-                    <div class="d-block d-md-inline-block">
-                        <div class="btn-group float-md-left mr-1 mb-1">
-                            <button class="btn btn-outline-dark btn-xs dropdown-toggle" type="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Order By
-                            </button>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#">Action</a>
-                                <a class="dropdown-item" href="#">Another action</a>
-                            </div>
-                        </div>
-                        <div class="search-sm d-inline-block float-md-left mr-1 mb-1 align-top">
-                            <input placeholder="Search...">
-                        </div>
-                    </div>
-                    <div class="float-md-right">
-                        <span class="text-muted text-small">Displaying 1-10 of 210 items </span>
-                        <button class="btn btn-outline-dark btn-xs dropdown-toggle" type="button" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                            20
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="#">10</a>
-                            <a class="dropdown-item active" href="#">20</a>
-                            <a class="dropdown-item" href="#">30</a>
-                            <a class="dropdown-item" href="#">50</a>
-                            <a class="dropdown-item" href="#">100</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="separator mb-5"></div>
+        <div class="btn-group">
+          <div class="btn btn-primary btn-lg pl-4 pr-0 check-button">
+            <label class="custom-control custom-checkbox mb-0 d-inline-block">
+              <input type="checkbox" class="custom-control-input" id="checkAll">
+              <span class="custom-control-label"></span>
+            </label>
+          </div>
+          <button type="button" class="btn btn-lg btn-primary dropdown-toggle dropdown-toggle-split pl-2 pr-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" href="#">Delete</a>
+          </div>
         </div>
+      </div>
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Products</li>
+        </ol>
+      </nav>
+
     </div>
 
-    <div class="row">
-        <div class="col-12 list" data-check-all="checkAll">
-
-          {% for product in product_list %}
-            <div class="card d-flex flex-row mb-3">
-                <a class="d-flex" href="{% url 'products:product_detail' pk=product.pk %}">
-                    <img src="{% static 'app/images/fat-rascal-thumb.jpg'%}" alt="Fat Rascal" class="list-thumbnail responsive border-0" />
-                </a>
-                <div class="pl-2 d-flex flex-grow-1 min-width-zero">
-                    <div class="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
-                        <a href="{% url 'products:product_detail' pk=product.pk %}" class="w-40 w-sm-100">
-                            <p class="list-item-heading mb-1 truncate">{{ product.title }}</p>
-                        </a>
-                        <p class="mb-1 text-muted text-small w-15 w-sm-100">{{ product.category.name }}</p>
-                        <p class="mb-1 text-muted text-small w-15 w-sm-100">{{ product.create_date|date:"d M Y"}}</p>
-                        <div class="w-15 w-sm-100">
-                            <span class="badge badge-pill badge-primary">{{ product.status }}</span>
-                        </div>
-                    </div>
-
-                    <div class="custom-control custom-checkbox pl-1 align-self-center pr-4">
-                        <label class="custom-control custom-checkbox mb-0">
-                            <input type="checkbox" class="custom-control-input">
-                            <span class="custom-control-label"></span>
-                        </label>
-                    </div>
-                </div>
+    <div class="mb-2">
+      <a class="btn pt-0 pl-0 d-inline-block d-md-none" data-toggle="collapse" href="#displayOptions" role="button" aria-expanded="true" aria-controls="displayOptions">
+        Display Options
+        <i class="simple-icon-arrow-down align-middle"></i>
+      </a>
+      <div class="collapse d-md-block" id="displayOptions">
+        <div class="d-block d-md-inline-block">
+          <form action="." method="get" name="data_control">
+            <input type="hidden" name="order_by" value="{{order_by}}" />
+            <input type="hidden" name="paginate_by" value="{{paginator.per_page}}" />
+          </form>
+          <div class="btn-group float-md-left mr-1 mb-1">
+            <button class="btn btn-outline-dark btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Order By
+            </button>
+            <div class="dropdown-menu">
+              {% for order_value, order_text in order_by_list %}
+              {% if order_value == order_by %}
+              <a class="dropdown-item active" href="javascript:void()">{{order_text}}</a>
+              {% else %}
+              <a class="dropdown-item" onclick="orderby_formsubmit('{{order_value}}')" href="javascript:void()">{{order_text}}</a>
+              {% endif %}
+              {% endfor %}
             </div>
+          </div>
+          <div class="search-sm d-inline-block float-md-left mr-1 mb-1 align-top">
+            <input placeholder="Search...">
+          </div>
+        </div>
+        <div class="float-md-right">
+          <span class="text-muted text-small">Displaying
+            {% if page_obj.has_previous %}
+            {% widthratio paginator.per_page 1 page_obj.previous_page_number %}{% else %}1{% endif %}-{% widthratio paginator.per_page 1 page_obj.number %}
+            of {{paginator.count}} items </span>
+          <button class="btn btn-outline-dark btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{paginator.per_page}}
+          </button>
+
+          <div class="dropdown-menu dropdown-menu-right">
+            {% for paginate_number in paginate_list  %}
+            {% if paginator.per_page == paginate_number %}
+            <a class="dropdown-item active"  href="javascript:void()">{{paginate_number}}</a>
+            {% else %}
+            <a class="dropdown-item" onclick="pagination_formsubmit({{paginate_number}})" href="javascript:void()">{{paginate_number}}</a>
+            {% endif %}
             {% endfor %}
-
-
+          </div>
         </div>
+      </div>
     </div>
+    <div class="separator mb-5"></div>
+  </div>
+</div>
 
+<div class="row">
+  <div class="col-12 list" data-check-all="checkAll">
+
+    {% for product in product_list %}
+    <div class="card d-flex flex-row mb-3">
+      <a class="d-flex" href="{% url 'products:product_detail' pk=product.pk %}">
+        <img src="{{MEDIA_URL}}{{ product.image }}" alt="Fat Rascal" class="list-thumbnail responsive border-0" />
+      </a>
+      <div class="pl-2 d-flex flex-grow-1 min-width-zero">
+        <div class="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
+          <a href="{% url 'products:product_detail' pk=product.pk %}" class="w-40 w-sm-100">
+            <p class="list-item-heading mb-1 truncate">{{ product.title }}</p>
+          </a>
+          <p class="mb-1 text-muted text-small w-15 w-sm-100">{{ product.category.name }}</p>
+          <p class="mb-1 text-muted text-small w-15 w-sm-100">{{ product.create_date|date:"d M Y"}}</p>
+          <div class="w-15 w-sm-100">
+            <span class="badge badge-pill badge-primary">{{ product.status }}</span>
+          </div>
+        </div>
+
+        <div class="custom-control custom-checkbox pl-1 align-self-center pr-4">
+          <label class="custom-control custom-checkbox mb-0">
+            <input type="checkbox" class="custom-control-input">
+            <span class="custom-control-label"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+<!-- Pagination start -->
+{% if is_paginated %}
+    <nav class="mt-4 mb-3">
+      <ul class="pagination justify-content-center mb-0">
+
+        {% if page_obj.has_previous %}
+        <li class="page-item ">
+          <a class="page-link prev" href="?page={{ page_obj.previous_page_number }}&{{extra_url}}">
+            <i class="simple-icon-arrow-left"></i>
+          </a>
+        </li>
+        {% else %}
+        <li class="page-item active">
+          <a class="page-link prev" href="#">
+            <i class="simple-icon-arrow-left"></i>
+          </a>
+        </li>
+        {% endif %}
+        {% for i in paginator.page_range %}
+        {% if page_obj.number == i %}
+        <li class="page-item active">
+          <a class="page-link" href="#">{{ i }}</a>
+        </li>
+        {% else %}
+        <li class="page-item ">
+          <a class="page-link" href="?page={{ i }}&{{extra_url}}">{{ i }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item ">
+          <a class="page-link next" href="?page={{ page_obj.next_page_number }}&{{extra_url}}" aria-label="Next">
+            <i class="simple-icon-arrow-right"></i>
+          </a>
+        </li>
+        {% else %}
+        <li class="page-item active">
+          <a class="page-link next" href="#">
+            <i class="simple-icon-arrow-right"></i>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</div>
+{% endif %}
+<script type="text/javascript">
+  function pagination_formsubmit(paginate_number){
+    document.getElementsByName('paginate_by')[0].setAttribute("value", paginate_number);
+    document.data_control.submit();
+  }
+  function orderby_formsubmit(order_by){
+    document.getElementsByName('order_by')[0].setAttribute("value", order_by);
+    document.data_control.submit();
+  }
+</script>
 {% endblock %}

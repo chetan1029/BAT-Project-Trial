@@ -67,6 +67,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -139,8 +140,8 @@ STATIC_DIR,
 ]
 
 # User contenttypes
-PROJECT_CONTENT_ROOT = PROJECT_CONTENT_DIR
-PROJECT_CONTENT_URL = "/project_content/"
+MEDIA_ROOT = PROJECT_CONTENT_DIR
+MEDIA_URL = "/project_content/"
 
 LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "logout"

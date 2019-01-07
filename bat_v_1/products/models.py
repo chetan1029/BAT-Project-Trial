@@ -43,6 +43,7 @@ class Product(models.Model):
     )
 
     title = models.CharField(max_length=500)
+    image = models.ImageField(upload_to='users/profile/',blank=True)
     sku = models.CharField(max_length=200,blank=True)
     upc = models.CharField(max_length=200,blank=True)
     ean = models.CharField(max_length=200,unique=True)
@@ -76,7 +77,7 @@ class PackageMeasurement(models.Model):
     unit = models.CharField(max_length=30,choices=UNIT_TYPE)
 
     def get_absolute_url(self):
-        return reverse('products:packagemeasurement_list')
+        return reverse('products:packagemeasurement_list', kwargs={'pk':self.product_id})
 
     def __str__(self):
         return self.title
