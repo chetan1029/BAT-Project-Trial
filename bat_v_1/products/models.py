@@ -42,6 +42,8 @@ class Product(models.Model):
     ('Final','Final'),
     )
 
+    STATUS_CLASS = {"Planning":"primary", "In Progress":"secondary", "Final":"success"}
+
     title = models.CharField(max_length=500)
     image = models.ImageField(upload_to='users/profile/',blank=True)
     sku = models.CharField(max_length=200,blank=True)
@@ -59,8 +61,17 @@ class Product(models.Model):
     def get_absolute_url(self):
         return reverse('products:product_detail',kwargs={'pk':self.pk})
 
+    def get_status_class(self):
+        status_class_v = "a"
+        for status_k in self.STATUS_CLASS:
+            print(status_k)
+            if status_k == self.status:
+                status_class_v = self.STATUS_CLASS[status_k]
+        return status_class_v
+
     def __str__(self):
         return self.title
+
 
 class PackageMeasurement(models.Model):
     UNIT_TYPE = (
@@ -78,6 +89,13 @@ class PackageMeasurement(models.Model):
 
     def get_absolute_url(self):
         return reverse('products:packagemeasurement_list', kwargs={'pk':self.product_id})
+
+    def get_package_unit(self):
+        if self.unit == "GM-CM":
+            package_unit = {"length":"cm", "weight":"gm"}
+        else:
+            package_unit = {"length":"inch", "weight":"pound"}
+        return package_unit
 
     def __str__(self):
         return self.title

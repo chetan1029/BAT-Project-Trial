@@ -3,37 +3,61 @@
 {% load crispy_forms_tags %}
 {% block content %}
 <div class="row">
-  <div class="col-12">
-    <h1>Add Package Measurement</h1>
-    <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
-      <ol class="breadcrumb pt-0">
-        <li class="breadcrumb-item">
-          <a href="{% url 'dashboard' %}">Dashboard</a>
-        </li>
-        <li class="breadcrumb-item">
-          <a href="#">Basic</a>
-        </li>
-        <li class="breadcrumb-item">
-          <a href="{% url 'products:product_list' %}">Products</a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">Add Package Measurement</li>
-      </ol>
-    </nav>
-    <div class="separator mb-5"></div>
-  </div>
-</div>
-<div class="row">
-  <div class="col-12">
-    <div class="card mb-4">
-      <div class="card-body">
-        <h5 class="mb-4">Basic</h5>
-        <form method="POST">
-          {% csrf_token %}
-          {{form|crispy}}
-          <button type="submit" class="btn btn-primary mb-0">Submit</button>
-          <a href="{% url 'products:packagemeasurement_list' product_id %}" class="btn btn-danger mb-0">Cancel</a>
-        </form>
+  <div class="col-12 list">
 
+    <div class="mb-2">
+      <h1>{{ product.title }}</h1>
+      <div class="float-sm-right">
+        <button type="button" class="btn btn-lg btn-outline-primary dropdown-toggle dropdown-toggle-split top-right-button top-right-button-single" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          ACTIONS
+        </button>
+        <div class="dropdown-menu dropdown-menu-right">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+        </div>
+      </div>
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'products:product_list' %}">Products</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
+        </ol>
+      </nav>
+    </div>
+
+
+    <ul class="nav nav-tabs separator-tabs ml-0 mb-5" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link" id="first-tab" href="{% url 'products:product_detail' pk=product.id %}">DETAILS</a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link active" id="second-tab" data-toggle="tab" href="#second" role="tab" aria-controls="first" aria-selected="true">PACKAGE MEASUREMENT</a>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                <h5 class="card-title">Package Measurement</h5>
+              </div>
+
+            </div>
+            <form method="POST">
+              {% csrf_token %}
+              {{form|crispy}}
+              <button type="submit" class="btn btn-primary mb-0">Submit</button>
+              <a href="{% url 'products:packagemeasurement_list' product.id %}" class="btn btn-danger mb-0">Cancel</a>
+            </form>
+
+          </div>
+        </div>
       </div>
     </div>
   </div>

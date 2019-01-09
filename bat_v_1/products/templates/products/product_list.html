@@ -7,22 +7,7 @@
     <div class="mb-3">
       <h1>Products</h1>
       <div class="float-sm-right text-zero">
-        <a href="{% url 'products:create_product' %}" class="btn btn-primary btn-lg top-right-button mr-1">Add Product</a>
-
-        <div class="btn-group">
-          <div class="btn btn-primary btn-lg pl-4 pr-0 check-button">
-            <label class="custom-control custom-checkbox mb-0 d-inline-block">
-              <input type="checkbox" class="custom-control-input" id="checkAll">
-              <span class="custom-control-label"></span>
-            </label>
-          </div>
-          <button type="button" class="btn btn-lg btn-primary dropdown-toggle dropdown-toggle-split pl-2 pr-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="sr-only">Toggle Dropdown</span>
-          </button>
-          <div class="dropdown-menu dropdown-menu-right">
-            <a class="dropdown-item" href="#">Delete</a>
-          </div>
-        </div>
+        <a href="{% url 'products:create_product' %}" class="btn btn-primary btn-lg mr-1">Add Product</a>
       </div>
       <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
         <ol class="breadcrumb pt-0">
@@ -42,10 +27,7 @@
       </a>
       <div class="collapse d-md-block" id="displayOptions">
         <div class="d-block d-md-inline-block">
-          <form action="." method="get" name="data_control">
-            <input type="hidden" name="order_by" value="{{order_by}}" />
-            <input type="hidden" name="paginate_by" value="{{paginator.per_page}}" />
-          </form>
+
           <div class="btn-group float-md-left mr-1 mb-1">
             <button class="btn btn-outline-dark btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Order By
@@ -60,8 +42,12 @@
               {% endfor %}
             </div>
           </div>
-          <div class="search-sm d-inline-block float-md-left mr-1 mb-1 align-top">
-            <input placeholder="Search...">
+          <div class="search-sm d-inline-block float-md-left mr-1 mb-1 align-top" >
+            <form action="." method="get" name="data_control">
+              <input type="hidden" name="order_by" value="{{order_by}}" />
+              <input type="hidden" name="paginate_by" value="{{paginator.per_page}}" />
+              <input type="text" name="search_q" value="{{search_q}}" placeholder="Search...">
+            </form>
           </div>
         </div>
         <div class="float-md-right">
@@ -74,9 +60,9 @@
           </button>
 
           <div class="dropdown-menu dropdown-menu-right">
-            {% for paginate_number in paginate_list  %}
+            {% for paginate_number in paginate_list %}
             {% if paginator.per_page == paginate_number %}
-            <a class="dropdown-item active"  href="javascript:void()">{{paginate_number}}</a>
+            <a class="dropdown-item active" href="javascript:void()">{{paginate_number}}</a>
             {% else %}
             <a class="dropdown-item" onclick="pagination_formsubmit({{paginate_number}})" href="javascript:void()">{{paginate_number}}</a>
             {% endif %}
@@ -95,7 +81,7 @@
     {% for product in product_list %}
     <div class="card d-flex flex-row mb-3">
       <a class="d-flex" href="{% url 'products:product_detail' pk=product.pk %}">
-        <img src="{{MEDIA_URL}}{{ product.image }}" alt="Fat Rascal" class="list-thumbnail responsive border-0" />
+        <img src="{{MEDIA_URL}}{{ product.image }}" alt="{{ product.title }}" class="list-thumbnail responsive border-0" />
       </a>
       <div class="pl-2 d-flex flex-grow-1 min-width-zero">
         <div class="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
@@ -105,21 +91,15 @@
           <p class="mb-1 text-muted text-small w-15 w-sm-100">{{ product.category.name }}</p>
           <p class="mb-1 text-muted text-small w-15 w-sm-100">{{ product.create_date|date:"d M Y"}}</p>
           <div class="w-15 w-sm-100">
-            <span class="badge badge-pill badge-primary">{{ product.status }}</span>
+            <span class="badge badge-pill badge-{{product.get_status_class}}">{{ product.status }}</span>
           </div>
         </div>
 
-        <div class="custom-control custom-checkbox pl-1 align-self-center pr-4">
-          <label class="custom-control custom-checkbox mb-0">
-            <input type="checkbox" class="custom-control-input">
-            <span class="custom-control-label"></span>
-          </label>
-        </div>
       </div>
     </div>
     {% endfor %}
-<!-- Pagination start -->
-{% if is_paginated %}
+    <!-- Pagination start -->
+    {% if is_paginated %}
     <nav class="mt-4 mb-3">
       <ul class="pagination justify-content-center mb-0">
 
@@ -166,12 +146,17 @@
 </div>
 {% endif %}
 <script type="text/javascript">
-  function pagination_formsubmit(paginate_number){
+  function pagination_formsubmit(paginate_number) {
     document.getElementsByName('paginate_by')[0].setAttribute("value", paginate_number);
     document.data_control.submit();
   }
-  function orderby_formsubmit(order_by){
+
+  function orderby_formsubmit(order_by) {
     document.getElementsByName('order_by')[0].setAttribute("value", order_by);
+    document.data_control.submit();
+  }
+
+  function search_formsubmit() {
     document.data_control.submit();
   }
 </script>
