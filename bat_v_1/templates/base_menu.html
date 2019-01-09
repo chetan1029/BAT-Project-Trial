@@ -72,13 +72,13 @@
         <div class="main-menu">
             <div class="scroll">
                 <ul class="list-unstyled">
-                    <li {% if active_menu == 'dashboard' %}class="active"{% endif %}>
+                    <li {% if active_menu.menu1 == 'dashboard' %}class="active"{% endif %}>
                         <a href="#dashboard">
                             <i class="iconsmind-Shop-4"></i>
                             <span>Dashboards</span>
                         </a>
                     </li>
-                    <li {% if active_menu == 'basic' %}class="active"{% endif %}>
+                    <li {% if active_menu.menu1 == 'basic' %}class="active"{% endif %}>
                         <a href="#basic">
                             <i class="iconsmind-Digital-Drawing"></i> Basic
                         </a>
@@ -90,7 +90,7 @@
         <div class="sub-menu">
             <div class="scroll">
                 <ul class="list-unstyled" data-link="dashboard">
-                    <li {% if active_submenu == 'basic' %}class="active"{% endif %}>
+                    <li {% if active_menu.menu2 == 'basic' %}class="active"{% endif %}>
                         <a href="{% url 'dashboard' %}">
                             <i class="simple-icon-rocket"></i> Basic
                         </a>
@@ -112,14 +112,14 @@
                     </li>
                 </ul>
                 <ul class="list-unstyled" data-link="basic">
-                    <li {% if active_submenu == 'products' %}class="active"{% endif %}>
+                    <li {% if active_menu.menu2 == 'products' %}class="active"{% endif %}>
                         <a href="{% url 'products:product_list' %}">
                             <i class="simple-icon-rocket"></i> Products
                         </a>
                     </li>
-                    <li>
-                        <a href="#">
-                            <i class="simple-icon-pie-chart"></i> Manufacturer
+                    <li {% if active_menu.menu2 == 'suppliers' %}class="active"{% endif %}>
+                        <a href="{% url 'suppliers:supplier_list' %}">
+                            <i class="simple-icon-pie-chart"></i> Suppliers
                         </a>
                     </li>
                     <li>

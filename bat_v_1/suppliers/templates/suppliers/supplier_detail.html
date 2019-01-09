@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ supplier.name }}</h1>
+      <div class="float-sm-right">
+        <button type="button" class="btn btn-lg btn-outline-primary dropdown-toggle dropdown-toggle-split top-right-button top-right-button-single" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          ACTIONS
+        </button>
+        <div class="dropdown-menu dropdown-menu-right">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+        </div>
+      </div>
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ supplier.name }}</li>
+        </ol>
+      </nav>
+    </div>
+
+
+    {% include 'suppliers/menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
+        <div class="row">
+          <div class="col-lg-4 col-12 mb-4">
+            <div class="card mb-4">
+              <div class="position-absolute card-top-buttons">
+                <a href="{% url 'suppliers:update_supplier' pk=supplier.pk %}" class="btn btn-outline-info icon-button ">
+                  <i class="simple-icon-pencil"></i>
+                </a>
+                <a href="{% url 'suppliers:delete_supplier' pk=supplier.pk %}" class="btn btn-outline-danger icon-button ">
+                  <i class="simple-icon-trash"></i>
+                </a>
+              </div>
+              <span class="badge badge-pill position-absolute badge-top-left">{{ supplier.status }}</span>
+              <img src="{{MEDIA_URL}}{{ supplier.logo }}" alt="{{ supplier.name }}" class="card-img-top" />
+
+              <div class="card-body">
+                <h6><strong>{{supplier.category.name}}</strong></h6>
+                {% if supplier.alternate_name %}
+                <p class="text-muted text-small mb-2">Alternate Name</p>
+                <p class="mb-3">{{supplier.alternate_name}}</p>
+                {% endif %}
+                <p class="text-muted text-small mb-2">Address</p>
+                <p class="mb-3">{{supplier.get_formatted_address}}</p>
+                <p class="text-muted text-small mb-2">Detail</p>
+                <p class="mb-3">
+                  {{ supplier.detail }}
+                </p>
+
+                <hr >
+                <p class="text-muted text-small mb-2">Created at</p>
+                <p class="mb-3">{{supplier.create_date| date:"d M Y h:i A"}}</p>
+                <p class="text-muted text-small mb-2">Updated at</p>
+                <p class="mb-3">{{supplier.update_date| date:"d M Y h:i A"}}</p>
+
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-12 col-lg-8">
+            <div class="row">
+              <div class="col-6 mb-4">
+                <div class="card dashboard-small-chart">
+                  <div class="card-body">
+                    <p class="lead color-theme-1 mb-1 value"></p>
+                    <p class="mb-0 label text-small"></p>
+                    <div class="chart">
+                      <canvas id="smallChart1"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 mb-4">
+                <div class="card dashboard-small-chart">
+                  <div class="card-body">
+                    <p class="lead color-theme-1 mb-1 value"></p>
+                    <p class="mb-0 label text-small"></p>
+                    <div class="chart">
+                      <canvas id="smallChart2"></canvas>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <div class="col-6 mb-4">
+                <div class="card dashboard-small-chart">
+                  <div class="card-body">
+                    <p class="lead color-theme-1 mb-1 value"></p>
+                    <p class="mb-0 label text-small"></p>
+                    <div class="chart">
+                      <canvas id="smallChart3"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 mb-4">
+                <div class="card dashboard-small-chart">
+                  <div class="card-body">
+                    <p class="lead color-theme-1 mb-1 value"></p>
+                    <p class="mb-0 label text-small"></p>
+                    <div class="chart">
+                      <canvas id="smallChart4"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-4">
+              <div class="card-body">
+                <p class="list-item-heading mb-4">Popularity</p>
+                <div class="chart-container">
+                  <canvas id="areaChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

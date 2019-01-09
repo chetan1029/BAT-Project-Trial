@@ -35,8 +35,7 @@ class ProductListView(LoginRequiredMixin,ListView):
         context = super().get_context_data(**kwargs)
         context['paginate_list'] = (2,10,20,50,100)
         context['order_by_list'] = [('create_date','Created Date: ASC'),('-create_date','Created Date: DESC')]
-        context['active_menu'] = "basic"
-        context['active_submenu'] = "products"
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
         context['order_by'] = self.order_by
         if self.search_q is None:
             context['search_q'] = ""
@@ -59,8 +58,7 @@ class ProductDetailView(LoginRequiredMixin,DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = "basic"
-        context['active_submenu'] = "products"
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
         return context
 
 class CreateProductView(LoginRequiredMixin,CreateView):
@@ -76,8 +74,7 @@ class CreateProductView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = "basic"
-        context['active_submenu'] = "products"
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
         return context
 
 class ProductUpdateView(LoginRequiredMixin,UpdateView):
@@ -85,10 +82,15 @@ class ProductUpdateView(LoginRequiredMixin,UpdateView):
     form_class = ProductForm
     model = Product
 
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = "basic"
-        context['active_submenu'] = "products"
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
         return context
 
 class ProductDeleteView(LoginRequiredMixin,DeleteView):
@@ -97,12 +99,12 @@ class ProductDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = "basic"
-        context['active_submenu'] = "products"
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
         return context
 
 class PackageMeasurementListView(LoginRequiredMixin,ListView):
     model = PackageMeasurement
+    template_name = 'packagemeasurement/packagemeasurement_list.html'
 
     def get_queryset(self):
         product_id = self.kwargs['pk']
@@ -111,8 +113,7 @@ class PackageMeasurementListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = "basic"
-        context['active_submenu'] = "products"
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
         context['product_id'] = self.kwargs['pk']
         context['product'] = self.product
         return context
@@ -120,6 +121,7 @@ class PackageMeasurementListView(LoginRequiredMixin,ListView):
 class CreatePackageMeasurementView(LoginRequiredMixin,CreateView):
     form_class = PackageMeasurementForm
     model = PackageMeasurement
+    template_name = 'packagemeasurement/packagemeasurement_form.html'
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -129,31 +131,36 @@ class CreatePackageMeasurementView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = "basic"
-        context['active_submenu'] = "products"
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
         context['product'] = Product.objects.get(pk=self.kwargs['pk'])
         return context
 
 class PackageMeasurementUpdateView(LoginRequiredMixin,UpdateView):
     form_class = PackageMeasurementForm
     model = PackageMeasurement
+    template_name = 'packagemeasurement/packagemeasurement_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = "basic"
-        context['active_submenu'] = "products"
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
         context['product'] = Product.objects.get(pk=PackageMeasurement.objects.get(id=self.kwargs['pk']).product_id)
         return context
 
 class PackageMeasurementDeleteView(LoginRequiredMixin,DeleteView):
     model = PackageMeasurement
+    template_name = 'packagemeasurement/packagemeasurement_confirm_delete.html'
 
     def get_success_url(self):
         return reverse_lazy('products:packagemeasurement_list', kwargs={'pk': PackageMeasurement.objects.get(id=self.kwargs['pk']).product_id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = "basic"
-        context['active_submenu'] = "products"
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
         context['package'] = PackageMeasurement.objects.get(id=self.kwargs['pk'])
         return context
