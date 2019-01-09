@@ -1,4 +1,4 @@
-/* Dore Main Script 
+/* Dore Main Script
 
 Table of Contents
 
@@ -40,7 +40,7 @@ Table of Contents
   03.33. Showing Body
   03.34. Keyboard Shortcuts
   03.35. Context Menu
-  03.36. Select from Library 
+  03.36. Select from Library
 */
 
 /* 01. Add Comas Util */
@@ -289,7 +289,7 @@ $.dore = function(element, options) {
           $("#app-container").removeClass("menu-sub-hidden");
         }
       }
-      
+
       setMenuClassNames(0, true);
     }
 

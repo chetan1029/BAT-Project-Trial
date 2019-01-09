@@ -2674,7 +2674,43 @@ main {
         margin-bottom: 2rem;
     }
 }
+.tab-card {
+    border: initial;
+    background: $foreground-color;
 
+    .card-header .card-icon {
+        right: 5px;
+        top: 5px;
+
+        i {
+            font-size: 12px;
+            color: $separator-color;
+        }
+    }
+
+    .card-header .handle {
+        cursor: default;
+    }
+
+    border-radius: calc(0.15rem - 1px);
+    @include depth(1);
+
+    .card-body {
+        padding: 1.75rem;
+
+        @include respond-below(xs) {
+            padding: 1.5rem;
+        }
+
+        &.sm {
+            padding: 1.25rem 1.75rem;
+        }
+    }
+
+    .card-title {
+        margin-bottom: 2rem;
+    }
+}
 .card-img {
     border-radius: calc(0.25rem - 1px);
     height: 100%;

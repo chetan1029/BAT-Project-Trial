@@ -155,4 +155,5 @@ class PackageMeasurementDeleteView(LoginRequiredMixin,DeleteView):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = "basic"
         context['active_submenu'] = "products"
+        context['package'] = PackageMeasurement.objects.get(id=self.kwargs['pk'])
         return context

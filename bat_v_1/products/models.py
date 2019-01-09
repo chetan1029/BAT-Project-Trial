@@ -44,16 +44,16 @@ class Product(models.Model):
 
     STATUS_CLASS = {"Planning":"primary", "In Progress":"secondary", "Final":"success"}
 
-    title = models.CharField(max_length=500)
-    image = models.ImageField(upload_to='users/profile/',blank=True)
-    sku = models.CharField(max_length=200,blank=True)
-    upc = models.CharField(max_length=200,blank=True)
-    ean = models.CharField(max_length=200,unique=True)
+    title = models.CharField(verbose_name="Product Title", max_length=500)
+    image = models.ImageField(upload_to='products/images/',blank=True)
+    sku = models.CharField(verbose_name="SKU",max_length=200,blank=True)
+    upc = models.CharField(verbose_name="UPC",max_length=200,blank=True)
+    ean = models.CharField(verbose_name="EAN",max_length=200,unique=True)
     model_number = models.CharField(max_length=200,blank=True)
-    size = models.ForeignKey(Size,on_delete=models.CASCADE,blank=True,null=True)
-    color = models.ForeignKey(Color,on_delete=models.CASCADE,blank=True,null=True)
+    size = models.ForeignKey(Size,on_delete=models.CASCADE,blank=True,null=True,verbose_name="Select Size")
+    color = models.ForeignKey(Color,on_delete=models.CASCADE,blank=True,null=True,verbose_name="Select Color")
     weight = models.DecimalField(max_digits=6, decimal_places=2)
-    category = models.ForeignKey(Category,on_delete=models.CASCADE)
+    category = models.ForeignKey(Category,on_delete=models.CASCADE,verbose_name="Select Category")
     detail = models.TextField(blank=True)
     status = models.CharField(max_length=20,choices=PRODUCT_STATUS)
     create_date = models.DateTimeField(default=timezone.now())
@@ -79,7 +79,7 @@ class PackageMeasurement(models.Model):
     ('Pound-Inch','Pound-Inch')
     )
 
-    title = models.CharField(max_length=100)
+    title = models.CharField(verbose_name="Package Title",max_length=100)
     product = models.ForeignKey(Product,on_delete=models.CASCADE)
     length = models.DecimalField(max_digits=6, decimal_places=2)
     width = models.DecimalField(max_digits=6, decimal_places=2)
