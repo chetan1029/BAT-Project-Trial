@@ -60,4 +60,9 @@ urlpatterns = [
     path('mold/<int:pk>/product',views.MoldProductListView.as_view(),name='moldproduct_list'),
     path('mold/<int:pk>/product/add',views.CreateMoldProductView.as_view(),name='create_moldproduct'),
     path('mold/product/<int:pk>/delete/',views.MoldProductDeleteView.as_view(),name='delete_moldproduct'),
+    # MoldFile
+    path('mold/<int:pk>/file',views.MoldFileListView.as_view(),name='moldfile_list'),
+    path('mold/<int:pk>/file/add',views.CreateMoldFileView.as_view(),name='create_moldfile'),
+    path('mold/file/<int:pk>/edit/',views.MoldFileUpdateView.as_view(),name='update_moldfile'),
+    path('mold/file/<int:pk>/delete/',views.MoldFileDeleteView.as_view(),name='delete_moldfile'),
 ]

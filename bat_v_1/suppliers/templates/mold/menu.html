@@ -6,6 +6,6 @@
     <a class="nav-link {% if active_menu.menu5 == 'product' %}active{% endif %}" href="{% url 'suppliers:moldproduct_list' pk=mold.pk %}">MOLD PRODUCTS</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">MOLD FILES</a>
+    <a class="nav-link {% if active_menu.menu5 == 'file' %}active{% endif %}" href="{% url 'suppliers:moldfile_list' pk=mold.pk %}">MOLD FILES</a>
   </li>
 </ul>

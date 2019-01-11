@@ -4,6 +4,8 @@ from django.urls import reverse
 import random
 from products.models import Product
 from django.contrib.auth import get_user_model
+from django.utils.text import slugify
+import os, datetime
 User = get_user_model()
 
 # Create your models here.
@@ -45,11 +47,14 @@ class Category(models.Model):
         return ' -> '.join(full_path[::-1])
 
  ## 1.2 Supplier
-class Supplier(models.Model):
+def generate_logofilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'suppliers/{0}/logo/logo{1}'.format(instance.id, extension)
 
+class Supplier(models.Model):
     name = models.CharField(verbose_name="Supplier Name", max_length=200)
     alternate_name = models.CharField(verbose_name="Supplier Alternative Name", max_length=200,blank=True)
-    logo = models.ImageField(upload_to='suppliers/logo/',blank=True)
+    logo = models.ImageField(upload_to=generate_logofilename,blank=True)
     address1 = models.CharField(max_length=200,blank=True)
     address2 = models.CharField(max_length=200,blank=True)
     city = models.CharField(max_length=200,blank=True)
@@ -189,7 +194,8 @@ class Bank(models.Model):
 
  ## 2.3 Contract
 def generate_filename(instance, filename):
-    return 'suppliers/contracts/{0}/{1}_{2}'.format(instance.supplier.id, random.randint(1000,1000000), filename)
+    name, extension = os.path.splitext(filename)
+    return 'suppliers/{0}/contracts/contract-{1}-{2}{3}'.format(instance.supplier.id, slugify(instance.supplier.name), timezone.now().strftime("%Y%m%d") ,extension)
 
 class Contract(models.Model):
     title = models.CharField(max_length=100)
@@ -260,9 +266,15 @@ class MoldProduct(models.Model):
         return self.product.title
 
  ## 2.7 MoldFile
+def generate_moldfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'suppliers/{0}/Molds/mold-{1}-{2}-{3}{4}'.format(instance.mold.supplier.id, slugify(instance.mold.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
+
+
 class MoldFile(models.Model):
     title = models.CharField(max_length=100)
     note = models.TextField(blank=True)
+    file_url = models.FileField(upload_to=generate_moldfilename)
     mold = models.ForeignKey(Mold,on_delete=models.PROTECT,verbose_name="Select Mold")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())

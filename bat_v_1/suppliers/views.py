@@ -8,10 +8,10 @@ from django.views.generic import (TemplateView, ListView,
 from django.urls import reverse_lazy
 from suppliers.models import (Supplier, Category, PaymentTerms, Status, Contact,
                               Currency, Bank, Contract, ProductPrice, Mold,
-                              MoldProduct)
+                              MoldProduct, MoldFile)
 from suppliers.forms import (SupplierForm, CategoryForm, PaymentTermsForm, StatusForm, ContactForm,
                               CurrencyForm, BankForm, ContractForm, ProductPriceForm, MoldForm,
-                              MoldProductForm)
+                              MoldProductForm, MoldFileForm)
 from django.db.models import Q
 # Create your views here.
 # 1. Supplier
@@ -71,6 +71,11 @@ from django.db.models import Q
  ## 11.1 MoldProductListView
  ## 11.2 CreateMoldProductView
  ## 11.3 MoldProductDeleteView
+# 12. MoldFile
+ ## 12.1 MoldFileListView
+ ## 12.2 CreateMoldFileView
+ ## 12.3 MoldFileUpdateView
+ ## 12.4 MoldFileDeleteView
 
 # 1. Supplier
  ## 1.1 SupplierListView
@@ -685,7 +690,7 @@ class MoldDetailView(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"detail"}
-        context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
+        context['supplier'] = Supplier.objects.get(pk=Mold.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
  ## 10.3 CreateMoldView
@@ -706,7 +711,7 @@ class CreateMoldView(LoginRequiredMixin,CreateView):
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
         return context
 
- ## 10.4 ProductPriceUpdateView
+ ## 10.4 MoldUpdateView
 class MoldUpdateView(LoginRequiredMixin,UpdateView):
     form_class = MoldForm
     model = Mold
@@ -798,6 +803,92 @@ class MoldProductDeleteView(LoginRequiredMixin,DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"product"}
+        context['supplier'] = self.supplier
+        context['mold'] = self.mold
+        return context
+
+# 12. MoldFile
+ ## 12.1 MoldFileListView
+class MoldFileListView(LoginRequiredMixin,ListView):
+    model = MoldFile
+    template_name = 'moldfile/moldfile_list.html'
+
+    def get_queryset(self):
+        mold_id = self.kwargs['pk']
+        self.mold = Mold.objects.get(pk=mold_id)
+        self.supplier = Supplier.objects.get(pk=self.mold.supplier_id)
+        return MoldFile.objects.filter(mold_id = mold_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"file"}
+        context['mold_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        context['mold'] = self.mold
+        return context
+
+ ## 12.2 CreateMoldFileView
+ ### not using query_set here because it don't work with createview
+class CreateMoldFileView(LoginRequiredMixin,CreateView):
+    form_class = MoldFileForm
+    model = MoldFile
+    template_name = 'moldfile/moldfile_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.mold = Mold.objects.get(id=self.kwargs['pk'])
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"file"}
+        mold_id = self.kwargs['pk']
+        self.mold = Mold.objects.get(pk=mold_id)
+        self.supplier = Supplier.objects.get(pk=self.mold.supplier_id)
+        context['supplier'] = self.supplier
+        context['mold'] = self.mold
+        return context
+
+ ## 12.3 MoldFileUpdateView
+class MoldFileUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = MoldFileForm
+    model = MoldFile
+    template_name = 'moldfile/moldfile_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"file"}
+        moldfile_id = self.kwargs['pk']
+        self.mold = Mold.objects.get(pk=MoldFile.objects.get(id=moldfile_id).mold_id)
+        self.supplier = Supplier.objects.get(pk=self.mold.supplier_id)
+        context['supplier'] = self.supplier
+        context['mold'] = self.mold
+        return context
+
+ ## 12.4 MoldFileDeleteView
+class MoldFileDeleteView(LoginRequiredMixin,DeleteView):
+    model = MoldFile
+    template_name = 'moldfile/moldfile_confirm_delete.html'
+
+    def get_queryset(self):
+        moldfile_id = self.kwargs['pk']
+        self.mold = Mold.objects.get(pk=MoldFile.objects.get(id=moldfile_id).mold_id)
+        self.supplier = Supplier.objects.get(pk=self.mold.supplier_id)
+        return MoldFile.objects.filter(pk=moldfile_id)
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:moldfile_list', kwargs={'pk': MoldFile.objects.get(id=self.kwargs['pk']).mold_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"file"}
         context['supplier'] = self.supplier
         context['mold'] = self.mold
         return context

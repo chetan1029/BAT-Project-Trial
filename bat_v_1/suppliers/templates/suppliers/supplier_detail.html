@@ -8,7 +8,7 @@
 
     <div class="mb-2">
       <h1>{{ supplier.name }}</h1>
-    
+
       <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
         <ol class="breadcrumb pt-0">
           <li class="breadcrumb-item">
@@ -30,10 +30,10 @@
           <div class="col-lg-4 col-12 mb-4">
             <div class="card mb-4">
               <div class="position-absolute card-top-buttons">
-                <a href="{% url 'suppliers:update_supplier' pk=supplier.pk %}" class="btn btn-outline-info icon-button ">
+                <a href="{% url 'suppliers:update_supplier' pk=supplier.pk %}" class="btn btn-info icon-button ">
                   <i class="simple-icon-pencil"></i>
                 </a>
-                <a href="{% url 'suppliers:delete_supplier' pk=supplier.pk %}" class="btn btn-outline-danger icon-button ">
+                <a href="{% url 'suppliers:delete_supplier' pk=supplier.pk %}" class="btn btn-danger icon-button ">
                   <i class="simple-icon-trash"></i>
                 </a>
               </div>
