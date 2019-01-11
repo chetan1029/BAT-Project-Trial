@@ -1,6 +1,7 @@
 from django import forms
 from suppliers.models import (Supplier, Category, PaymentTerms, Status, Contact,
-                              Currency, Bank, Contract, ProductPrice, Mold, MoldProduct)
+                              Currency, Bank, Contract, ProductPrice, Mold,
+                              MoldProduct)
 
 # form details
 # 1. SupplierForm

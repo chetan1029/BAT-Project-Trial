@@ -7,9 +7,11 @@ from django.views.generic import (TemplateView, ListView,
                                   UpdateView, DeleteView)
 from django.urls import reverse_lazy
 from suppliers.models import (Supplier, Category, PaymentTerms, Status, Contact,
-                              Currency, Bank, Contract, ProductPrice, Mold)
+                              Currency, Bank, Contract, ProductPrice, Mold,
+                              MoldProduct)
 from suppliers.forms import (SupplierForm, CategoryForm, PaymentTermsForm, StatusForm, ContactForm,
-                              CurrencyForm, BankForm, ContractForm, ProductPriceForm, MoldForm)
+                              CurrencyForm, BankForm, ContractForm, ProductPriceForm, MoldForm,
+                              MoldProductForm)
 from django.db.models import Q
 # Create your views here.
 # 1. Supplier
@@ -68,8 +70,7 @@ from django.db.models import Q
 # 11. MoldProduct
  ## 11.1 MoldProductListView
  ## 11.2 CreateMoldProductView
- ## 11.3 MoldProductUpdateView
- ## 11.4 MoldProductDeleteView
+ ## 11.3 MoldProductDeleteView
 
 # 1. Supplier
  ## 1.1 SupplierListView
@@ -735,4 +736,68 @@ class MoldDeleteView(LoginRequiredMixin,DeleteView):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold"}
         context['supplier'] = Supplier.objects.get(pk=Mold.objects.get(id=self.kwargs['pk']).supplier_id)
+        return context
+
+# 11. MoldProduct
+ ## 11.1 MoldProductListView
+class MoldProductListView(LoginRequiredMixin,ListView):
+    model = MoldProduct
+    template_name = 'moldproduct/moldproduct_list.html'
+
+    def get_queryset(self):
+        mold_id = self.kwargs['pk']
+        self.mold = Mold.objects.get(pk=mold_id)
+        self.supplier = Supplier.objects.get(pk=self.mold.supplier_id)
+        return MoldProduct.objects.filter(mold_id = mold_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"product"}
+        context['mold_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        context['mold'] = self.mold
+        return context
+
+ ## 11.2 CreateMoldProductView
+ ### not using query_set here because it don't work with createview
+class CreateMoldProductView(LoginRequiredMixin,CreateView):
+    form_class = MoldProductForm
+    model = MoldProduct
+    template_name = 'moldproduct/moldproduct_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.mold = Mold.objects.get(id=self.kwargs['pk'])
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"product"}
+        mold_id = self.kwargs['pk']
+        self.mold = Mold.objects.get(pk=mold_id)
+        self.supplier = Supplier.objects.get(pk=self.mold.supplier_id)
+        context['supplier'] = self.supplier
+        context['mold'] = self.mold
+        return context
+
+ ## 11.3 MoldProductDeleteView
+class MoldProductDeleteView(LoginRequiredMixin,DeleteView):
+    model = MoldProduct
+    template_name = 'moldproduct/moldproduct_confirm_delete.html'
+
+    def get_queryset(self):
+        moldproduct_id = self.kwargs['pk']
+        self.mold = Mold.objects.get(pk=MoldProduct.objects.get(id=moldproduct_id).mold_id)
+        self.supplier = Supplier.objects.get(pk=self.mold.supplier_id)
+        return MoldProduct.objects.filter(pk=moldproduct_id)
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:moldproduct_list', kwargs={'pk': MoldProduct.objects.get(id=self.kwargs['pk']).mold_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"product"}
+        context['supplier'] = self.supplier
+        context['mold'] = self.mold
         return context

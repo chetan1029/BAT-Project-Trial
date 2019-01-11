@@ -20,6 +20,8 @@ User = get_user_model()
  ## 2.3 Contract
  ## 2.4 ProductPrice
  ## 2.5 Mold
+ ## 2.6 MoldProduct
+ ## 2.7 MoldFile
 
 # 1. Main independent models
  ## 1.1 Category
@@ -252,7 +254,21 @@ class MoldProduct(models.Model):
     update_date = models.DateTimeField(default=timezone.now())
 
     def get_absolute_url(self):
-        return reverse('suppliers:mold_list', kwargs={'pk':self.supplier_id})
+        return reverse('suppliers:moldproduct_list', kwargs={'pk':self.mold_id})
 
     def __str__(self):
         return self.product.title
+
+ ## 2.7 MoldFile
+class MoldFile(models.Model):
+    title = models.CharField(max_length=100)
+    note = models.TextField(blank=True)
+    mold = models.ForeignKey(Mold,on_delete=models.PROTECT,verbose_name="Select Mold")
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('suppliers:moldfile_list', kwargs={'pk':self.mold_id})
+
+    def __str__(self):
+        return self.title

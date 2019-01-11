@@ -1,11 +1,11 @@
 <ul class="nav nav-tabs separator-tabs ml-0 mb-5 mt-3" role="tablist">
   <li class="nav-item">
-    <a class="nav-link {% if active_menu.menu5 == 'detail' %}active{% endif %}" href="{% url 'suppliers:mold_detail' pk=mold.pk %}">Detail</a>
+    <a class="nav-link {% if active_menu.menu5 == 'detail' %}active{% endif %}" href="{% url 'suppliers:mold_detail' pk=mold.pk %}">DETAIL</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">Mold products</a>
+    <a class="nav-link {% if active_menu.menu5 == 'product' %}active{% endif %}" href="{% url 'suppliers:moldproduct_list' pk=mold.pk %}">MOLD PRODUCTS</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">Mold Files</a>
+    <a class="nav-link" href="#">MOLD FILES</a>
   </li>
 </ul>
