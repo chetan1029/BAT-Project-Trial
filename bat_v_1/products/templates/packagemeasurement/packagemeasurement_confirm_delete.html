@@ -6,16 +6,8 @@
   <div class="col-12 list">
 
     <div class="mb-2">
-      <h1>{{ package.product.title }}</h1>
-      <div class="float-sm-right">
-        <button type="button" class="btn btn-lg btn-outline-primary dropdown-toggle dropdown-toggle-split top-right-button top-right-button-single" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          ACTIONS
-        </button>
-        <div class="dropdown-menu dropdown-menu-right">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-        </div>
-      </div>
+      <h1>{{ product.title }}</h1>
+
       <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
         <ol class="breadcrumb pt-0">
           <li class="breadcrumb-item">
@@ -24,7 +16,7 @@
           <li class="breadcrumb-item">
             <a href="{% url 'products:product_list' %}">Products</a>
           </li>
-          <li class="breadcrumb-item active" aria-current="page">{{ package.product.title }}</li>
+          <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
         </ol>
       </nav>
     </div>
@@ -32,7 +24,7 @@
 
     <ul class="nav nav-tabs separator-tabs ml-0 mb-5" role="tablist">
       <li class="nav-item">
-        <a class="nav-link" id="first-tab" href="{% url 'products:product_detail' pk=package.product_id %}">DETAILS</a>
+        <a class="nav-link" id="first-tab" href="{% url 'products:product_detail' pk=product.pk %}">DETAILS</a>
       </li>
 
       <li class="nav-item">
@@ -47,7 +39,7 @@
             <form action="" method="post">{% csrf_token %}
             <p>Are you sure you want to delete "{{ object }}"?</p>
             <input class='btn btn-danger' type="submit" value="Confirm" />
-            <a href="{% url 'products:packagemeasurement_list' pk=package.product_id %}" class="btn btn-info mb-0">Cancel</a>
+            <a href="{% url 'products:packagemeasurement_list' pk=product.pk %}" class="btn btn-info mb-0">Cancel</a>
           </form>
 
           </div>

@@ -12,8 +12,7 @@ class DashboardPage(LoginRequiredMixin,TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = "dashboard"
-        context['active_submenu'] = "basic"
+        context['active_menu'] = {"menu1":"dashboard","menu2":"basic"}
         return context
 
 class LogoutPage(TemplateView):

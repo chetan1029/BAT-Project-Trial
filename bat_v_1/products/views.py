@@ -10,7 +10,20 @@ from products.models import Product, PackageMeasurement
 from products.forms import ProductForm, PackageMeasurementForm
 from django.db.models import Q
 # Create your views here.
+# 1. Product
+ ## 1.1 ProductListView
+ ## 1.2 ProductDetailView
+ ## 1.3 CreateProductView
+ ## 1.4 ProductUpdateView
+ ## 1.5 ProductDeleteView
+# 2. PackageMeasurement
+ ## 2.1 PackageMeasurementListView
+ ## 2.2 CreatePackageMeasurementView
+ ## 2.3 PackageMeasurementUpdateView
+ ## 2.4 PackageMeasurementDeleteView
 
+# 1. Product
+ ## 1.1 ProductListView
 class ProductListView(LoginRequiredMixin,ListView):
     model = Product
     paginate_by = 10
@@ -53,6 +66,7 @@ class ProductListView(LoginRequiredMixin,ListView):
         context['extra_url'] = extra_url
         return context
 
+ ## 1.2 ProductDetailView
 class ProductDetailView(LoginRequiredMixin,DetailView):
     model = Product
 
@@ -61,6 +75,7 @@ class ProductDetailView(LoginRequiredMixin,DetailView):
         context['active_menu'] = {"menu1":"basic","menu2":"products"}
         return context
 
+ ## 1.3 CreateProductView
 class CreateProductView(LoginRequiredMixin,CreateView):
     redirect_field_name = 'products/product_detail.html'
     form_class = ProductForm
@@ -77,6 +92,7 @@ class CreateProductView(LoginRequiredMixin,CreateView):
         context['active_menu'] = {"menu1":"basic","menu2":"products"}
         return context
 
+ ## 1.4 ProductUpdateView
 class ProductUpdateView(LoginRequiredMixin,UpdateView):
     redirect_field_name = 'products/product_detail.html'
     form_class = ProductForm
@@ -93,6 +109,7 @@ class ProductUpdateView(LoginRequiredMixin,UpdateView):
         context['active_menu'] = {"menu1":"basic","menu2":"products"}
         return context
 
+ ## 1.5 ProductDeleteView
 class ProductDeleteView(LoginRequiredMixin,DeleteView):
     model = Product
     success_url = reverse_lazy('products:product_list')
@@ -102,6 +119,8 @@ class ProductDeleteView(LoginRequiredMixin,DeleteView):
         context['active_menu'] = {"menu1":"basic","menu2":"products"}
         return context
 
+# 2. PackageMeasurement
+ ## 2.1 PackageMeasurementListView
 class PackageMeasurementListView(LoginRequiredMixin,ListView):
     model = PackageMeasurement
     template_name = 'packagemeasurement/packagemeasurement_list.html'
@@ -118,6 +137,7 @@ class PackageMeasurementListView(LoginRequiredMixin,ListView):
         context['product'] = self.product
         return context
 
+ ## 2.2 CreatePackageMeasurementView
 class CreatePackageMeasurementView(LoginRequiredMixin,CreateView):
     form_class = PackageMeasurementForm
     model = PackageMeasurement
@@ -135,6 +155,7 @@ class CreatePackageMeasurementView(LoginRequiredMixin,CreateView):
         context['product'] = Product.objects.get(pk=self.kwargs['pk'])
         return context
 
+ ## 2.3 PackageMeasurementUpdateView
 class PackageMeasurementUpdateView(LoginRequiredMixin,UpdateView):
     form_class = PackageMeasurementForm
     model = PackageMeasurement
@@ -152,6 +173,7 @@ class PackageMeasurementUpdateView(LoginRequiredMixin,UpdateView):
         context['product'] = Product.objects.get(pk=PackageMeasurement.objects.get(id=self.kwargs['pk']).product_id)
         return context
 
+ ## 2.4 PackageMeasurementDeleteView
 class PackageMeasurementDeleteView(LoginRequiredMixin,DeleteView):
     model = PackageMeasurement
     template_name = 'packagemeasurement/packagemeasurement_confirm_delete.html'
@@ -162,5 +184,5 @@ class PackageMeasurementDeleteView(LoginRequiredMixin,DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"products"}
-        context['package'] = PackageMeasurement.objects.get(id=self.kwargs['pk'])
+        context['product'] = Product.objects.get(pk=PackageMeasurement.objects.get(id=self.kwargs['pk']).product_id)
         return context

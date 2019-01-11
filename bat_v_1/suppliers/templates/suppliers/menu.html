@@ -1,20 +1,29 @@
 <ul class="nav nav-tabs separator-tabs ml-0 mb-5" role="tablist">
   <li class="nav-item">
-    <a class="nav-link {% if active_menu.menu4 == 'details' %}active{% endif %}" href="{% url 'suppliers:supplier_detail' pk=pk %}">DETAILS</a>
+    <a class="nav-link {% if active_menu.menu4 == 'details' %}active{% endif %}" href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">DETAILS</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">CONTACTS</a>
+    <a class="nav-link {% if active_menu.menu4 == 'contact' %}active{% endif %}" href="{% url 'suppliers:contact_list' pk=supplier.pk %}">CONTACTS</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">BANK INFO</a>
+    <a class="nav-link {% if active_menu.menu4 == 'bank' %}active{% endif %}" href="{% url 'suppliers:bank_list' pk=supplier.pk %}">BANK INFO</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">MOLD</a>
+    <a class="nav-link {% if active_menu.menu4 == 'contract' %}active{% endif %}" href="{% url 'suppliers:contract_list' pk=supplier.pk %}">CONTRACTS</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">CONTRACTS</a>
+    <a class="nav-link {% if active_menu.menu4 == 'product' %}active{% endif %}" href="{% url 'suppliers:productprice_list' pk=supplier.pk %}">PRODUCTS</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">PRODUCTS</a>
+    <a class="nav-link {% if active_menu.menu4 == 'mold' %}active{% endif %}" href="{% url 'suppliers:mold_list' pk=supplier.pk %}">MOLD</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">AQL</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">PO</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">ORDERS</a>
   </li>
 </ul>
