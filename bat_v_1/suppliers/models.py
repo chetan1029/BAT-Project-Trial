@@ -22,8 +22,12 @@ User = get_user_model()
  ## 2.3 Contract
  ## 2.4 ProductPrice
  ## 2.5 Mold
- ## 2.6 MoldProduct
- ## 2.7 MoldFile
+  ### 2.5.1 Mold
+  ### 2.5.2 MoldProduct
+  ### 2.5.3 MoldFile
+ ## 2.6 Aql
+  ### 2.6.1 Aql
+  ### 2.6.2 AqlFile
 
 # 1. Main independent models
  ## 1.1 Category
@@ -228,6 +232,7 @@ class ProductPrice(models.Model):
         return self.product.title
 
  ## 2.5 Mold
+  ### 2.5.1 Mold
 class Mold(models.Model):
     PAID_BY_OPTIONS = (
     ('Supplier','Supplier'),
@@ -252,7 +257,7 @@ class Mold(models.Model):
     def __str__(self):
         return self.title
 
- ## 2.6 MoldProduct
+  ### 2.5.2 MoldProduct
 class MoldProduct(models.Model):
     product = models.ForeignKey(Product,on_delete=models.PROTECT,verbose_name="Select Product")
     mold = models.ForeignKey(Mold,on_delete=models.PROTECT,verbose_name="Select Mold")
@@ -265,7 +270,7 @@ class MoldProduct(models.Model):
     def __str__(self):
         return self.product.title
 
- ## 2.7 MoldFile
+  ### 2.5.3 MoldFile
 def generate_moldfilename(instance, filename):
     name, extension = os.path.splitext(filename)
     return 'suppliers/{0}/Molds/mold-{1}-{2}-{3}{4}'.format(instance.mold.supplier.id, slugify(instance.mold.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
@@ -281,6 +286,40 @@ class MoldFile(models.Model):
 
     def get_absolute_url(self):
         return reverse('suppliers:moldfile_list', kwargs={'pk':self.mold_id})
+
+    def __str__(self):
+        return self.title
+
+ ## 2.6 Aql
+  ### 2.6.1 Aql
+class Aql(models.Model):
+    productprice = models.ForeignKey(ProductPrice,on_delete=models.PROTECT,verbose_name="Select Product")
+    version = models.CharField(max_length=50)
+    detail = models.TextField(blank=True)
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('suppliers:aql_list', kwargs={'pk':self.productprice.supplier_id})
+
+    def __str__(self):
+        return self.version
+
+  ### 2.5.2 AqlFile
+def generate_aqlfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'suppliers/{0}/AQL/aql-{1}-{2}-{3}{4}'.format(instance.aql.productprice.supplier.id, slugify(instance.aql.productprice.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
+
+
+class AqlFile(models.Model):
+    title = models.CharField(max_length=100)
+    file_url = models.FileField(upload_to=generate_aqlfilename)
+    aql = models.ForeignKey(Aql,on_delete=models.PROTECT,verbose_name="Select AQL")
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('suppliers:aqlfile_list', kwargs={'pk':self.aql_id})
 
     def __str__(self):
         return self.title

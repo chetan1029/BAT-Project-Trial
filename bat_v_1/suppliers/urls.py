@@ -65,4 +65,15 @@ urlpatterns = [
     path('mold/<int:pk>/file/add',views.CreateMoldFileView.as_view(),name='create_moldfile'),
     path('mold/file/<int:pk>/edit/',views.MoldFileUpdateView.as_view(),name='update_moldfile'),
     path('mold/file/<int:pk>/delete/',views.MoldFileDeleteView.as_view(),name='delete_moldfile'),
+    # Aql
+    path('<int:pk>/aql',views.AqlListView.as_view(),name='aql_list'),
+    path('<int:pk>/aql/add',views.CreateAqlView.as_view(),name='create_aql'),
+    path('aql/<int:pk>',views.AqlDetailView.as_view(),name='aql_detail'),
+    path('aql/<int:pk>/edit/',views.AqlUpdateView.as_view(),name='update_aql'),
+    path('aql/<int:pk>/delete/',views.AqlDeleteView.as_view(),name='delete_aql'),
+    # AqlFile
+    path('aql/<int:pk>/file',views.AqlFileListView.as_view(),name='aqlfile_list'),
+    path('aql/<int:pk>/file/add',views.CreateAqlFileView.as_view(),name='create_aqlfile'),
+    path('aql/file/<int:pk>/edit/',views.AqlFileUpdateView.as_view(),name='update_aqlfile'),
+    path('aql/file/<int:pk>/delete/',views.AqlFileDeleteView.as_view(),name='delete_aqlfile'),
 ]

@@ -2802,7 +2802,7 @@ $.dore = function(element, options) {
         info: false,
         sDom:
           '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
-        pageLength: 6,
+        pageLength: 10,
         language: {
           paginate: {
             previous: "<i class='simple-icon-arrow-left'></i>",

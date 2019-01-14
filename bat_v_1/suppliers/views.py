@@ -8,10 +8,10 @@ from django.views.generic import (TemplateView, ListView,
 from django.urls import reverse_lazy
 from suppliers.models import (Supplier, Category, PaymentTerms, Status, Contact,
                               Currency, Bank, Contract, ProductPrice, Mold,
-                              MoldProduct, MoldFile)
+                              MoldProduct, MoldFile, Aql, AqlFile)
 from suppliers.forms import (SupplierForm, CategoryForm, PaymentTermsForm, StatusForm, ContactForm,
                               CurrencyForm, BankForm, ContractForm, ProductPriceForm, MoldForm,
-                              MoldProductForm, MoldFileForm)
+                              MoldProductForm, MoldFileForm, AqlForm, AqlFileForm)
 from django.db.models import Q
 # Create your views here.
 # 1. Supplier
@@ -76,6 +76,17 @@ from django.db.models import Q
  ## 12.2 CreateMoldFileView
  ## 12.3 MoldFileUpdateView
  ## 12.4 MoldFileDeleteView
+# 13. Aql
+ ## 13.1 AqlListView
+ ## 13.2 AqlDetailView
+ ## 13.3 CreateAqlView
+ ## 13.4 AqlUpdateView
+ ## 13.5 AqlDeleteView
+# 14. AqlFile
+ ## 14.1 AqlFileListView
+ ## 14.2 CreateAqlFileView
+ ## 14.3 AqlFileUpdateView
+ ## 14.4 AqlFileDeleteView
 
 # 1. Supplier
  ## 1.1 SupplierListView
@@ -891,4 +902,171 @@ class MoldFileDeleteView(LoginRequiredMixin,DeleteView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"file"}
         context['supplier'] = self.supplier
         context['mold'] = self.mold
+        return context
+
+# 13. Aql
+ ## 13.1 AqlListView
+class AqlListView(LoginRequiredMixin,ListView):
+    model = Aql
+    template_name = 'aql/aql_list.html'
+
+    def get_queryset(self):
+        supplier_id = self.kwargs['pk']
+        self.supplier = Supplier.objects.get(pk=supplier_id)
+        return Aql.objects.filter(productprice_id__in=ProductPrice.objects.filter(supplier_id=supplier_id))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql"}
+        context['supplier_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        return context
+
+ ## 13.2 AqlDetailView
+class AqlDetailView(LoginRequiredMixin,DetailView):
+    model = Aql
+    template_name = 'aql/aql_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"detail"}
+        context['supplier'] = Supplier.objects.get(pk=ProductPrice.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).productprice_id).supplier_id)
+        return context
+
+ ## 13.3 CreateAqlView
+class CreateAqlView(LoginRequiredMixin,CreateView):
+    form_class = AqlForm
+    model = Aql
+    template_name = 'aql/aql_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.supplier = Supplier.objects.get(id=self.kwargs['pk'])
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql"}
+        context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
+        context['form'].fields['productprice'].queryset = ProductPrice.objects.filter(supplier_id=self.kwargs['pk'])
+        return context
+
+ ## 13.4 AqlUpdateView
+class AqlUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = AqlForm
+    model = Aql
+    template_name = 'aql/aql_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql"}
+        context['supplier'] = Supplier.objects.get(pk=ProductPrice.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).productprice_id).supplier_id)
+        context['form'].fields['productprice'].queryset = ProductPrice.objects.filter(supplier_id=context['supplier'].id)
+        return context
+
+ ## 13.5 AqlDeleteView
+class AqlDeleteView(LoginRequiredMixin,DeleteView):
+    model = Aql
+    template_name = 'aql/aql_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:aql_list', kwargs={'pk': ProductPrice.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).productprice_id).supplier_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql"}
+        context['supplier'] = Supplier.objects.get(pk=ProductPrice.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).productprice_id).supplier_id)
+        return context
+
+# 14. AqlFile
+ ## 14.1 AqlFileListView
+class AqlFileListView(LoginRequiredMixin,ListView):
+    model = AqlFile
+    template_name = 'aqlfile/aqlfile_list.html'
+
+    def get_queryset(self):
+        aql_id = self.kwargs['pk']
+        self.aql = Aql.objects.get(pk=aql_id)
+        self.supplier = Supplier.objects.get(pk=ProductPrice.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).productprice_id).supplier_id)
+        return AqlFile.objects.filter(aql_id = aql_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"file"}
+        context['aql_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        context['aql'] = self.aql
+        return context
+
+ ## 14.2 CreateAqlFileView
+ ### not using query_set here because it don't work with createview
+class CreateAqlFileView(LoginRequiredMixin,CreateView):
+    form_class = AqlFileForm
+    model = AqlFile
+    template_name = 'aqlfile/aqlfile_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.aql = Aql.objects.get(id=self.kwargs['pk'])
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"file"}
+        aql_id = self.kwargs['pk']
+        self.aql = Aql.objects.get(pk=aql_id)
+        self.supplier = Supplier.objects.get(pk=ProductPrice.objects.get(pk=self.aql.productprice_id).supplier_id)
+        context['supplier'] = self.supplier
+        context['aql'] = self.aql
+        return context
+
+ ## 14.3 AqlFileUpdateView
+class AqlFileUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = AqlFileForm
+    model = AqlFile
+    template_name = 'aqlfile/aqlfile_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"file"}
+        aqlfile_id = self.kwargs['pk']
+        self.aql = Aql.objects.get(pk=AqlFile.objects.get(id=aqlfile_id).aql_id)
+        self.supplier = Supplier.objects.get(pk=ProductPrice.objects.get(pk=self.aql.productprice_id).supplier_id)
+        context['supplier'] = self.supplier
+        context['aql'] = self.aql
+        return context
+
+ ## 14.4 AqlFileDeleteView
+class AqlFileDeleteView(LoginRequiredMixin,DeleteView):
+    model = AqlFile
+    template_name = 'aqlfile/aqlfile_confirm_delete.html'
+
+    def get_queryset(self):
+        aqlfile_id = self.kwargs['pk']
+        self.aql = Aql.objects.get(pk=AqlFile.objects.get(id=aqlfile_id).aql_id)
+        self.supplier = Supplier.objects.get(pk=ProductPrice.objects.get(pk=self.aql.productprice_id).supplier_id)
+        return AqlFile.objects.filter(pk=aqlfile_id)
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:aqlfile_list', kwargs={'pk': AqlFile.objects.get(id=self.kwargs['pk']).aql_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"file"}
+        context['supplier'] = self.supplier
+        context['aql'] = self.aql
         return context

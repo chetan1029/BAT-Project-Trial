@@ -18,7 +18,7 @@
     <a class="nav-link {% if active_menu.menu4 == 'mold' %}active{% endif %}" href="{% url 'suppliers:mold_list' pk=supplier.pk %}">MOLD</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">AQL</a>
+    <a class="nav-link {% if active_menu.menu4 == 'aql' %}active{% endif %}" href="{% url 'suppliers:aql_list' pk=supplier.pk %}">AQL</a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="#">PO</a>
