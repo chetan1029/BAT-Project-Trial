@@ -21,7 +21,7 @@
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:mold_list' pk=supplier.pk %}">AQL</a>
+            <a href="{% url 'suppliers:aql_list' pk=supplier.pk %}">AQL</a>
           </li>
           <li class="breadcrumb-item active" aria-current="page">{{ aql.version }}</li>
         </ol>
@@ -34,26 +34,21 @@
       <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
         <div class="row">
           <div class="col-12 mb-4">
-            <div class="card mb-4">
-              <div class="position-absolute card-top-buttons">
-                <a href="{% url 'suppliers:update_aql' pk=aql.pk %}" class="btn btn-outline-info icon-button ">
-                  <i class="simple-icon-pencil"></i>
-                </a>
-                <a href="{% url 'suppliers:delete_aql' pk=aql.pk %}" class="btn btn-outline-danger icon-button ">
-                  <i class="simple-icon-trash"></i>
-                </a>
-              </div>
+            <div class="tab-card mb-4">
+
               <div class="card-body">
                 <h2>{{aql.version}}</h2>
                 {% include 'aql/menu.html' %}
-                <p class="text-muted text-small mb-2">Detail</p>
-                <p class="mb-3">{{aql.detail}}</p>
-                <hr >
-                <p class="text-muted text-small mb-2">Created at</p>
-                <p class="mb-3">{{aql.create_date| date:"d M Y h:i A"}}</p>
-                <p class="text-muted text-small mb-2">Updated at</p>
-                <p class="mb-3">{{aql.update_date| date:"d M Y h:i A"}}</p>
-
+                <div class="row">
+                  <div class="col-6">
+                    <h5 class="card-title">Delete AQL File</h5>
+                  </div>
+                </div>
+                <form action="" method="post">{% csrf_token %}
+                  <p>Are you sure you want to delete "{{ object }}"?</p>
+                  <input class='btn btn-danger' type="submit" value="Confirm" />
+                  <a href="{% url 'suppliers:aqlfile_list' pk=aql.pk %}" class="btn btn-info mb-0">Cancel</a>
+                </form>
               </div>
             </div>
 

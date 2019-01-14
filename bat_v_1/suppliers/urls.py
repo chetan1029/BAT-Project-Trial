@@ -76,4 +76,20 @@ urlpatterns = [
     path('aql/<int:pk>/file/add',views.CreateAqlFileView.as_view(),name='create_aqlfile'),
     path('aql/file/<int:pk>/edit/',views.AqlFileUpdateView.as_view(),name='update_aqlfile'),
     path('aql/file/<int:pk>/delete/',views.AqlFileDeleteView.as_view(),name='delete_aqlfile'),
+    # AqlProduct
+    path('aql/<int:pk>/product',views.AqlProductListView.as_view(),name='aqlproduct_list'),
+    path('aql/<int:pk>/product/add',views.CreateAqlProductView.as_view(),name='create_aqlproduct'),
+    path('aql/product/<int:pk>/edit/',views.AqlProductUpdateView.as_view(),name='update_aqlproduct'),
+    path('aql/product/<int:pk>/delete/',views.AqlProductDeleteView.as_view(),name='delete_aqlproduct'),
+    # Order
+    path('<int:pk>/order',views.OrderListView.as_view(),name='order_list'),
+    path('<int:pk>/order/add',views.CreateOrderView.as_view(),name='create_order'),
+    path('order/<int:pk>',views.OrderDetailView.as_view(),name='order_detail'),
+    path('order/<int:pk>/edit/',views.OrderUpdateView.as_view(),name='update_order'),
+    path('order/<int:pk>/delete/',views.OrderDeleteView.as_view(),name='delete_order'),
+    # OrderProduct
+    path('order/<int:pk>/product',views.OrderProductListView.as_view(),name='orderproduct_list'),
+    path('order/<int:pk>/product/add',views.CreateOrderProductView.as_view(),name='create_orderproduct'),
+    path('order/product/<int:pk>/edit/',views.OrderProductUpdateView.as_view(),name='update_orderproduct'),
+    path('order/product/<int:pk>/delete/',views.OrderProductDeleteView.as_view(),name='delete_orderproduct'),
 ]

@@ -1,7 +1,8 @@
 from django import forms
 from suppliers.models import (Supplier, Category, PaymentTerms, Status, Contact,
                               Currency, Bank, Contract, ProductPrice, Mold,
-                              MoldProduct, MoldFile, Aql, AqlFile)
+                              MoldProduct, MoldFile, Aql, AqlFile, AqlProduct,
+                              Order, OrderProduct)
 
 # form details
 # 1. SupplierForm
@@ -18,6 +19,9 @@ from suppliers.models import (Supplier, Category, PaymentTerms, Status, Contact,
 # 12. MoldFileForm
 # 13. AqlForm
 # 14. AqlFileForm
+# 15. AqlProductForm
+# 16. Order
+# 17. OrderProduct
 
 # 1. SupplierForm
 class SupplierForm(forms.ModelForm):
@@ -112,7 +116,7 @@ class AqlForm(forms.ModelForm):
 
     class Meta:
         model = Aql
-        fields = ('productprice','version','detail')
+        fields = ('version','detail')
 
 
 # 14. AqlFileForm
@@ -121,3 +125,24 @@ class AqlFileForm(forms.ModelForm):
     class Meta:
         model = AqlFile
         fields = ('title','file_url')
+
+# 15. AqlProductForm
+class AqlProductForm(forms.ModelForm):
+
+    class Meta:
+        model = AqlProduct
+        fields = ('product',)
+
+# 16. OrderForm
+class OrderForm(forms.ModelForm):
+
+    class Meta:
+        model = Order
+        fields = ('aql','user','contact','paymentterms','status','note')
+
+# 17. OrderProductForm
+class OrderProductForm(forms.ModelForm):
+
+    class Meta:
+        model = OrderProduct
+        fields = ('product','price','currency','quantity')

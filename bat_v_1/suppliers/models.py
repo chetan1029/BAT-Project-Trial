@@ -28,6 +28,12 @@ User = get_user_model()
  ## 2.6 Aql
   ### 2.6.1 Aql
   ### 2.6.2 AqlFile
+  ### 2.6.3 AqlProduct
+ ## 2.7 Order
+  ### 2.7.1 Order
+  ### 2.7.2 OrderProduct
+  ### 2.7.3 OrderFile
+  ### 2.7.4 OrderPayment
 
 # 1. Main independent models
  ## 1.1 Category
@@ -293,22 +299,22 @@ class MoldFile(models.Model):
  ## 2.6 Aql
   ### 2.6.1 Aql
 class Aql(models.Model):
-    productprice = models.ForeignKey(ProductPrice,on_delete=models.PROTECT,verbose_name="Select Product")
+    supplier = models.ForeignKey(Supplier,on_delete=models.PROTECT,verbose_name="Select Supplier",default=1)
     version = models.CharField(max_length=50)
     detail = models.TextField(blank=True)
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
     def get_absolute_url(self):
-        return reverse('suppliers:aql_list', kwargs={'pk':self.productprice.supplier_id})
+        return reverse('suppliers:aql_list', kwargs={'pk':self.supplier_id})
 
     def __str__(self):
         return self.version
 
-  ### 2.5.2 AqlFile
+  ### 2.6.2 AqlFile
 def generate_aqlfilename(instance, filename):
     name, extension = os.path.splitext(filename)
-    return 'suppliers/{0}/AQL/aql-{1}-{2}-{3}{4}'.format(instance.aql.productprice.supplier.id, slugify(instance.aql.productprice.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
+    return 'suppliers/{0}/AQL/aql-{1}-{2}-{3}{4}'.format(instance.aql.supplier.id, slugify(instance.aql.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
 
 
 class AqlFile(models.Model):
@@ -323,3 +329,54 @@ class AqlFile(models.Model):
 
     def __str__(self):
         return self.title
+
+  ### 2.6.3 AqlProduct
+class AqlProduct(models.Model):
+    aql = models.ForeignKey(Aql,on_delete=models.PROTECT,verbose_name="Select AQL")
+    product = models.ForeignKey(Product,on_delete=models.PROTECT,verbose_name="Select Product")
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        unique_together = ('aql', 'product',)
+
+    def get_absolute_url(self):
+        return reverse('suppliers:aqlproduct_list', kwargs={'pk':self.aql_id})
+
+    def __str__(self):
+        return self.product.title
+
+
+ ## 2.7 Order
+  ### 2.7.1 Order
+class Order(models.Model):
+    aql = models.ForeignKey(Aql,on_delete=models.PROTECT,verbose_name="Select AQL")
+    user = models.ForeignKey(User,on_delete=models.PROTECT,verbose_name="Select User")
+    contact = models.ForeignKey(Contact,on_delete=models.PROTECT,verbose_name="Select Supplier Contact")
+    paymentterms = models.ForeignKey(PaymentTerms,on_delete=models.PROTECT,verbose_name="Select Payment Terms")
+    status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status")
+    note = models.TextField(blank=True)
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('suppliers:order_list', kwargs={'pk':self.aql.supplier_id})
+
+    def __str__(self):
+        return "Order ID: "+str(self.id)
+
+  ### 2.7.1 OrderProduct
+class OrderProduct(models.Model):
+    order = models.ForeignKey(Order,on_delete=models.PROTECT,verbose_name="Select Order")
+    product = models.ForeignKey(Product,on_delete=models.PROTECT,verbose_name="Select Product")
+    price = models.DecimalField(max_digits=7, decimal_places=3)
+    currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Currency")
+    quantity = models.IntegerField()
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('suppliers:orderproduct_list', kwargs={'pk':self.order_id})
+
+    def __str__(self):
+        return "Order ID: "+str(self.order_id)+", Product: "+self.product.title

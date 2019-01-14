@@ -8,11 +8,15 @@ from django.views.generic import (TemplateView, ListView,
 from django.urls import reverse_lazy
 from suppliers.models import (Supplier, Category, PaymentTerms, Status, Contact,
                               Currency, Bank, Contract, ProductPrice, Mold,
-                              MoldProduct, MoldFile, Aql, AqlFile)
+                              MoldProduct, MoldFile, Aql, AqlFile, AqlProduct,
+                              Order, OrderProduct)
 from suppliers.forms import (SupplierForm, CategoryForm, PaymentTermsForm, StatusForm, ContactForm,
                               CurrencyForm, BankForm, ContractForm, ProductPriceForm, MoldForm,
-                              MoldProductForm, MoldFileForm, AqlForm, AqlFileForm)
+                              MoldProductForm, MoldFileForm, AqlForm, AqlFileForm, AqlProductForm,
+                              OrderForm, OrderProductForm)
 from django.db.models import Q
+from django import forms
+from django.db import IntegrityError
 # Create your views here.
 # 1. Supplier
  ## 1.1 SupplierListView
@@ -87,6 +91,21 @@ from django.db.models import Q
  ## 14.2 CreateAqlFileView
  ## 14.3 AqlFileUpdateView
  ## 14.4 AqlFileDeleteView
+# 15. AqlProduct
+ ## 15.1 AqlProductListView
+ ## 15.2 CreateAqlProductView
+ ## 15.3 AqlProductUpdateView
+ ## 15.4 AqlProductDeleteView
+# 16. Order
+ ## 16.1 OrderListView
+ ## 16.2 CreateOrderView
+ ## 16.3 OrderUpdateView
+ ## 16.4 OrderDeleteView
+# 17. OrderProduct
+ ## 17.1 OrderProductListView
+ ## 17.2 CreateOrderProductView
+ ## 17.3 OrderProductUpdateView
+ ## 17.4 OrderProductDeleteView
 
 # 1. Supplier
  ## 1.1 SupplierListView
@@ -913,7 +932,7 @@ class AqlListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         supplier_id = self.kwargs['pk']
         self.supplier = Supplier.objects.get(pk=supplier_id)
-        return Aql.objects.filter(productprice_id__in=ProductPrice.objects.filter(supplier_id=supplier_id))
+        return Aql.objects.filter(supplier_id=supplier_id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -930,7 +949,7 @@ class AqlDetailView(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"detail"}
-        context['supplier'] = Supplier.objects.get(pk=ProductPrice.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).productprice_id).supplier_id)
+        context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
  ## 13.3 CreateAqlView
@@ -949,7 +968,8 @@ class CreateAqlView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql"}
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
-        context['form'].fields['productprice'].queryset = ProductPrice.objects.filter(supplier_id=self.kwargs['pk'])
+        # Commented for reference if we want to use similar code for diff form filters etc.
+        #context['form'].fields['productprice'].queryset = ProductPrice.objects.filter(supplier_id=self.kwargs['pk'])
         return context
 
  ## 13.4 AqlUpdateView
@@ -967,8 +987,7 @@ class AqlUpdateView(LoginRequiredMixin,UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql"}
-        context['supplier'] = Supplier.objects.get(pk=ProductPrice.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).productprice_id).supplier_id)
-        context['form'].fields['productprice'].queryset = ProductPrice.objects.filter(supplier_id=context['supplier'].id)
+        context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
  ## 13.5 AqlDeleteView
@@ -977,12 +996,12 @@ class AqlDeleteView(LoginRequiredMixin,DeleteView):
     template_name = 'aql/aql_confirm_delete.html'
 
     def get_success_url(self):
-        return reverse_lazy('suppliers:aql_list', kwargs={'pk': ProductPrice.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).productprice_id).supplier_id})
+        return reverse_lazy('suppliers:aql_list', kwargs={'pk': Aql.objects.get(id=self.kwargs['pk']).supplier_id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql"}
-        context['supplier'] = Supplier.objects.get(pk=ProductPrice.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).productprice_id).supplier_id)
+        context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
 # 14. AqlFile
@@ -994,7 +1013,7 @@ class AqlFileListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         aql_id = self.kwargs['pk']
         self.aql = Aql.objects.get(pk=aql_id)
-        self.supplier = Supplier.objects.get(pk=ProductPrice.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).productprice_id).supplier_id)
+        self.supplier = Supplier.objects.get(pk=self.aql.supplier_id)
         return AqlFile.objects.filter(aql_id = aql_id)
 
     def get_context_data(self, **kwargs):
@@ -1023,7 +1042,7 @@ class CreateAqlFileView(LoginRequiredMixin,CreateView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"file"}
         aql_id = self.kwargs['pk']
         self.aql = Aql.objects.get(pk=aql_id)
-        self.supplier = Supplier.objects.get(pk=ProductPrice.objects.get(pk=self.aql.productprice_id).supplier_id)
+        self.supplier = Supplier.objects.get(pk=self.aql.supplier_id)
         context['supplier'] = self.supplier
         context['aql'] = self.aql
         return context
@@ -1045,7 +1064,7 @@ class AqlFileUpdateView(LoginRequiredMixin,UpdateView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"file"}
         aqlfile_id = self.kwargs['pk']
         self.aql = Aql.objects.get(pk=AqlFile.objects.get(id=aqlfile_id).aql_id)
-        self.supplier = Supplier.objects.get(pk=ProductPrice.objects.get(pk=self.aql.productprice_id).supplier_id)
+        self.supplier = Supplier.objects.get(pk=self.aql.supplier_id)
         context['supplier'] = self.supplier
         context['aql'] = self.aql
         return context
@@ -1058,7 +1077,7 @@ class AqlFileDeleteView(LoginRequiredMixin,DeleteView):
     def get_queryset(self):
         aqlfile_id = self.kwargs['pk']
         self.aql = Aql.objects.get(pk=AqlFile.objects.get(id=aqlfile_id).aql_id)
-        self.supplier = Supplier.objects.get(pk=ProductPrice.objects.get(pk=self.aql.productprice_id).supplier_id)
+        self.supplier = Supplier.objects.get(pk=self.aql.supplier_id)
         return AqlFile.objects.filter(pk=aqlfile_id)
 
     def get_success_url(self):
@@ -1069,4 +1088,259 @@ class AqlFileDeleteView(LoginRequiredMixin,DeleteView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"file"}
         context['supplier'] = self.supplier
         context['aql'] = self.aql
+        return context
+
+# 15. AqlProduct
+ ## 15.1 AqlProductListView
+class AqlProductListView(LoginRequiredMixin,ListView):
+    model = AqlProduct
+    template_name = 'aqlproduct/aqlproduct_list.html'
+
+    def get_queryset(self):
+        aql_id = self.kwargs['pk']
+        self.aql = Aql.objects.get(pk=aql_id)
+        self.supplier = Supplier.objects.get(pk=self.aql.supplier_id)
+        return AqlProduct.objects.filter(aql_id = aql_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"product"}
+        context['aql_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        context['aql'] = self.aql
+        return context
+
+ ## 15.2 CreateAqlProductView
+ ### not using query_set here because it don't work with createview
+class CreateAqlProductView(LoginRequiredMixin,CreateView):
+    form_class = AqlProductForm
+    model = AqlProduct
+    template_name = 'aqlproduct/aqlproduct_form.html'
+
+    def form_valid(self, form):
+        try:
+            self.object = form.save(commit=False)
+            self.object.aql = Aql.objects.get(id=self.kwargs['pk'])
+            self.object.save()
+            return super().form_valid(form)
+        except IntegrityError:
+            form.add_error('product','You already have this product in this AQL version')
+            return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"product"}
+        aql_id = self.kwargs['pk']
+        self.aql = Aql.objects.get(pk=aql_id)
+        self.supplier = Supplier.objects.get(pk=self.aql.supplier_id)
+        context['supplier'] = self.supplier
+        context['aql'] = self.aql
+        return context
+
+ ## 15.3 AqlProductUpdateView
+class AqlProductUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = AqlProductForm
+    model = AqlProduct
+    template_name = 'aqlproduct/aqlproduct_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"product"}
+        aqlfile_id = self.kwargs['pk']
+        self.aql = Aql.objects.get(pk=AqlProduct.objects.get(id=aqlfile_id).aql_id)
+        self.supplier = Supplier.objects.get(pk=self.aql.supplier_id)
+        context['supplier'] = self.supplier
+        context['aql'] = self.aql
+        return context
+
+ ## 15.4 AqlProductDeleteView
+class AqlProductDeleteView(LoginRequiredMixin,DeleteView):
+    model = AqlProduct
+    template_name = 'aqlproduct/aqlproduct_confirm_delete.html'
+
+    def get_queryset(self):
+        aqlfile_id = self.kwargs['pk']
+        self.aql = Aql.objects.get(pk=AqlProduct.objects.get(id=aqlfile_id).aql_id)
+        self.supplier = Supplier.objects.get(pk=self.aql.supplier_id)
+        return AqlProduct.objects.filter(pk=aqlfile_id)
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:aqlproduct_list', kwargs={'pk': AqlProduct.objects.get(id=self.kwargs['pk']).aql_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"product"}
+        context['supplier'] = self.supplier
+        context['aql'] = self.aql
+        return context
+
+# 16. Order
+ ## 16.1 OrderListView
+class OrderListView(LoginRequiredMixin,ListView):
+    model = Order
+    template_name = 'order/order_list.html'
+
+    def get_queryset(self):
+        supplier_id = self.kwargs['pk']
+        self.supplier = Supplier.objects.get(pk=supplier_id)
+        return Order.objects.filter(aql_id__in=Aql.objects.filter(supplier_id=supplier_id))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order"}
+        context['supplier_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        return context
+
+ ## 16.2 OrderDetailView
+class OrderDetailView(LoginRequiredMixin,DetailView):
+    model = Order
+    template_name = 'order/order_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"detail"}
+        context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).aql_id).supplier_id)
+        return context
+
+ ## 16.3 CreateOrderView
+class CreateOrderView(LoginRequiredMixin,CreateView):
+    form_class = OrderForm
+    model = Order
+    template_name = 'order/order_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.supplier = Supplier.objects.get(id=self.kwargs['pk'])
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order"}
+        context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
+        return context
+
+ ## 16.4 OrderUpdateView
+class OrderUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = OrderForm
+    model = Order
+    template_name = 'order/order_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order"}
+        context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).aql_id).supplier_id)
+        return context
+
+ ## 16.5 OrderDeleteView
+class OrderDeleteView(LoginRequiredMixin,DeleteView):
+    model = Order
+    template_name = 'order/order_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:order_list', kwargs={'pk': Aql.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).aql_id).supplier_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order"}
+        context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).aql_id).supplier_id)
+        return context
+
+# 17. OrderProduct
+ ## 17.1 OrderProductListView
+class OrderProductListView(LoginRequiredMixin,ListView):
+    model = OrderProduct
+    template_name = 'orderproduct/orderproduct_list.html'
+
+    def get_queryset(self):
+        order_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        return OrderProduct.objects.filter(order_id = order_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"product"}
+        context['aql_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+ ## 17.2 CreateOrderProductView
+ ### not using query_set here because it don't work with createview
+class CreateOrderProductView(LoginRequiredMixin,CreateView):
+    form_class = OrderProductForm
+    model = OrderProduct
+    template_name = 'orderproduct/orderproduct_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.order = Order.objects.get(id=self.kwargs['pk'])
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"product"}
+        order_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+ ## 17.3 OrderProductUpdateView
+class OrderProductUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = OrderProductForm
+    model = OrderProduct
+    template_name = 'orderproduct/orderproduct_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"product"}
+        orderproduct_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=OrderProduct.objects.get(id=orderproduct_id).order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+ ## 17.4 OrderProductDeleteView
+class OrderProductDeleteView(LoginRequiredMixin,DeleteView):
+    model = OrderProduct
+    template_name = 'orderproduct/orderproduct_confirm_delete.html'
+
+    def get_queryset(self):
+        orderproduct_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=OrderProduct.objects.get(id=orderproduct_id).order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        return OrderProduct.objects.filter(pk=orderproduct_id)
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:orderproduct_list', kwargs={'pk': OrderProduct.objects.get(id=self.kwargs['pk']).order_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"product"}
+        context['supplier'] = self.supplier
+        context['order'] = self.order
         return context

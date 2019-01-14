@@ -5,4 +5,7 @@
   <li class="nav-item">
     <a class="nav-link {% if active_menu.menu5 == 'file' %}active{% endif %}" href="{% url 'suppliers:aqlfile_list' pk=aql.pk %}">AQL FILES</a>
   </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu5 == 'product' %}active{% endif %}" href="{% url 'suppliers:aqlproduct_list' pk=aql.pk %}">AQL PRODUCTS</a>
+  </li>
 </ul>

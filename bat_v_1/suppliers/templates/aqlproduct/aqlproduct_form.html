@@ -34,26 +34,26 @@
       <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
         <div class="row">
           <div class="col-12 mb-4">
-            <div class="card mb-4">
-              <div class="position-absolute card-top-buttons">
-                <a href="{% url 'suppliers:update_aql' pk=aql.pk %}" class="btn btn-outline-info icon-button ">
-                  <i class="simple-icon-pencil"></i>
-                </a>
-                <a href="{% url 'suppliers:delete_aql' pk=aql.pk %}" class="btn btn-outline-danger icon-button ">
-                  <i class="simple-icon-trash"></i>
-                </a>
-              </div>
+            <div class="tab-card mb-4">
+
               <div class="card-body">
                 <h2>{{aql.version}}</h2>
                 {% include 'aql/menu.html' %}
-                <p class="text-muted text-small mb-2">Detail</p>
-                <p class="mb-3">{{aql.detail}}</p>
-                <hr >
-                <p class="text-muted text-small mb-2">Created at</p>
-                <p class="mb-3">{{aql.create_date| date:"d M Y h:i A"}}</p>
-                <p class="text-muted text-small mb-2">Updated at</p>
-                <p class="mb-3">{{aql.update_date| date:"d M Y h:i A"}}</p>
-
+                <div class="row">
+                  <div class="col-6">
+                    {% if not form.instance.pk %}
+                    <h5 class="card-title">Add AQL Product</h5>
+                    {% else %}
+                    <h5 class="card-title">Edit AQL Product</h5>
+                    {% endif %}
+                  </div>
+                </div>
+                <form method="POST"  enctype="multipart/form-data">
+                  {% csrf_token %}
+                  {{form|crispy}}
+                  <button type="submit" class="btn btn-primary mb-0">Submit</button>
+                  <a href="{% url 'suppliers:aqlproduct_list' aql.pk %}" class="btn btn-danger mb-0">Cancel</a>
+                </form>
               </div>
             </div>
 

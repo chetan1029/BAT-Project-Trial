@@ -1,0 +1,11 @@
+<ul class="nav nav-tabs separator-tabs ml-0 mb-5 mt-3" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu5 == 'detail' %}active{% endif %}" href="{% url 'suppliers:order_detail' pk=order.pk %}">DETAIL</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu5 == 'product' %}active{% endif %}" href="{% url 'suppliers:orderproduct_list' pk=order.pk %}">PRODUCTS</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">FILES</a>
+  </li>
+</ul>

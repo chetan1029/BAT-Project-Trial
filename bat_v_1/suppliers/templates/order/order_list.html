@@ -20,7 +20,7 @@
           <li class="breadcrumb-item">
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
           </li>
-          <li class="breadcrumb-item active" aria-current="page">AQL</li>
+          <li class="breadcrumb-item active" aria-current="page">Orders</li>
         </ol>
       </nav>
     </div>
@@ -33,11 +33,11 @@
           <div class="card-body">
             <div class="row">
               <div class="col-6">
-                <h5 class="card-title">AQL</h5>
+                <h5 class="card-title">Orders</h5>
               </div>
               <div class="col-6">
                 <div class="float-sm-right text-zero">
-                  <a href="{% url 'suppliers:create_aql' pk=supplier.pk %}" class="btn btn-primary mr-1">Add AQL</a>
+                  <a href="{% url 'suppliers:create_order' pk=supplier.pk %}" class="btn btn-primary mr-1">Add Order</a>
                 </div>
               </div>
             </div>
@@ -51,19 +51,19 @@
                 </tr>
               </thead>
               <tbody>
-                {% for aql in aql_list %}
+                {% for order in order_list %}
                 <tr>
                   <td>
-                    <p class="list-item-heading"><a href="{% url 'suppliers:aql_detail' pk=aql.pk %}">{{ aql.version }}</a></p>
+                    <p class="list-item-heading"><a href="{% url 'suppliers:order_detail' pk=order.pk %}">{{ order }}</a></p>
                   </td>
                   <td>
-                    <p class="text-muted">{{ aql.create_date| date:"d M Y" }}</p>
+                    <p class="text-muted">{{ order.create_date| date:"d M Y" }}</p>
                   </td>
                   <td>
-                    <a href="{% url 'suppliers:update_aql' pk=aql.pk %}" class="btn btn-outline-info icon-button ">
+                    <a href="{% url 'suppliers:update_order' pk=order.pk %}" class="btn btn-outline-info icon-button ">
                       <i class="simple-icon-pencil"></i>
                     </a>
-                    <a href="{% url 'suppliers:delete_aql' pk=aql.pk %}" class="btn btn-outline-danger icon-button ">
+                    <a href="{% url 'suppliers:delete_order' pk=order.pk %}" class="btn btn-outline-danger icon-button ">
                       <i class="simple-icon-trash"></i>
                     </a>
                   </td>
