@@ -34,6 +34,7 @@ User = get_user_model()
   ### 2.7.2 OrderProduct
   ### 2.7.3 OrderFile
   ### 2.7.4 OrderPayment
+  ### 2.7.5 OrderDelivery
 
 # 1. Main independent models
  ## 1.1 Category
@@ -279,7 +280,7 @@ class MoldProduct(models.Model):
   ### 2.5.3 MoldFile
 def generate_moldfilename(instance, filename):
     name, extension = os.path.splitext(filename)
-    return 'suppliers/{0}/Molds/mold-{1}-{2}-{3}{4}'.format(instance.mold.supplier.id, slugify(instance.mold.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
+    return 'suppliers/{0}/Molds/{1}/mold-{2}-{3}-{4}{5}'.format(instance.mold.supplier.id, instance.mold.id, slugify(instance.mold.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
 
 
 class MoldFile(models.Model):
@@ -314,7 +315,7 @@ class Aql(models.Model):
   ### 2.6.2 AqlFile
 def generate_aqlfilename(instance, filename):
     name, extension = os.path.splitext(filename)
-    return 'suppliers/{0}/AQL/aql-{1}-{2}-{3}{4}'.format(instance.aql.supplier.id, slugify(instance.aql.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
+    return 'suppliers/{0}/AQL/{1}/aql-{2}-{3}-{4}{5}'.format(instance.aql.supplier.id, instance.aql.id, slugify(instance.aql.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
 
 
 class AqlFile(models.Model):
@@ -365,7 +366,7 @@ class Order(models.Model):
     def __str__(self):
         return "Order ID: "+str(self.id)
 
-  ### 2.7.1 OrderProduct
+  ### 2.7.2 OrderProduct
 class OrderProduct(models.Model):
     order = models.ForeignKey(Order,on_delete=models.PROTECT,verbose_name="Select Order")
     product = models.ForeignKey(Product,on_delete=models.PROTECT,verbose_name="Select Product")
@@ -380,3 +381,67 @@ class OrderProduct(models.Model):
 
     def __str__(self):
         return "Order ID: "+str(self.order_id)+", Product: "+self.product.title
+
+  ### 2.7.3 OrderFile
+def generate_orderfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'suppliers/{0}/Orders/{1}/order-{2}-{3}-{4}{5}'.format(instance.order.aql.supplier.id, instance.order.id, slugify(instance.order.aql.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
+
+
+class OrderFile(models.Model):
+    title = models.CharField(max_length=100)
+    file_url = models.FileField(upload_to=generate_orderfilename)
+    order = models.ForeignKey(Order,on_delete=models.PROTECT,verbose_name="Select Order")
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('suppliers:orderfile_list', kwargs={'pk':self.order_id})
+
+    def __str__(self):
+        return self.title
+
+ ## 2.7.4 OrderPayment
+def generate_orderpaymentfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'suppliers/{0}/Orders/{1}/payments/invoice-{2}-{3}-{4}{5}'.format(instance.order.aql.supplier.id, instance.order.id, slugify(instance.order.aql.supplier.name), slugify(instance.id), timezone.now().strftime("%Y%m%d") ,extension)
+
+class OrderPayment(models.Model):
+    order = models.ForeignKey(Order,on_delete=models.PROTECT,verbose_name="Select Order")
+    bank = models.ForeignKey(Bank,on_delete=models.PROTECT,verbose_name="Select Bank")
+    paid_currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Paid Currecy",related_name="paid_currency")
+    paid_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    invoice_currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Invoice Currecy",related_name="invoice_currency")
+    invoice_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateTimeField(verbose_name="Select payment date")
+    note = models.TextField(blank=True)
+    file_url = models.FileField(upload_to=generate_orderpaymentfilename)
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('suppliers:orderpayment_list', kwargs={'pk':self.order_id})
+
+    def __str__(self):
+        return "Invoice ID: "+str(self.id)
+
+ ## 2.7.4 OrderPayment
+def generate_orderdeliveryfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'suppliers/{0}/Orders/{1}/delivery/delivery-{2}-{3}-{4}{5}'.format(instance.order.aql.supplier.id, instance.order.id, slugify(instance.order.aql.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
+
+class OrderDelivery(models.Model):
+    order = models.ForeignKey(Order,on_delete=models.PROTECT,verbose_name="Select Order")
+    title = models.CharField(max_length=100)
+    quantity = models.IntegerField()
+    orderpayment = models.ForeignKey(OrderPayment,on_delete=models.PROTECT,verbose_name="Select Order Payment")
+    status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status")
+    file_url = models.FileField(upload_to=generate_orderdeliveryfilename,blank=True)
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('suppliers:orderdelivery_list', kwargs={'pk':self.order_id})
+
+    def __str__(self):
+        return self.title

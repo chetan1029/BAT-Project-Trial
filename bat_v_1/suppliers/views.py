@@ -9,11 +9,11 @@ from django.urls import reverse_lazy
 from suppliers.models import (Supplier, Category, PaymentTerms, Status, Contact,
                               Currency, Bank, Contract, ProductPrice, Mold,
                               MoldProduct, MoldFile, Aql, AqlFile, AqlProduct,
-                              Order, OrderProduct)
+                              Order, OrderProduct, OrderFile, OrderPayment, OrderDelivery)
 from suppliers.forms import (SupplierForm, CategoryForm, PaymentTermsForm, StatusForm, ContactForm,
                               CurrencyForm, BankForm, ContractForm, ProductPriceForm, MoldForm,
                               MoldProductForm, MoldFileForm, AqlForm, AqlFileForm, AqlProductForm,
-                              OrderForm, OrderProductForm)
+                              OrderForm, OrderProductForm, OrderFileForm, OrderPaymentForm, OrderDeliveryForm)
 from django.db.models import Q
 from django import forms
 from django.db import IntegrityError
@@ -106,6 +106,21 @@ from django.db import IntegrityError
  ## 17.2 CreateOrderProductView
  ## 17.3 OrderProductUpdateView
  ## 17.4 OrderProductDeleteView
+# 18. OrderFile
+ ## 18.1 OrderFileListView
+ ## 18.2 CreateOrderFileView
+ ## 18.3 OrderFileUpdateView
+ ## 18.4 OrderFileDeleteView
+# 19. OrderPayment
+ ## 19.1 OrderPaymentListView
+ ## 19.2 CreateOrderPaymentView
+ ## 19.3 OrderPaymentUpdateView
+ ## 19.4 OrderPaymentDeleteView
+# 20. OrderDelivery
+ ## 20.1 OrderDeliveryListView
+ ## 20.2 CreateOrderDeliveryView
+ ## 20.3 OrderDeliveryUpdateView
+ ## 20.4 OrderDeliveryDeleteView
 
 # 1. Supplier
  ## 1.1 SupplierListView
@@ -1341,6 +1356,262 @@ class OrderProductDeleteView(LoginRequiredMixin,DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"product"}
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+# 18. OrderFile
+ ## 18.1 OrderFileListView
+class OrderFileListView(LoginRequiredMixin,ListView):
+    model = OrderFile
+    template_name = 'orderfile/orderfile_list.html'
+
+    def get_queryset(self):
+        order_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        return OrderFile.objects.filter(order_id = order_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"file"}
+        context['order_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+ ## 18.2 CreateOrderFileView
+ ### not using query_set here because it don't work with createview
+class CreateOrderFileView(LoginRequiredMixin,CreateView):
+    form_class = OrderFileForm
+    model = OrderFile
+    template_name = 'orderfile/orderfile_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.order = Order.objects.get(id=self.kwargs['pk'])
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"file"}
+        order_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+ ## 18.3 OrderFileUpdateView
+class OrderFileUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = OrderFileForm
+    model = OrderFile
+    template_name = 'orderfile/orderfile_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"file"}
+        orderfile_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=OrderFile.objects.get(id=orderfile_id).order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+ ## 18.4 OrderFileDeleteView
+class OrderFileDeleteView(LoginRequiredMixin,DeleteView):
+    model = OrderFile
+    template_name = 'orderfile/orderfile_confirm_delete.html'
+
+    def get_queryset(self):
+        orderfile_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=OrderFile.objects.get(id=orderfile_id).order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        return OrderFile.objects.filter(pk=orderfile_id)
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:orderfile_list', kwargs={'pk': OrderFile.objects.get(id=self.kwargs['pk']).order_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"file"}
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+# 19. OrderPayment
+ ## 19.1 OrderPaymentListView
+class OrderPaymentListView(LoginRequiredMixin,ListView):
+    model = OrderPayment
+    template_name = 'orderpayment/orderpayment_list.html'
+
+    def get_queryset(self):
+        order_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        return OrderPayment.objects.filter(order_id = order_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"payment"}
+        context['aql_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+ ## 19.2 CreateOrderPaymentView
+class CreateOrderPaymentView(LoginRequiredMixin,CreateView):
+    form_class = OrderPaymentForm
+    model = OrderPayment
+    template_name = 'orderpayment/orderpayment_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.order = Order.objects.get(id=self.kwargs['pk'])
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"payment"}
+        order_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+ ## 19.3 OrderPaymentUpdateView
+class OrderPaymentUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = OrderPaymentForm
+    model = OrderPayment
+    template_name = 'orderpayment/orderpayment_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"payment"}
+        orderpayment_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=OrderPayment.objects.get(id=orderpayment_id).order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+ ## 19.4 OrderPaymentDeleteView
+class OrderPaymentDeleteView(LoginRequiredMixin,DeleteView):
+    model = OrderPayment
+    template_name = 'orderpayment/orderpayment_confirm_delete.html'
+
+    def get_queryset(self):
+        orderpayment_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=OrderPayment.objects.get(id=orderpayment_id).order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        return OrderPayment.objects.filter(pk=orderpayment_id)
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:orderpayment_list', kwargs={'pk': OrderPayment.objects.get(id=self.kwargs['pk']).order_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"payment"}
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+# 20. OrderDelivery
+ ## 20.1 OrderDeliveryListView
+class OrderDeliveryListView(LoginRequiredMixin,ListView):
+    model = OrderDelivery
+    template_name = 'orderdelivery/orderdelivery_list.html'
+
+    def get_queryset(self):
+        order_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        return OrderDelivery.objects.filter(order_id = order_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"delivery"}
+        context['aql_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+ ## 20.2 CreateOrderDeliveryView
+class CreateOrderDeliveryView(LoginRequiredMixin,CreateView):
+    form_class = OrderDeliveryForm
+    model = OrderDelivery
+    template_name = 'orderdelivery/orderdelivery_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.order = Order.objects.get(id=self.kwargs['pk'])
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"delivery"}
+        order_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+ ## 20.3 OrderDeliveryUpdateView
+class OrderDeliveryUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = OrderDeliveryForm
+    model = OrderDelivery
+    template_name = 'orderdelivery/orderdelivery_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"delivery"}
+        orderpayment_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=OrderDelivery.objects.get(id=orderpayment_id).order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        context['supplier'] = self.supplier
+        context['order'] = self.order
+        return context
+
+ ## 20.4 OrderDeliveryDeleteView
+class OrderDeliveryDeleteView(LoginRequiredMixin,DeleteView):
+    model = OrderDelivery
+    template_name = 'orderdelivery/orderdelivery_confirm_delete.html'
+
+    def get_queryset(self):
+        orderdelivery_id = self.kwargs['pk']
+        self.order = Order.objects.get(pk=OrderDelivery.objects.get(id=orderdelivery_id).order_id)
+        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        return OrderDelivery.objects.filter(pk=orderdelivery_id)
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:orderdelivery_list', kwargs={'pk': OrderDelivery.objects.get(id=self.kwargs['pk']).order_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"delivery"}
         context['supplier'] = self.supplier
         context['order'] = self.order
         return context

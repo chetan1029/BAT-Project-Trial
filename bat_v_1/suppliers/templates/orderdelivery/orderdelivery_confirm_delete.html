@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ supplier.name }}</h1>
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:order_list' pk=supplier.pk %}">Orders</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ order }}</li>
+        </ol>
+      </nav>
+    </div>
+
+
+    {% include 'suppliers/menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
+        <div class="row">
+          <div class="col-12 mb-4">
+            <div class="tab-card mb-4">
+
+              <div class="card-body">
+                <h2>{{order}}</h2>
+                {% include 'order/menu.html' %}
+                <div class="row">
+                  <div class="col-6">
+                    <h5 class="card-title">Delete Order Delivery</h5>
+                  </div>
+                </div>
+                <form action="" method="post">{% csrf_token %}
+                  <p>Are you sure you want to delete "{{ object }}"?</p>
+                  <input class='btn btn-danger' type="submit" value="Confirm" />
+                  <a href="{% url 'suppliers:orderdelivery_list' pk=order.pk %}" class="btn btn-info mb-0">Cancel</a>
+                </form>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

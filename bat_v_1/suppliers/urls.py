@@ -92,4 +92,19 @@ urlpatterns = [
     path('order/<int:pk>/product/add',views.CreateOrderProductView.as_view(),name='create_orderproduct'),
     path('order/product/<int:pk>/edit/',views.OrderProductUpdateView.as_view(),name='update_orderproduct'),
     path('order/product/<int:pk>/delete/',views.OrderProductDeleteView.as_view(),name='delete_orderproduct'),
+    # OrderFile
+    path('order/<int:pk>/file',views.OrderFileListView.as_view(),name='orderfile_list'),
+    path('order/<int:pk>/file/add',views.CreateOrderFileView.as_view(),name='create_orderfile'),
+    path('order/file/<int:pk>/edit/',views.OrderFileUpdateView.as_view(),name='update_orderfile'),
+    path('order/file/<int:pk>/delete/',views.OrderFileDeleteView.as_view(),name='delete_orderfile'),
+    # OrderPayment
+    path('order/<int:pk>/payment',views.OrderPaymentListView.as_view(),name='orderpayment_list'),
+    path('order/<int:pk>/payment/add',views.CreateOrderPaymentView.as_view(),name='create_orderpayment'),
+    path('order/payment/<int:pk>/edit/',views.OrderPaymentUpdateView.as_view(),name='update_orderpayment'),
+    path('order/payment/<int:pk>/delete/',views.OrderPaymentDeleteView.as_view(),name='delete_orderpayment'),
+    # OrderDelivery
+    path('order/<int:pk>/delivery',views.OrderDeliveryListView.as_view(),name='orderdelivery_list'),
+    path('order/<int:pk>/delivery/add',views.CreateOrderDeliveryView.as_view(),name='create_orderdelivery'),
+    path('order/delivery/<int:pk>/edit/',views.OrderDeliveryUpdateView.as_view(),name='update_orderdelivery'),
+    path('order/delivery/<int:pk>/delete/',views.OrderDeliveryDeleteView.as_view(),name='delete_orderdelivery'),
 ]

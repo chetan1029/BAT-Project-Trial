@@ -6,6 +6,12 @@
     <a class="nav-link {% if active_menu.menu5 == 'product' %}active{% endif %}" href="{% url 'suppliers:orderproduct_list' pk=order.pk %}">PRODUCTS</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">FILES</a>
+    <a class="nav-link {% if active_menu.menu5 == 'file' %}active{% endif %}" href="{% url 'suppliers:orderfile_list' pk=order.pk %}">FILES</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu5 == 'payment' %}active{% endif %}" href="{% url 'suppliers:orderpayment_list' pk=order.pk %}">PAYMENT</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu5 == 'delivery' %}active{% endif %}" href="{% url 'suppliers:orderdelivery_list' pk=order.pk %}">DELIVERY</a>
   </li>
 </ul>

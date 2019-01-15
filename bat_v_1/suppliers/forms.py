@@ -2,7 +2,7 @@ from django import forms
 from suppliers.models import (Supplier, Category, PaymentTerms, Status, Contact,
                               Currency, Bank, Contract, ProductPrice, Mold,
                               MoldProduct, MoldFile, Aql, AqlFile, AqlProduct,
-                              Order, OrderProduct)
+                              Order, OrderProduct, OrderFile, OrderPayment, OrderDelivery)
 
 # form details
 # 1. SupplierForm
@@ -20,8 +20,11 @@ from suppliers.models import (Supplier, Category, PaymentTerms, Status, Contact,
 # 13. AqlForm
 # 14. AqlFileForm
 # 15. AqlProductForm
-# 16. Order
-# 17. OrderProduct
+# 16. OrderForm
+# 17. OrderProductForm
+# 18. OrderFileForm
+# 19. OrderPaymentForm
+# 20. OrderDeliveryForm
 
 # 1. SupplierForm
 class SupplierForm(forms.ModelForm):
@@ -146,3 +149,27 @@ class OrderProductForm(forms.ModelForm):
     class Meta:
         model = OrderProduct
         fields = ('product','price','currency','quantity')
+
+# 18. OrderFileForm
+class OrderFileForm(forms.ModelForm):
+
+    class Meta:
+        model = OrderFile
+        fields = ('title','file_url')
+
+# 19. OrderPaymentForm
+class OrderPaymentForm(forms.ModelForm):
+
+    class Meta:
+        model = OrderPayment
+        fields = ('bank','paid_currency','paid_amount','invoice_currency','invoice_amount','date','note','file_url')
+        widgets = {
+            'date': forms.TextInput(attrs={'class': 'datepicker'})
+        }
+
+# 20. OrderDeliveryForm
+class OrderDeliveryForm(forms.ModelForm):
+
+    class Meta:
+        model = OrderDelivery
+        fields = ('title','quantity','orderpayment','status','file_url')
