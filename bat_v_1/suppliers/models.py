@@ -120,6 +120,7 @@ class PaymentTerms(models.Model):
  ## 1.4 Status
 class Status(models.Model):
     title = models.CharField(max_length=200)
+    parent = models.ForeignKey('self',on_delete=models.CASCADE,related_name="children",blank=True,null=True)
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -368,7 +369,7 @@ class Order(models.Model):
 
   ### 2.7.2 OrderProduct
 class OrderProduct(models.Model):
-    order = models.ForeignKey(Order,on_delete=models.PROTECT,verbose_name="Select Order")
+    order = models.ForeignKey(Order,on_delete=models.CASCADE,verbose_name="Select Order")
     product = models.ForeignKey(Product,on_delete=models.PROTECT,verbose_name="Select Product")
     price = models.DecimalField(max_digits=7, decimal_places=3)
     currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Currency")
@@ -391,7 +392,7 @@ def generate_orderfilename(instance, filename):
 class OrderFile(models.Model):
     title = models.CharField(max_length=100)
     file_url = models.FileField(upload_to=generate_orderfilename)
-    order = models.ForeignKey(Order,on_delete=models.PROTECT,verbose_name="Select Order")
+    order = models.ForeignKey(Order,on_delete=models.CASCADE,verbose_name="Select Order")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -407,7 +408,7 @@ def generate_orderpaymentfilename(instance, filename):
     return 'suppliers/{0}/Orders/{1}/payments/invoice-{2}-{3}-{4}{5}'.format(instance.order.aql.supplier.id, instance.order.id, slugify(instance.order.aql.supplier.name), slugify(instance.id), timezone.now().strftime("%Y%m%d") ,extension)
 
 class OrderPayment(models.Model):
-    order = models.ForeignKey(Order,on_delete=models.PROTECT,verbose_name="Select Order")
+    order = models.ForeignKey(Order,on_delete=models.CASCADE,verbose_name="Select Order")
     bank = models.ForeignKey(Bank,on_delete=models.PROTECT,verbose_name="Select Bank")
     paid_currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Paid Currecy",related_name="paid_currency")
     paid_amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -431,10 +432,10 @@ def generate_orderdeliveryfilename(instance, filename):
     return 'suppliers/{0}/Orders/{1}/delivery/delivery-{2}-{3}-{4}{5}'.format(instance.order.aql.supplier.id, instance.order.id, slugify(instance.order.aql.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
 
 class OrderDelivery(models.Model):
-    order = models.ForeignKey(Order,on_delete=models.PROTECT,verbose_name="Select Order")
+    order = models.ForeignKey(Order,on_delete=models.CASCADE,verbose_name="Select Order")
     title = models.CharField(max_length=100)
     quantity = models.IntegerField()
-    orderpayment = models.ForeignKey(OrderPayment,on_delete=models.PROTECT,verbose_name="Select Order Payment")
+    orderpayment = models.ForeignKey(OrderPayment,on_delete=models.CASCADE,verbose_name="Select Order Payment")
     status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status")
     file_url = models.FileField(upload_to=generate_orderdeliveryfilename,blank=True)
     create_date = models.DateTimeField(default=timezone.now())

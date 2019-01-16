@@ -19,19 +19,18 @@
         </ol>
       </nav>
     </div>
-
-   {% include 'products/menu.html' %}
+    {% include 'products/menu.html' %}
     <div class="tab-content">
       <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
         <div class="card h-100">
           <div class="card-body">
             <div class="row">
               <div class="col-6">
-                <h5 class="card-title">Package Measurement</h5>
+                <h5 class="card-title">Product Bundle</h5>
               </div>
               <div class="col-6">
                 <div class="float-sm-right text-zero">
-                  <a href="{% url 'products:create_packagemeasurement' pk=product.pk %}" class="btn btn-primary mr-1">Add Package Measurement</a>
+                  <a href="{% url 'products:create_productbundle' pk=product.pk %}" class="btn btn-primary mr-1">Add Product Bundle</a>
                 </div>
               </div>
             </div>
@@ -39,37 +38,25 @@
             <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
               <thead>
                 <tr>
-                  <th>Title</th>
-                  <th>Length</th>
-                  <th>Width</th>
-                  <th>Depth</th>
-                  <th>Weight</th>
+                  <th>Size</th>
+                  <th>Color</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {% for package in packagemeasurement_list %}
+                {% for productbundle in productbundle_list %}
                 <tr>
                   <td>
-                    <p class="list-item-heading">{{ package.title }}</p>
+                    <p class="list-item-heading">{{ productbundle.size }}</p>
                   </td>
                   <td>
-                    <p class="text-muted">{{ package.length }} {{package.get_package_unit.length}}</p>
+                    <p class="text-muted">{{ productbundle.color }}</p>
                   </td>
                   <td>
-                    <p class="text-muted">{{ package.width }} {{package.get_package_unit.length}}</p>
-                  </td>
-                  <td>
-                    <p class="text-muted">{{ package.depth }} {{package.get_package_unit.length}}</p>
-                  </td>
-                  <td>
-                    <p class="text-muted">{{ package.weight }} {{package.get_package_unit.weight}}</p>
-                  </td>
-                  <td>
-                    <a href="{% url 'products:update_packagemeasurement' pk=package.pk %}" class="btn btn-outline-info icon-button ">
+                    <a href="{% url 'products:update_productbundle' pk=productbundle.pk %}" class="btn btn-outline-info icon-button ">
                       <i class="simple-icon-pencil"></i>
                     </a>
-                    <a href="{% url 'products:delete_packagemeasurement' pk=package.pk %}" class="btn btn-outline-danger icon-button ">
+                    <a href="{% url 'products:delete_productbundle' pk=productbundle.pk %}" class="btn btn-outline-danger icon-button ">
                       <i class="simple-icon-trash"></i>
                     </a>
                   </td>

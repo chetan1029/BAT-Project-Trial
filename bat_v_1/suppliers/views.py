@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.views.generic import (TemplateView, ListView,
                                   DetailView, CreateView,
                                   UpdateView, DeleteView)
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from suppliers.models import (Supplier, Category, PaymentTerms, Status, Contact,
                               Currency, Bank, Contract, ProductPrice, Mold,
                               MoldProduct, MoldFile, Aql, AqlFile, AqlProduct,
@@ -14,9 +14,11 @@ from suppliers.forms import (SupplierForm, CategoryForm, PaymentTermsForm, Statu
                               CurrencyForm, BankForm, ContractForm, ProductPriceForm, MoldForm,
                               MoldProductForm, MoldFileForm, AqlForm, AqlFileForm, AqlProductForm,
                               OrderForm, OrderProductForm, OrderFileForm, OrderPaymentForm, OrderDeliveryForm)
-from django.db.models import Q
+from django.db.models import Q, ProtectedError
 from django import forms
 from django.db import IntegrityError
+from django.http import JsonResponse
+from django.contrib import messages
 # Create your views here.
 # 1. Supplier
  ## 1.1 SupplierListView
@@ -1240,6 +1242,7 @@ class CreateOrderView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order"}
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
+        context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Order'))
         return context
 
  ## 16.4 OrderUpdateView

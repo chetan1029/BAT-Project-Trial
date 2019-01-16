@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
-
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -10,7 +9,9 @@ User = get_user_model()
 # 2. Color
 # 3. Size
 # 4. Product
-# 5. PackageMeasurement
+ ## 4.1 Product
+ ## 4.2 PackageMeasurement
+ ## 4.3 ProductBundle
 
 # 1. Category
 class Category(models.Model):
@@ -45,13 +46,8 @@ class Size(models.Model):
         return self.name
 
 # 4. Product
+ ## 4.1 Product
 class Product(models.Model):
-    PRODUCT_STATUS = (
-    ('Planning','Planning'),
-    ('In Progress','In Progress'),
-    ('Final','Final'),
-    )
-
     STATUS_CLASS = {"Planning":"primary", "In Progress":"secondary", "Final":"success"}
 
     title = models.CharField(verbose_name="Product Title", max_length=500)
@@ -60,12 +56,12 @@ class Product(models.Model):
     upc = models.CharField(verbose_name="UPC",max_length=200,blank=True)
     ean = models.CharField(verbose_name="EAN",max_length=200,unique=True)
     model_number = models.CharField(max_length=200,blank=True)
-    size = models.ForeignKey(Size,on_delete=models.CASCADE,blank=True,null=True,verbose_name="Select Size")
-    color = models.ForeignKey(Color,on_delete=models.CASCADE,blank=True,null=True,verbose_name="Select Color")
+    size = models.ForeignKey(Size,on_delete=models.PROTECT,blank=True,null=True,verbose_name="Select Size")
+    color = models.ForeignKey(Color,on_delete=models.PROTECT,blank=True,null=True,verbose_name="Select Color")
     weight = models.DecimalField(max_digits=6, decimal_places=2)
-    category = models.ForeignKey(Category,on_delete=models.CASCADE,verbose_name="Select Category")
+    category = models.ForeignKey(Category,on_delete=models.PROTECT,verbose_name="Select Category")
     detail = models.TextField(blank=True)
-    status = models.CharField(max_length=20,choices=PRODUCT_STATUS)
+    status = models.ForeignKey('suppliers.Status',on_delete=models.PROTECT,verbose_name="Select Status")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -76,14 +72,14 @@ class Product(models.Model):
         status_class_v = "a"
         for status_k in self.STATUS_CLASS:
             print(status_k)
-            if status_k == self.status:
+            if status_k == self.status.title:
                 status_class_v = self.STATUS_CLASS[status_k]
         return status_class_v
 
     def __str__(self):
         return self.title
 
-# 5. PackageMeasurement
+ ## 4.2 PackageMeasurement
 class PackageMeasurement(models.Model):
     UNIT_TYPE = (
     ('GM-CM','Gm-cm'),
@@ -112,3 +108,17 @@ class PackageMeasurement(models.Model):
 
     def __str__(self):
         return self.title
+
+ ## 4.3 ProductBundle
+class ProductBundle(models.Model):
+    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    size = models.ForeignKey(Size,on_delete=models.PROTECT,blank=True,null=True,verbose_name="Select Size")
+    color = models.ForeignKey(Color,on_delete=models.PROTECT,blank=True,null=True,verbose_name="Select Color")
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('products:productbundle_list', kwargs={'pk':self.product_id})
+
+    def __str__(self):
+        return self.product.title

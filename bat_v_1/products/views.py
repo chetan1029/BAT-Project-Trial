@@ -6,8 +6,9 @@ from django.views.generic import (TemplateView, ListView,
                                   DetailView, CreateView,
                                   UpdateView, DeleteView)
 from django.urls import reverse_lazy
-from products.models import Product, PackageMeasurement
-from products.forms import ProductForm, PackageMeasurementForm
+from products.models import Product, PackageMeasurement, ProductBundle
+from suppliers.models import Status
+from products.forms import ProductForm, PackageMeasurementForm, ProductBundleForm
 from django.db.models import Q
 # Create your views here.
 # 1. Product
@@ -21,6 +22,11 @@ from django.db.models import Q
  ## 2.2 CreatePackageMeasurementView
  ## 2.3 PackageMeasurementUpdateView
  ## 2.4 PackageMeasurementDeleteView
+# 3. ProductBundle
+ ## 3.1 ProductBundleListView
+ ## 3.2 CreateProductBundleView
+ ## 3.3 ProductBundleUpdateView
+ ## 3.4 ProductBundleDeleteView
 
 # 1. Product
  ## 1.1 ProductListView
@@ -72,7 +78,7 @@ class ProductDetailView(LoginRequiredMixin,DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"detail"}
         return context
 
  ## 1.3 CreateProductView
@@ -90,6 +96,7 @@ class CreateProductView(LoginRequiredMixin,CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"products"}
+        context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Product'))
         return context
 
  ## 1.4 ProductUpdateView
@@ -132,7 +139,7 @@ class PackageMeasurementListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"packagemeasurement"}
         context['product_id'] = self.kwargs['pk']
         context['product'] = self.product
         return context
@@ -151,7 +158,7 @@ class CreatePackageMeasurementView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"packagemeasurement"}
         context['product'] = Product.objects.get(pk=self.kwargs['pk'])
         return context
 
@@ -169,7 +176,7 @@ class PackageMeasurementUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"packagemeasurement"}
         context['product'] = Product.objects.get(pk=PackageMeasurement.objects.get(id=self.kwargs['pk']).product_id)
         return context
 
@@ -183,6 +190,74 @@ class PackageMeasurementDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"packagemeasurement"}
         context['product'] = Product.objects.get(pk=PackageMeasurement.objects.get(id=self.kwargs['pk']).product_id)
+        return context
+
+# 3. ProductBundle
+ ## 2.1 ProductBundleListView
+class ProductBundleListView(LoginRequiredMixin,ListView):
+    model = ProductBundle
+    template_name = 'productbundle/productbundle_list.html'
+
+    def get_queryset(self):
+        product_id = self.kwargs['pk']
+        self.product = Product.objects.get(pk=product_id)
+        return ProductBundle.objects.filter(product_id = product_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"productbundle"}
+        context['product_id'] = self.kwargs['pk']
+        context['product'] = self.product
+        return context
+
+ ## 2.2 CreateProductBundleView
+class CreateProductBundleView(LoginRequiredMixin,CreateView):
+    form_class = ProductBundleForm
+    model = ProductBundle
+    template_name = 'productbundle/productbundle_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.product = Product.objects.get(id=self.kwargs['pk'])
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"productbundle"}
+        context['product'] = Product.objects.get(pk=self.kwargs['pk'])
+        return context
+
+ ## 2.3 ProductBundleUpdateView
+class ProductBundleUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = ProductBundleForm
+    model = ProductBundle
+    template_name = 'productbundle/productbundle_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"productbundle"}
+        context['product'] = Product.objects.get(pk=ProductBundle.objects.get(id=self.kwargs['pk']).product_id)
+        return context
+
+ ## 2.4 ProductBundleDeleteView
+class ProductBundleDeleteView(LoginRequiredMixin,DeleteView):
+    model = ProductBundle
+    template_name = 'productbundle/productbundle_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('products:productbundle_list', kwargs={'pk': ProductBundle.objects.get(id=self.kwargs['pk']).product_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"productbundle"}
+        context['product'] = Product.objects.get(pk=ProductBundle.objects.get(id=self.kwargs['pk']).product_id)
         return context

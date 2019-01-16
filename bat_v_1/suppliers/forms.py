@@ -52,7 +52,7 @@ class StatusForm(forms.ModelForm):
 
     class Meta:
         model = Status
-        fields = ('title',)
+        fields = ('title','parent')
 
 # 5. CurrencyForm
 class CurrencyForm(forms.ModelForm):

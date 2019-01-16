@@ -20,15 +20,7 @@
       </nav>
     </div>
 
-    <ul class="nav nav-tabs separator-tabs ml-0 mb-5" role="tablist">
-      <li class="nav-item">
-        <a class="nav-link" id="first-tab" href="{% url 'products:product_detail' pk=product.pk %}">DETAILS</a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link active" id="second-tab" data-toggle="tab" href="#second" role="tab" aria-controls="first" aria-selected="true">PACKAGE MEASUREMENT</a>
-      </li>
-    </ul>
+    {% include 'products/menu.html' %}
     <div class="tab-content">
       <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
         <div class="tab-card">

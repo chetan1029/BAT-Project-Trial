@@ -32,6 +32,7 @@
           <thead>
             <tr>
               <th>Title</th>
+              <th>Parent</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -40,6 +41,9 @@
             <tr>
               <td>
                 <p class="list-item-heading">{{ status.title }}</p>
+              </td>
+              <td>
+                <p class="list-item-heading">{{ status.parent.title }}</p>
               </td>
               <td>
                 <a href="{% url 'suppliers:update_status' pk=status.pk %}" class="btn btn-outline-info icon-button ">

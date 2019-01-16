@@ -4,7 +4,6 @@
 {% block content %}
 <div class="row">
   <div class="col-12 list">
-
     <div class="mb-2">
       <h1>{{ product.title }}</h1>
 
@@ -23,19 +22,24 @@
     {% include 'products/menu.html' %}
     <div class="tab-content">
       <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
-        <div class="card mb-4">
+        <div class="tab-card">
           <div class="card-body">
-            <h5 class="mb-4">Delete Product</h5>
-            <form action="" method="post">{% csrf_token %}
-            <p>Are you sure you want to delete "{{ object }}"?</p>
-            <input class='btn btn-danger' type="submit" value="Confirm" />
-            <a href="{% url 'products:packagemeasurement_list' pk=product.pk %}" class="btn btn-info mb-0">Cancel</a>
-          </form>
-
+            <div class="row">
+              <div class="col-6">
+                <h5 class="card-title">Package Measurement</h5>
+              </div>
+            </div>
+            <form method="POST">
+              {% csrf_token %}
+              {{form|crispy}}
+              <button type="submit" class="btn btn-primary mb-0">Submit</button>
+              <a href="{% url 'products:packagemeasurement_list' product.pk %}" class="btn btn-danger mb-0">Cancel</a>
+            </form>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
 {% endblock %}
