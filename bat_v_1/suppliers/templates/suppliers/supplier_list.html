@@ -2,7 +2,7 @@
 {% extends "base_menu.html" %}
 {% load staticfiles %}
 {% block content %}
-{% include 'menu.html' %}
+{% include 'suppliers_menu.html' %}
 <div class="row">
   <div class="col-12">
     <div class="mb-3">
@@ -89,7 +89,7 @@
           <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}" class="w-40 w-sm-100">
             <p class="list-item-heading mb-1 truncate">{{ supplier.name }}</p>
           </a>
-          <p class="mb-1 text-muted text-small w-15 w-sm-100">{{ supplier.category }}</p>
+          <p class="mb-1 text-muted text-small w-25 w-sm-100">{{ supplier.category }}</p>
           <p class="mb-1 text-muted text-small w-15 w-sm-100">{{ supplier.create_date|date:"d M Y"}}</p>
           <div class="w-15 w-sm-100">
             <span class="badge badge-pill"></span>

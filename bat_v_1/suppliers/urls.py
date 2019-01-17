@@ -9,26 +9,11 @@ urlpatterns = [
     path('<int:pk>',views.SupplierDetailView.as_view(),name='supplier_detail'),
     path('<int:pk>/edit/',views.SupplierUpdateView.as_view(),name='update_supplier'),
     path('<int:pk>/delete/',views.SupplierDeleteView.as_view(),name='delete_supplier'),
-    # Category
-    path('category',views.CategoryListView.as_view(),name='category_list'),
-    path('category/add',views.CreateCategoryView.as_view(),name='create_category'),
-    path('category/<int:pk>/edit/',views.CategoryUpdateView.as_view(),name='update_category'),
-    path('category/<int:pk>/delete/',views.CategoryDeleteView.as_view(),name='delete_category'),
     # Payment Terms
     path('payment-terms',views.PaymentTermsListView.as_view(),name='paymentterms_list'),
     path('payment-terms/add',views.CreatePaymentTermsView.as_view(),name='create_paymentterms'),
     path('payment-terms/<int:pk>/edit/',views.PaymentTermsUpdateView.as_view(),name='update_paymentterms'),
     path('payment-terms/<int:pk>/delete/',views.PaymentTermsDeleteView.as_view(),name='delete_paymentterms'),
-    # Status
-    path('status',views.StatusListView.as_view(),name='status_list'),
-    path('status/add',views.CreateStatusView.as_view(),name='create_status'),
-    path('status/<int:pk>/edit/',views.StatusUpdateView.as_view(),name='update_status'),
-    path('status/<int:pk>/delete/',views.StatusDeleteView.as_view(),name='delete_status'),
-    # Status
-    path('currency',views.CurrencyListView.as_view(),name='currency_list'),
-    path('currency/add',views.CreateCurrencyView.as_view(),name='create_currency'),
-    path('currency/<int:pk>/edit/',views.CurrencyUpdateView.as_view(),name='update_currency'),
-    path('currency/<int:pk>/delete/',views.CurrencyDeleteView.as_view(),name='delete_currency'),
     # Contact
     path('<int:pk>/contact',views.ContactListView.as_view(),name='contact_list'),
     path('<int:pk>/contact/add',views.CreateContactView.as_view(),name='create_contact'),
@@ -40,7 +25,7 @@ urlpatterns = [
     path('bank/<int:pk>',views.BankDetailView.as_view(),name='bank_detail'),
     path('bank/<int:pk>/edit/',views.BankUpdateView.as_view(),name='update_bank'),
     path('bank/<int:pk>/delete/',views.BankDeleteView.as_view(),name='delete_bank'),
-    # Contact
+    # Contract
     path('<int:pk>/contract',views.ContractListView.as_view(),name='contract_list'),
     path('<int:pk>/contract/add',views.CreateContractView.as_view(),name='create_contract'),
     path('contract/<int:pk>/edit/',views.ContractUpdateView.as_view(),name='update_contract'),

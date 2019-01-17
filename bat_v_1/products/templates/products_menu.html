@@ -1,0 +1,20 @@
+<ul class="nav nav-tabs separator-tabs ml-0 mb-5" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu3 == 'products' %}active{% endif %}" href="{% url 'products:product_list' %}">PRODUCTS</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu3 == 'category' %}active{% endif %}" href="{% url 'products:category_list' %}">CATEGORY</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu3 == 'status' %}active{% endif %}" href="{% url 'products:status_list' %}">STATUS</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu3 == 'currency' %}active{% endif %}" href="{% url 'products:currency_list' %}">CURRENCY</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu3 == 'color' %}active{% endif %}" href="{% url 'products:color_list' %}">COLOR</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu3 == 'size' %}active{% endif %}" href="{% url 'products:size_list' %}">SIZE</a>
+  </li>
+</ul>

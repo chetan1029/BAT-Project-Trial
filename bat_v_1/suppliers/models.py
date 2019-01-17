@@ -2,21 +2,15 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 import random
-from products.models import Product
+from products.models import Product, Category, Status, Currency
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 import os, datetime
 User = get_user_model()
 
 # Create your models here.
-# 1. Main independent models
- ## 1.1 Category
- ## 1.2 Supplier
- ## 1.3 PaymentTerms
- ## 1.4 Status
- ## 1.5 Currency
-
-# 2. Model related with supplier
+# 1. PaymentTerms
+# 2. Supplier
  ## 2.1 Contact
  ## 2.2 Bank
  ## 2.3 Contract
@@ -36,28 +30,22 @@ User = get_user_model()
   ### 2.7.4 OrderPayment
   ### 2.7.5 OrderDelivery
 
-# 1. Main independent models
- ## 1.1 Category
-class Category(models.Model):
-    name = models.CharField(max_length=200)
-    parent = models.ForeignKey('self',on_delete=models.CASCADE,related_name="children",blank=True,null=True)
+# 1. PaymentTerms
+class PaymentTerms(models.Model):
+    title = models.CharField(max_length=200)
+    identifier = models.CharField(max_length=200)
+    prepay = models.DecimalField(max_digits=5, decimal_places=2)
+    days = models.IntegerField()
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
     def get_absolute_url(self):
-        return reverse('suppliers:category_list')
+        return reverse('suppliers:paymentterms_list')
 
     def __str__(self):
-        full_path = [self.name]
-        k = self.parent
+        return self.title
 
-        while k is not None:
-            full_path.append(k.name)
-            k = k.parent
-
-        return ' -> '.join(full_path[::-1])
-
- ## 1.2 Supplier
+# 2. Supplier
 def generate_logofilename(instance, filename):
     name, extension = os.path.splitext(filename)
     return 'suppliers/{0}/logo/logo{1}'.format(instance.id, extension)
@@ -102,47 +90,6 @@ class Supplier(models.Model):
     def __str__(self):
         return self.name
 
- ## 1.3 PaymentTerms
-class PaymentTerms(models.Model):
-    title = models.CharField(max_length=200)
-    identifier = models.CharField(max_length=200)
-    prepay = models.DecimalField(max_digits=5, decimal_places=2)
-    days = models.IntegerField()
-    create_date = models.DateTimeField(default=timezone.now())
-    update_date = models.DateTimeField(default=timezone.now())
-
-    def get_absolute_url(self):
-        return reverse('suppliers:paymentterms_list')
-
-    def __str__(self):
-        return self.title
-
- ## 1.4 Status
-class Status(models.Model):
-    title = models.CharField(max_length=200)
-    parent = models.ForeignKey('self',on_delete=models.CASCADE,related_name="children",blank=True,null=True)
-    create_date = models.DateTimeField(default=timezone.now())
-    update_date = models.DateTimeField(default=timezone.now())
-
-    def get_absolute_url(self):
-        return reverse('suppliers:status_list')
-
-    def __str__(self):
-        return self.title
-
- ## 1.5 Currency
-class Currency(models.Model):
-    title = models.CharField(max_length=200)
-    create_date = models.DateTimeField(default=timezone.now())
-    update_date = models.DateTimeField(default=timezone.now())
-
-    def get_absolute_url(self):
-        return reverse('suppliers:currency_list')
-
-    def __str__(self):
-        return self.title
-
-# 2. Model related with supplier
  ## 2.1 Contact
 class Contact(models.Model):
     first_name = models.CharField(max_length=50)

@@ -2,130 +2,172 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from django.views.generic import (TemplateView, ListView,
-                                  DetailView, CreateView,
-                                  UpdateView, DeleteView)
+from django.views.generic import (TemplateView, ListView, DetailView, CreateView, UpdateView,
+                                  DeleteView)
 from django.urls import reverse, reverse_lazy
-from suppliers.models import (Supplier, Category, PaymentTerms, Status, Contact,
-                              Currency, Bank, Contract, ProductPrice, Mold,
-                              MoldProduct, MoldFile, Aql, AqlFile, AqlProduct,
-                              Order, OrderProduct, OrderFile, OrderPayment, OrderDelivery)
-from suppliers.forms import (SupplierForm, CategoryForm, PaymentTermsForm, StatusForm, ContactForm,
-                              CurrencyForm, BankForm, ContractForm, ProductPriceForm, MoldForm,
-                              MoldProductForm, MoldFileForm, AqlForm, AqlFileForm, AqlProductForm,
-                              OrderForm, OrderProductForm, OrderFileForm, OrderPaymentForm, OrderDeliveryForm)
+from suppliers.models import (Supplier, PaymentTerms, Contact, Bank, Contract,
+                              ProductPrice, Mold, MoldProduct, MoldFile, Aql, AqlFile,
+                              AqlProduct, Order, OrderProduct, OrderFile, OrderPayment,
+                              OrderDelivery)
+from suppliers.forms import (SupplierForm, PaymentTermsForm, ContactForm, BankForm, ContractForm,
+                             ProductPriceForm, MoldForm, MoldProductForm, MoldFileForm, AqlForm,
+                             AqlFileForm, AqlProductForm, OrderForm, OrderProductForm, OrderFileForm,
+                             OrderPaymentForm, OrderDeliveryForm)
+from products.models import (Status, Product)
 from django.db.models import Q, ProtectedError
 from django import forms
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.contrib import messages
 # Create your views here.
-# 1. Supplier
- ## 1.1 SupplierListView
- ## 1.2 SupplierDetailView
- ## 1.3 CreateSupplierView
- ## 1.4 SupplierUpdateView
- ## 1.5 SupplierDeleteView
-# 2. Category
- ## 2.1 CategoryListView
- ## 2.2 CreateCategoryView
- ## 2.3 CategoryUpdateView
- ## 2.4 CategoryDeleteView
-# 3. Payment Terms
- ## 3.1 PaymentTermsListView
- ## 3.2 CreatePaymentTermsView
- ## 3.3 PaymentTermsUpdateView
- ## 3.4 PaymentTermsDeleteView
-# 4. Status
- ## 4.1 StatusListView
- ## 4.2 CreateStatusView
- ## 4.3 StatusUpdateView
- ## 4.4 StatusDeleteView
-# 5. Contact
- ## 5.1 ContactListView
- ## 5.2 CreateContactView
- ## 5.3 ContactUpdateView
- ## 5.4 ContactDeleteView
-# 6. Currecy
- ## 6.1 CurrecyListView
- ## 6.2 CreateCurrecyView
- ## 6.3 CurrecyUpdateView
- ## 6.4 CurrecyDeleteView
-# 7. Bank
- ## 7.1 BankListView
- ## 7.2 BankDetailView
- ## 7.3 CreateBankView
- ## 7.4 BankUpdateView
- ## 7.5 BankDeleteView
-# 8. Contract
- ## 8.1 ContractListView
- ## 8.2 CreateContractView
- ## 8.3 ContractUpdateView
- ## 8.4 ContractDeleteView
-# 9. ProductPrice
- ## 9.1 ProductPriceListView
- ## 9.2 CreateProductPriceView
- ## 9.3 ProductPriceUpdateView
- ## 9.4 ProductPriceDeleteView
-# 10. Mold
- ## 10.1 MoldListView
- ## 10.2 MoldDetailView
- ## 10.3 CreateMoldView
- ## 10.4 MoldUpdateView
- ## 10.5 MoldDeleteView
-# 11. MoldProduct
- ## 11.1 MoldProductListView
- ## 11.2 CreateMoldProductView
- ## 11.3 MoldProductDeleteView
-# 12. MoldFile
- ## 12.1 MoldFileListView
- ## 12.2 CreateMoldFileView
- ## 12.3 MoldFileUpdateView
- ## 12.4 MoldFileDeleteView
-# 13. Aql
- ## 13.1 AqlListView
- ## 13.2 AqlDetailView
- ## 13.3 CreateAqlView
- ## 13.4 AqlUpdateView
- ## 13.5 AqlDeleteView
-# 14. AqlFile
- ## 14.1 AqlFileListView
- ## 14.2 CreateAqlFileView
- ## 14.3 AqlFileUpdateView
- ## 14.4 AqlFileDeleteView
-# 15. AqlProduct
- ## 15.1 AqlProductListView
- ## 15.2 CreateAqlProductView
- ## 15.3 AqlProductUpdateView
- ## 15.4 AqlProductDeleteView
-# 16. Order
- ## 16.1 OrderListView
- ## 16.2 CreateOrderView
- ## 16.3 OrderUpdateView
- ## 16.4 OrderDeleteView
-# 17. OrderProduct
- ## 17.1 OrderProductListView
- ## 17.2 CreateOrderProductView
- ## 17.3 OrderProductUpdateView
- ## 17.4 OrderProductDeleteView
-# 18. OrderFile
- ## 18.1 OrderFileListView
- ## 18.2 CreateOrderFileView
- ## 18.3 OrderFileUpdateView
- ## 18.4 OrderFileDeleteView
-# 19. OrderPayment
- ## 19.1 OrderPaymentListView
- ## 19.2 CreateOrderPaymentView
- ## 19.3 OrderPaymentUpdateView
- ## 19.4 OrderPaymentDeleteView
-# 20. OrderDelivery
- ## 20.1 OrderDeliveryListView
- ## 20.2 CreateOrderDeliveryView
- ## 20.3 OrderDeliveryUpdateView
- ## 20.4 OrderDeliveryDeleteView
+# 1. Payment Terms
+ ## 1.1 PaymentTermsListView
+ ## 1.2 CreatePaymentTermsView
+ ## 1.3 PaymentTermsUpdateView
+ ## 1.4 PaymentTermsDeleteView
+# 2. Supplier
+ ## 2.1 Supplier
+  ### 2.1.1 SupplierListView
+  ### 2.1.2 SupplierDetailView
+  ### 2.1.3 CreateSupplierView
+  ### 2.1.4 SupplierUpdateView
+  ### 2.1.5 SupplierDeleteView
+ ## 2.2 Contact
+  ### 2.2.1 ContactListView
+  ### 2.2.2 CreateContactView
+  ### 2.2.3 ContactUpdateView
+  ### 2.2.4 ContactDeleteView
+ ## 2.3 Bank
+  ### 2.3.1 BankListView
+  ### 2.3.2 BankDetailView
+  ### 2.3.3 CreateBankView
+  ### 2.3.4 BankUpdateView
+  ### 2.3.5 BankDeleteView
+ ## 2.4 Contract
+  ### 2.4.1 ContractListView
+  ### 2.4.2 CreateContractView
+  ### 2.4.3 ContractUpdateView
+  ### 2.4.4 ContractDeleteView
+ ## 2.5 ProductPrice
+  ### 2.5.1 ProductPriceListView
+  ### 2.5.2 CreateProductPriceView
+  ### 2.5.3 ProductPriceUpdateView
+  ### 2.5.4 ProductPriceDeleteView
+ ## 2.6 Mold
+  ### 2.6.1 Mold
+   #### 2.6.1.1 MoldListView
+   #### 2.6.1.2 MoldDetailView
+   #### 2.6.1.3 CreateMoldView
+   #### 2.6.1.4 MoldUpdateView
+   #### 2.6.1.5 MoldDeleteView
+  ### 2.6.2 MoldProduct
+   #### 2.6.2.1 MoldProductListView
+   #### 2.6.2.2 CreateMoldProductView
+   #### 2.6.2.3 MoldProductDeleteView
+  ### 2.6.3 MoldFile
+   #### 2.6.3.1 MoldFileListView
+   #### 2.6.3.2 CreateMoldFileView
+   #### 2.6.3.3 MoldFileUpdateView
+   #### 2.6.3.4 MoldFileDeleteView
+ ## 2.7 Aql
+  ### 2.7.1 Aql
+   #### 2.7.1.1 AqlListView
+   #### 2.7.1.2 AqlDetailView
+   #### 2.7.1.3 CreateAqlView
+   #### 2.7.1.4 AqlUpdateView
+   #### 2.7.1.5 AqlDeleteView
+  ### 2.7.2 AqlFile
+   #### 2.7.2.1 AqlFileListView
+   #### 2.7.2.2 CreateAqlFileView
+   #### 2.7.2.3 AqlFileUpdateView
+   #### 2.7.2.4 AqlFileDeleteView
+  ### 2.7.3 AqlProduct
+   #### 2.7.3.1 AqlProductListView
+   #### 2.7.3.2 CreateAqlProductView
+   #### 2.7.3.3 AqlProductUpdateView
+   #### 2.7.3.4 AqlProductDeleteView
+ ## 2.8 Order
+  ### 2.8.1 Order
+   #### 2.8.1.1 OrderListView
+   #### 2.8.1.2 CreateOrderView
+   #### 2.8.1.3 OrderUpdateView
+   #### 2.8.1.4 OrderDeleteView
+  ### 2.8.2 OrderProduct
+   #### 2.8.2.1 OrderProductListView
+   #### 2.8.2.2 CreateOrderProductView
+   #### 2.8.2.3 OrderProductUpdateView
+   #### 2.8.2.4 OrderProductDeleteView
+  ### 2.8.3 OrderFile
+   #### 2.8.3.1 OrderFileListView
+   #### 2.8.3.2 CreateOrderFileView
+   #### 2.8.3.3 OrderFileUpdateView
+   #### 2.8.3.4 OrderFileDeleteView
+  ### 2.8.4 OrderPayment
+   #### 2.8.4.1 OrderPaymentListView
+   #### 2.8.4.2 CreateOrderPaymentView
+   #### 2.8.4.3 OrderPaymentUpdateView
+   #### 2.8.4.4 OrderPaymentDeleteView
+  ### 2.8.5 OrderDelivery
+   #### 2.8.5.1 OrderDeliveryListView
+   #### 2.8.5.2 CreateOrderDeliveryView
+   #### 2.8.5.3 OrderDeliveryUpdateView
+   #### 2.8.5.4 OrderDeliveryDeleteView
 
-# 1. Supplier
- ## 1.1 SupplierListView
+# 1. Payment Terms
+ ## 1.1 PaymentTermsListView
+class PaymentTermsListView(LoginRequiredMixin,ListView):
+    model = PaymentTerms
+    template_name = 'paymentterms/paymentterms_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"paymentterms"}
+        return context
+
+ ## 1.2 CreatePaymentTermsView
+class CreatePaymentTermsView(LoginRequiredMixin,CreateView):
+    form_class = PaymentTermsForm
+    model = PaymentTerms
+    template_name = 'paymentterms/paymentterms_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"paymentterms"}
+        return context
+
+ ## 1.3 PaymentTermsUpdateView
+class PaymentTermsUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = PaymentTermsForm
+    model = PaymentTerms
+    template_name = 'paymentterms/paymentterms_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"paymentterms"}
+        return context
+
+ ## 1.4 PaymentTermsDeleteView
+class PaymentTermsDeleteView(LoginRequiredMixin,DeleteView):
+    model = PaymentTerms
+    template_name = 'paymentterms/paymentterms_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:paymentterms_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"paymentterms"}
+        return context
+
+# 2. Supplier
+ ## 2.1 Supplier
+  ### 2.1.1 SupplierListView
 class SupplierListView(LoginRequiredMixin,ListView):
     model = Supplier
     paginate_by = 10
@@ -168,7 +210,7 @@ class SupplierListView(LoginRequiredMixin,ListView):
         context['extra_url'] = extra_url
         return context
 
- ## 1.2 SupplierDetailView
+  ### 2.1.2 SupplierDetailView
 class SupplierDetailView(LoginRequiredMixin,DetailView):
     model = Supplier
 
@@ -178,7 +220,7 @@ class SupplierDetailView(LoginRequiredMixin,DetailView):
         context['pk'] = self.kwargs['pk']
         return context
 
- ## 1.3 CreateSupplierView
+  ### 2.1.3 CreateSupplierView
 class CreateSupplierView(LoginRequiredMixin,CreateView):
     form_class = SupplierForm
     model = Supplier
@@ -194,7 +236,7 @@ class CreateSupplierView(LoginRequiredMixin,CreateView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers"}
         return context
 
- ## 1.4 SupplierUpdateView
+  ### 2.1.4 SupplierUpdateView
 class SupplierUpdateView(LoginRequiredMixin,UpdateView):
     form_class = SupplierForm
     model = Supplier
@@ -210,7 +252,7 @@ class SupplierUpdateView(LoginRequiredMixin,UpdateView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers"}
         return context
 
- ## 1.5 SupplierDeleteView
+  ### 2.1.5 SupplierDeleteView
 class SupplierDeleteView(LoginRequiredMixin,DeleteView):
     model = Supplier
     success_url = reverse_lazy('suppliers:supplier_list')
@@ -220,164 +262,8 @@ class SupplierDeleteView(LoginRequiredMixin,DeleteView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers"}
         return context
 
-# 2. Category
- ## 2.1 CategoryListView
-class CategoryListView(LoginRequiredMixin,ListView):
-    model = Category
-    template_name = 'category/category_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"category"}
-        return context
-
- ## 2.2 CreateCategoryView
-class CreateCategoryView(LoginRequiredMixin,CreateView):
-    form_class = CategoryForm
-    model = Category
-    template_name = 'category/category_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"category"}
-        return context
-
- ## 2.3 CategoryUpdateView
-class CategoryUpdateView(LoginRequiredMixin,UpdateView):
-    form_class = CategoryForm
-    model = Category
-    template_name = 'category/category_form.html'
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.update_date = timezone.now()
-        self.object.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"category"}
-        return context
-
- ## 2.4 CategoryDeleteView
-class CategoryDeleteView(LoginRequiredMixin,DeleteView):
-    model = Category
-    template_name = 'category/category_confirm_delete.html'
-
-    def get_success_url(self):
-        return reverse_lazy('suppliers:category_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"category"}
-        return context
-
-# 3. Payment Terms
- ## 3.1 PaymentTermsListView
-class PaymentTermsListView(LoginRequiredMixin,ListView):
-    model = PaymentTerms
-    template_name = 'paymentterms/paymentterms_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"paymentterms"}
-        return context
-
- ## 3.2 CreatePaymentTermsView
-class CreatePaymentTermsView(LoginRequiredMixin,CreateView):
-    form_class = PaymentTermsForm
-    model = PaymentTerms
-    template_name = 'paymentterms/paymentterms_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"paymentterms"}
-        return context
-
- ## 3.3 PaymentTermsUpdateView
-class PaymentTermsUpdateView(LoginRequiredMixin,UpdateView):
-    form_class = PaymentTermsForm
-    model = PaymentTerms
-    template_name = 'paymentterms/paymentterms_form.html'
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.update_date = timezone.now()
-        self.object.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"paymentterms"}
-        return context
-
- ## 3.4 PaymentTermsDeleteView
-class PaymentTermsDeleteView(LoginRequiredMixin,DeleteView):
-    model = PaymentTerms
-    template_name = 'paymentterms/paymentterms_confirm_delete.html'
-
-    def get_success_url(self):
-        return reverse_lazy('suppliers:paymentterms_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"paymentterms"}
-        return context
-
-# 4. Status
- ## 4.1 StatusListView
-class StatusListView(LoginRequiredMixin,ListView):
-    model = Status
-    template_name = 'status/status_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"status"}
-        return context
-
- ## 4.2 CreateStatusView
-class CreateStatusView(LoginRequiredMixin,CreateView):
-    form_class = StatusForm
-    model = Status
-    template_name = 'status/status_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"status"}
-        return context
-
- ## 4.3 StatusUpdateView
-class StatusUpdateView(LoginRequiredMixin,UpdateView):
-    form_class = StatusForm
-    model = Status
-    template_name = 'status/status_form.html'
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.update_date = timezone.now()
-        self.object.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"status"}
-        return context
-
- ## 4.4 StatusDeleteView
-class StatusDeleteView(LoginRequiredMixin,DeleteView):
-    model = Status
-    template_name = 'status/status_confirm_delete.html'
-
-    def get_success_url(self):
-        return reverse_lazy('suppliers:status_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"status"}
-        return context
-
-# 5. Contact
- ## 5.1 ContactListView
+ ## 2.2 Contact
+  ### 2.2.1 ContactListView
 class ContactListView(LoginRequiredMixin,ListView):
     model = Contact
     template_name = 'contact/contact_list.html'
@@ -394,7 +280,7 @@ class ContactListView(LoginRequiredMixin,ListView):
         context['supplier'] = self.supplier
         return context
 
- ## 5.2 CreateContactView
+  ### 2.2.2 CreateContactView
 class CreateContactView(LoginRequiredMixin,CreateView):
     form_class = ContactForm
     model = Contact
@@ -412,7 +298,7 @@ class CreateContactView(LoginRequiredMixin,CreateView):
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
         return context
 
- ## 5.3 ContactUpdateView
+  ### 2.2.3 ContactUpdateView
 class ContactUpdateView(LoginRequiredMixin,UpdateView):
     form_class = ContactForm
     model = Contact
@@ -430,7 +316,7 @@ class ContactUpdateView(LoginRequiredMixin,UpdateView):
         context['supplier'] = Supplier.objects.get(pk=Contact.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
- ## 5.4 ContactDeleteView
+  ### 2.2.4 ContactDeleteView
 class ContactDeleteView(LoginRequiredMixin,DeleteView):
     model = Contact
     template_name = 'contact/contact_confirm_delete.html'
@@ -444,60 +330,8 @@ class ContactDeleteView(LoginRequiredMixin,DeleteView):
         context['supplier'] = Supplier.objects.get(pk=Contact.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
-# 6. Currency
- ## 6.1 CurrencyListView
-class CurrencyListView(LoginRequiredMixin,ListView):
-    model = Currency
-    template_name = 'currency/currency_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"currency"}
-        return context
-
- ## 6.2 CreateCurrencyView
-class CreateCurrencyView(LoginRequiredMixin,CreateView):
-    form_class = CurrencyForm
-    model = Currency
-    template_name = 'currency/currency_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"currency"}
-        return context
-
- ## 6.3 CurrencyUpdateView
-class CurrencyUpdateView(LoginRequiredMixin,UpdateView):
-    form_class = CurrencyForm
-    model = Currency
-    template_name = 'currency/currency_form.html'
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.update_date = timezone.now()
-        self.object.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"currency"}
-        return context
-
- ## 6.4 CurrencyDeleteView
-class CurrencyDeleteView(LoginRequiredMixin,DeleteView):
-    model = Currency
-    template_name = 'currency/currency_confirm_delete.html'
-
-    def get_success_url(self):
-        return reverse_lazy('suppliers:currency_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"currency"}
-        return context
-
-# 7. Bank
- ## 7.1 BankListView
+ ## 2.3 Bank
+  ### 2.3.1 BankListView
 class BankListView(LoginRequiredMixin,ListView):
     model = Bank
     template_name = 'bank/bank_list.html'
@@ -514,7 +348,7 @@ class BankListView(LoginRequiredMixin,ListView):
         context['supplier'] = self.supplier
         return context
 
- ## 7.2 BankDetailView
+  ### 2.3.2 BankDetailView
 class BankDetailView(LoginRequiredMixin,DetailView):
     model = Bank
     template_name = 'bank/bank_detail.html'
@@ -525,7 +359,7 @@ class BankDetailView(LoginRequiredMixin,DetailView):
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
         return context
 
- ## 7.3 CreateBankView
+  ### 2.3.3 CreateBankView
 class CreateBankView(LoginRequiredMixin,CreateView):
     form_class = BankForm
     model = Bank
@@ -543,7 +377,7 @@ class CreateBankView(LoginRequiredMixin,CreateView):
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
         return context
 
- ## 7.4 BankUpdateView
+  ### 2.3.4 BankUpdateView
 class BankUpdateView(LoginRequiredMixin,UpdateView):
     form_class = BankForm
     model = Bank
@@ -561,7 +395,7 @@ class BankUpdateView(LoginRequiredMixin,UpdateView):
         context['supplier'] = Supplier.objects.get(pk=Bank.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
- ## 7.5 BankDeleteView
+  ### 2.3.5 BankDeleteView
 class BankDeleteView(LoginRequiredMixin,DeleteView):
     model = Bank
     template_name = 'bank/bank_confirm_delete.html'
@@ -575,8 +409,8 @@ class BankDeleteView(LoginRequiredMixin,DeleteView):
         context['supplier'] = Supplier.objects.get(pk=Bank.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
-# 8. Contract
- ## 8.1 ContractListView
+ ## 2.4 Contract
+  ### 2.4.1 ContractListView
 class ContractListView(LoginRequiredMixin,ListView):
     model = Contract
     template_name = 'contract/contract_list.html'
@@ -593,7 +427,7 @@ class ContractListView(LoginRequiredMixin,ListView):
         context['supplier'] = self.supplier
         return context
 
- ## 8.2 CreateContractView
+  ### 2.4.2 CreateContractView
 class CreateContractView(LoginRequiredMixin,CreateView):
     form_class = ContractForm
     model = Contract
@@ -611,7 +445,7 @@ class CreateContractView(LoginRequiredMixin,CreateView):
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
         return context
 
- ## 8.3 ContractUpdateView
+  ### 2.4.3 ContractUpdateView
 class ContractUpdateView(LoginRequiredMixin,UpdateView):
     form_class = ContractForm
     model = Contract
@@ -629,7 +463,7 @@ class ContractUpdateView(LoginRequiredMixin,UpdateView):
         context['supplier'] = Supplier.objects.get(pk=Contract.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
- ## 8.4 ContractDeleteView
+  ### 2.4.4 ContractDeleteView
 class ContractDeleteView(LoginRequiredMixin,DeleteView):
     model = Contract
     template_name = 'contract/contract_confirm_delete.html'
@@ -643,8 +477,8 @@ class ContractDeleteView(LoginRequiredMixin,DeleteView):
         context['supplier'] = Supplier.objects.get(pk=Contract.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
-# 9. ProductPrice
- ## 9.1 ProductPriceListView
+ ## 2.5 ProductPrice
+  ### 2.5.1 ProductPriceListView
 class ProductPriceListView(LoginRequiredMixin,ListView):
     model = ProductPrice
     template_name = 'productprice/productprice_list.html'
@@ -661,7 +495,7 @@ class ProductPriceListView(LoginRequiredMixin,ListView):
         context['supplier'] = self.supplier
         return context
 
- ## 9.2 CreateProductPriceView
+  ### 2.5.2 CreateProductPriceView
 class CreateProductPriceView(LoginRequiredMixin,CreateView):
     form_class = ProductPriceForm
     model = ProductPrice
@@ -679,7 +513,7 @@ class CreateProductPriceView(LoginRequiredMixin,CreateView):
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
         return context
 
- ## 9.3 ProductPriceUpdateView
+  ### 2.5.3 ProductPriceUpdateView
 class ProductPriceUpdateView(LoginRequiredMixin,UpdateView):
     form_class = ProductPriceForm
     model = ProductPrice
@@ -697,7 +531,7 @@ class ProductPriceUpdateView(LoginRequiredMixin,UpdateView):
         context['supplier'] = Supplier.objects.get(pk=ProductPrice.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
- ## 9.4 ProductPriceDeleteView
+  ### 2.5.4 ProductPriceDeleteView
 class ProductPriceDeleteView(LoginRequiredMixin,DeleteView):
     model = ProductPrice
     template_name = 'productprice/productprice_confirm_delete.html'
@@ -711,8 +545,9 @@ class ProductPriceDeleteView(LoginRequiredMixin,DeleteView):
         context['supplier'] = Supplier.objects.get(pk=ProductPrice.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
-# 10. Mold
- ## 10.1 MoldListView
+ ## 2.6 Mold
+  ### 2.6.1 Mold
+   #### 2.6.1.1 MoldListView
 class MoldListView(LoginRequiredMixin,ListView):
     model = Mold
     template_name = 'mold/mold_list.html'
@@ -729,7 +564,7 @@ class MoldListView(LoginRequiredMixin,ListView):
         context['supplier'] = self.supplier
         return context
 
- ## 10.2 MoldDetailView
+   #### 2.6.1.2 MoldDetailView
 class MoldDetailView(LoginRequiredMixin,DetailView):
     model = Mold
     template_name = 'mold/mold_detail.html'
@@ -740,7 +575,7 @@ class MoldDetailView(LoginRequiredMixin,DetailView):
         context['supplier'] = Supplier.objects.get(pk=Mold.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
- ## 10.3 CreateMoldView
+   #### 2.6.1.3 CreateMoldView
 class CreateMoldView(LoginRequiredMixin,CreateView):
     form_class = MoldForm
     model = Mold
@@ -758,7 +593,7 @@ class CreateMoldView(LoginRequiredMixin,CreateView):
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
         return context
 
- ## 10.4 MoldUpdateView
+   #### 2.6.1.4 MoldUpdateView
 class MoldUpdateView(LoginRequiredMixin,UpdateView):
     form_class = MoldForm
     model = Mold
@@ -776,7 +611,7 @@ class MoldUpdateView(LoginRequiredMixin,UpdateView):
         context['supplier'] = Supplier.objects.get(pk=Mold.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
- ## 10.5 MoldDeleteView
+   #### 2.6.1.5 MoldDeleteView
 class MoldDeleteView(LoginRequiredMixin,DeleteView):
     model = Mold
     template_name = 'mold/mold_confirm_delete.html'
@@ -790,8 +625,8 @@ class MoldDeleteView(LoginRequiredMixin,DeleteView):
         context['supplier'] = Supplier.objects.get(pk=Mold.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
-# 11. MoldProduct
- ## 11.1 MoldProductListView
+  ### 2.6.2 MoldProduct
+   #### 2.6.2.1 MoldProductListView
 class MoldProductListView(LoginRequiredMixin,ListView):
     model = MoldProduct
     template_name = 'moldproduct/moldproduct_list.html'
@@ -810,7 +645,7 @@ class MoldProductListView(LoginRequiredMixin,ListView):
         context['mold'] = self.mold
         return context
 
- ## 11.2 CreateMoldProductView
+   #### 2.6.2.2 CreateMoldProductView
  ### not using query_set here because it don't work with createview
 class CreateMoldProductView(LoginRequiredMixin,CreateView):
     form_class = MoldProductForm
@@ -833,7 +668,7 @@ class CreateMoldProductView(LoginRequiredMixin,CreateView):
         context['mold'] = self.mold
         return context
 
- ## 11.3 MoldProductDeleteView
+   #### 2.6.2.3 MoldProductDeleteView
 class MoldProductDeleteView(LoginRequiredMixin,DeleteView):
     model = MoldProduct
     template_name = 'moldproduct/moldproduct_confirm_delete.html'
@@ -854,8 +689,8 @@ class MoldProductDeleteView(LoginRequiredMixin,DeleteView):
         context['mold'] = self.mold
         return context
 
-# 12. MoldFile
- ## 12.1 MoldFileListView
+  ### 2.6.3 MoldFile
+   #### 2.6.3.1 MoldFileListView
 class MoldFileListView(LoginRequiredMixin,ListView):
     model = MoldFile
     template_name = 'moldfile/moldfile_list.html'
@@ -874,7 +709,7 @@ class MoldFileListView(LoginRequiredMixin,ListView):
         context['mold'] = self.mold
         return context
 
- ## 12.2 CreateMoldFileView
+   #### 2.6.3.2 CreateMoldFileView
  ### not using query_set here because it don't work with createview
 class CreateMoldFileView(LoginRequiredMixin,CreateView):
     form_class = MoldFileForm
@@ -897,7 +732,7 @@ class CreateMoldFileView(LoginRequiredMixin,CreateView):
         context['mold'] = self.mold
         return context
 
- ## 12.3 MoldFileUpdateView
+   #### 2.6.3.3 MoldFileUpdateView
 class MoldFileUpdateView(LoginRequiredMixin,UpdateView):
     form_class = MoldFileForm
     model = MoldFile
@@ -919,7 +754,7 @@ class MoldFileUpdateView(LoginRequiredMixin,UpdateView):
         context['mold'] = self.mold
         return context
 
- ## 12.4 MoldFileDeleteView
+   #### 2.6.3.4 MoldFileDeleteView
 class MoldFileDeleteView(LoginRequiredMixin,DeleteView):
     model = MoldFile
     template_name = 'moldfile/moldfile_confirm_delete.html'
@@ -940,8 +775,9 @@ class MoldFileDeleteView(LoginRequiredMixin,DeleteView):
         context['mold'] = self.mold
         return context
 
-# 13. Aql
- ## 13.1 AqlListView
+ ## 2.7 Aql
+  ### 2.7.1 Aql
+   #### 2.7.1.1 AqlListView
 class AqlListView(LoginRequiredMixin,ListView):
     model = Aql
     template_name = 'aql/aql_list.html'
@@ -958,7 +794,7 @@ class AqlListView(LoginRequiredMixin,ListView):
         context['supplier'] = self.supplier
         return context
 
- ## 13.2 AqlDetailView
+   #### 2.7.1.2 AqlDetailView
 class AqlDetailView(LoginRequiredMixin,DetailView):
     model = Aql
     template_name = 'aql/aql_detail.html'
@@ -969,7 +805,7 @@ class AqlDetailView(LoginRequiredMixin,DetailView):
         context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
- ## 13.3 CreateAqlView
+   #### 2.7.1.3 CreateAqlView
 class CreateAqlView(LoginRequiredMixin,CreateView):
     form_class = AqlForm
     model = Aql
@@ -989,7 +825,7 @@ class CreateAqlView(LoginRequiredMixin,CreateView):
         #context['form'].fields['productprice'].queryset = ProductPrice.objects.filter(supplier_id=self.kwargs['pk'])
         return context
 
- ## 13.4 AqlUpdateView
+   #### 2.7.1.4 AqlUpdateView
 class AqlUpdateView(LoginRequiredMixin,UpdateView):
     form_class = AqlForm
     model = Aql
@@ -1007,7 +843,7 @@ class AqlUpdateView(LoginRequiredMixin,UpdateView):
         context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
- ## 13.5 AqlDeleteView
+   #### 2.7.1.5 AqlDeleteView
 class AqlDeleteView(LoginRequiredMixin,DeleteView):
     model = Aql
     template_name = 'aql/aql_confirm_delete.html'
@@ -1021,8 +857,8 @@ class AqlDeleteView(LoginRequiredMixin,DeleteView):
         context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
-# 14. AqlFile
- ## 14.1 AqlFileListView
+  ### 2.7.2 AqlFile
+   #### 2.7.2.1 AqlFileListView
 class AqlFileListView(LoginRequiredMixin,ListView):
     model = AqlFile
     template_name = 'aqlfile/aqlfile_list.html'
@@ -1041,7 +877,7 @@ class AqlFileListView(LoginRequiredMixin,ListView):
         context['aql'] = self.aql
         return context
 
- ## 14.2 CreateAqlFileView
+   #### 2.7.2.2 CreateAqlFileView
  ### not using query_set here because it don't work with createview
 class CreateAqlFileView(LoginRequiredMixin,CreateView):
     form_class = AqlFileForm
@@ -1064,7 +900,7 @@ class CreateAqlFileView(LoginRequiredMixin,CreateView):
         context['aql'] = self.aql
         return context
 
- ## 14.3 AqlFileUpdateView
+   #### 2.7.2.3 AqlFileUpdateView
 class AqlFileUpdateView(LoginRequiredMixin,UpdateView):
     form_class = AqlFileForm
     model = AqlFile
@@ -1086,7 +922,7 @@ class AqlFileUpdateView(LoginRequiredMixin,UpdateView):
         context['aql'] = self.aql
         return context
 
- ## 14.4 AqlFileDeleteView
+   #### 2.7.2.4 AqlFileDeleteView
 class AqlFileDeleteView(LoginRequiredMixin,DeleteView):
     model = AqlFile
     template_name = 'aqlfile/aqlfile_confirm_delete.html'
@@ -1107,8 +943,8 @@ class AqlFileDeleteView(LoginRequiredMixin,DeleteView):
         context['aql'] = self.aql
         return context
 
-# 15. AqlProduct
- ## 15.1 AqlProductListView
+  ### 2.7.3 AqlProduct
+   #### 2.7.3.1 AqlProductListView
 class AqlProductListView(LoginRequiredMixin,ListView):
     model = AqlProduct
     template_name = 'aqlproduct/aqlproduct_list.html'
@@ -1127,7 +963,7 @@ class AqlProductListView(LoginRequiredMixin,ListView):
         context['aql'] = self.aql
         return context
 
- ## 15.2 CreateAqlProductView
+   #### 2.7.3.2 CreateAqlProductView
  ### not using query_set here because it don't work with createview
 class CreateAqlProductView(LoginRequiredMixin,CreateView):
     form_class = AqlProductForm
@@ -1154,7 +990,7 @@ class CreateAqlProductView(LoginRequiredMixin,CreateView):
         context['aql'] = self.aql
         return context
 
- ## 15.3 AqlProductUpdateView
+   #### 2.7.3.3 AqlProductUpdateView
 class AqlProductUpdateView(LoginRequiredMixin,UpdateView):
     form_class = AqlProductForm
     model = AqlProduct
@@ -1176,7 +1012,7 @@ class AqlProductUpdateView(LoginRequiredMixin,UpdateView):
         context['aql'] = self.aql
         return context
 
- ## 15.4 AqlProductDeleteView
+   #### 2.7.3.4 AqlProductDeleteView
 class AqlProductDeleteView(LoginRequiredMixin,DeleteView):
     model = AqlProduct
     template_name = 'aqlproduct/aqlproduct_confirm_delete.html'
@@ -1197,8 +1033,9 @@ class AqlProductDeleteView(LoginRequiredMixin,DeleteView):
         context['aql'] = self.aql
         return context
 
-# 16. Order
- ## 16.1 OrderListView
+ ## 2.8 Order
+  ### 2.8.1 Order
+   #### 2.8.1.1 OrderListView
 class OrderListView(LoginRequiredMixin,ListView):
     model = Order
     template_name = 'order/order_list.html'
@@ -1215,7 +1052,7 @@ class OrderListView(LoginRequiredMixin,ListView):
         context['supplier'] = self.supplier
         return context
 
- ## 16.2 OrderDetailView
+   #### 2.8.1.2 OrderDetailView
 class OrderDetailView(LoginRequiredMixin,DetailView):
     model = Order
     template_name = 'order/order_detail.html'
@@ -1226,7 +1063,7 @@ class OrderDetailView(LoginRequiredMixin,DetailView):
         context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).aql_id).supplier_id)
         return context
 
- ## 16.3 CreateOrderView
+   #### 2.8.1.3 CreateOrderView
 class CreateOrderView(LoginRequiredMixin,CreateView):
     form_class = OrderForm
     model = Order
@@ -1242,10 +1079,12 @@ class CreateOrderView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order"}
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
+        context['form'].fields['aql'].queryset = Aql.objects.filter(supplier_id=self.kwargs['pk'])
+        context['form'].fields['contact'].queryset = Contact.objects.filter(supplier_id=self.kwargs['pk'])
         context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Order'))
         return context
 
- ## 16.4 OrderUpdateView
+   #### 2.8.1.4 OrderUpdateView
 class OrderUpdateView(LoginRequiredMixin,UpdateView):
     form_class = OrderForm
     model = Order
@@ -1261,9 +1100,12 @@ class OrderUpdateView(LoginRequiredMixin,UpdateView):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order"}
         context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).aql_id).supplier_id)
+        context['form'].fields['aql'].queryset = Aql.objects.filter(supplier_id=self.kwargs['pk'])
+        context['form'].fields['contact'].queryset = Contact.objects.filter(supplier_id=self.kwargs['pk'])
+        context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Order'))
         return context
 
- ## 16.5 OrderDeleteView
+   #### 2.8.1.5 OrderDeleteView
 class OrderDeleteView(LoginRequiredMixin,DeleteView):
     model = Order
     template_name = 'order/order_confirm_delete.html'
@@ -1277,8 +1119,8 @@ class OrderDeleteView(LoginRequiredMixin,DeleteView):
         context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).aql_id).supplier_id)
         return context
 
-# 17. OrderProduct
- ## 17.1 OrderProductListView
+  ### 2.8.2 OrderProduct
+   #### 2.8.2.1 OrderProductListView
 class OrderProductListView(LoginRequiredMixin,ListView):
     model = OrderProduct
     template_name = 'orderproduct/orderproduct_list.html'
@@ -1297,7 +1139,7 @@ class OrderProductListView(LoginRequiredMixin,ListView):
         context['order'] = self.order
         return context
 
- ## 17.2 CreateOrderProductView
+   #### 2.8.2.2 CreateOrderProductView
  ### not using query_set here because it don't work with createview
 class CreateOrderProductView(LoginRequiredMixin,CreateView):
     form_class = OrderProductForm
@@ -1318,9 +1160,10 @@ class CreateOrderProductView(LoginRequiredMixin,CreateView):
         self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
         context['supplier'] = self.supplier
         context['order'] = self.order
+        context['form'].fields['product'].queryset = Product.objects.filter(id__in=AqlProduct.objects.filter(aql_id=self.order.aql_id))
         return context
 
- ## 17.3 OrderProductUpdateView
+   #### 2.8.2.3 OrderProductUpdateView
 class OrderProductUpdateView(LoginRequiredMixin,UpdateView):
     form_class = OrderProductForm
     model = OrderProduct
@@ -1340,9 +1183,10 @@ class OrderProductUpdateView(LoginRequiredMixin,UpdateView):
         self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
         context['supplier'] = self.supplier
         context['order'] = self.order
+        context['form'].fields['product'].queryset = Product.objects.filter(id__in=AqlProduct.objects.filter(aql_id=self.order.aql_id))
         return context
 
- ## 17.4 OrderProductDeleteView
+   #### 2.8.2.4 OrderProductDeleteView
 class OrderProductDeleteView(LoginRequiredMixin,DeleteView):
     model = OrderProduct
     template_name = 'orderproduct/orderproduct_confirm_delete.html'
@@ -1363,8 +1207,8 @@ class OrderProductDeleteView(LoginRequiredMixin,DeleteView):
         context['order'] = self.order
         return context
 
-# 18. OrderFile
- ## 18.1 OrderFileListView
+  ### 2.8.3 OrderFile
+   #### 2.8.3.1 OrderFileListView
 class OrderFileListView(LoginRequiredMixin,ListView):
     model = OrderFile
     template_name = 'orderfile/orderfile_list.html'
@@ -1383,7 +1227,7 @@ class OrderFileListView(LoginRequiredMixin,ListView):
         context['order'] = self.order
         return context
 
- ## 18.2 CreateOrderFileView
+   #### 2.8.3.2 CreateOrderFileView
  ### not using query_set here because it don't work with createview
 class CreateOrderFileView(LoginRequiredMixin,CreateView):
     form_class = OrderFileForm
@@ -1406,7 +1250,7 @@ class CreateOrderFileView(LoginRequiredMixin,CreateView):
         context['order'] = self.order
         return context
 
- ## 18.3 OrderFileUpdateView
+   #### 2.8.3.3 OrderFileUpdateView
 class OrderFileUpdateView(LoginRequiredMixin,UpdateView):
     form_class = OrderFileForm
     model = OrderFile
@@ -1428,7 +1272,7 @@ class OrderFileUpdateView(LoginRequiredMixin,UpdateView):
         context['order'] = self.order
         return context
 
- ## 18.4 OrderFileDeleteView
+   #### 2.8.3.4 OrderFileDeleteView
 class OrderFileDeleteView(LoginRequiredMixin,DeleteView):
     model = OrderFile
     template_name = 'orderfile/orderfile_confirm_delete.html'
@@ -1449,8 +1293,8 @@ class OrderFileDeleteView(LoginRequiredMixin,DeleteView):
         context['order'] = self.order
         return context
 
-# 19. OrderPayment
- ## 19.1 OrderPaymentListView
+  ### 2.8.4 OrderPayment
+   #### 2.8.4.1 OrderPaymentListView
 class OrderPaymentListView(LoginRequiredMixin,ListView):
     model = OrderPayment
     template_name = 'orderpayment/orderpayment_list.html'
@@ -1469,7 +1313,7 @@ class OrderPaymentListView(LoginRequiredMixin,ListView):
         context['order'] = self.order
         return context
 
- ## 19.2 CreateOrderPaymentView
+   #### 2.8.4.2 CreateOrderPaymentView
 class CreateOrderPaymentView(LoginRequiredMixin,CreateView):
     form_class = OrderPaymentForm
     model = OrderPayment
@@ -1489,9 +1333,10 @@ class CreateOrderPaymentView(LoginRequiredMixin,CreateView):
         self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
         context['supplier'] = self.supplier
         context['order'] = self.order
+        context['form'].fields['bank'].queryset = Bank.objects.filter(supplier_id=self.supplier.id)
         return context
 
- ## 19.3 OrderPaymentUpdateView
+   #### 2.8.4.3 OrderPaymentUpdateView
 class OrderPaymentUpdateView(LoginRequiredMixin,UpdateView):
     form_class = OrderPaymentForm
     model = OrderPayment
@@ -1511,9 +1356,10 @@ class OrderPaymentUpdateView(LoginRequiredMixin,UpdateView):
         self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
         context['supplier'] = self.supplier
         context['order'] = self.order
+        context['form'].fields['bank'].queryset = Bank.objects.filter(supplier_id=self.supplier.id)
         return context
 
- ## 19.4 OrderPaymentDeleteView
+   #### 2.8.4.4 OrderPaymentDeleteView
 class OrderPaymentDeleteView(LoginRequiredMixin,DeleteView):
     model = OrderPayment
     template_name = 'orderpayment/orderpayment_confirm_delete.html'
@@ -1534,8 +1380,8 @@ class OrderPaymentDeleteView(LoginRequiredMixin,DeleteView):
         context['order'] = self.order
         return context
 
-# 20. OrderDelivery
- ## 20.1 OrderDeliveryListView
+  ### 2.8.5 OrderDelivery
+   #### 2.8.5.1 OrderDeliveryListView
 class OrderDeliveryListView(LoginRequiredMixin,ListView):
     model = OrderDelivery
     template_name = 'orderdelivery/orderdelivery_list.html'
@@ -1554,7 +1400,7 @@ class OrderDeliveryListView(LoginRequiredMixin,ListView):
         context['order'] = self.order
         return context
 
- ## 20.2 CreateOrderDeliveryView
+   #### 2.8.5.2 CreateOrderDeliveryView
 class CreateOrderDeliveryView(LoginRequiredMixin,CreateView):
     form_class = OrderDeliveryForm
     model = OrderDelivery
@@ -1574,9 +1420,10 @@ class CreateOrderDeliveryView(LoginRequiredMixin,CreateView):
         self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
         context['supplier'] = self.supplier
         context['order'] = self.order
+        context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Delivery'))
         return context
 
- ## 20.3 OrderDeliveryUpdateView
+   #### 2.8.5.3 OrderDeliveryUpdateView
 class OrderDeliveryUpdateView(LoginRequiredMixin,UpdateView):
     form_class = OrderDeliveryForm
     model = OrderDelivery
@@ -1598,7 +1445,7 @@ class OrderDeliveryUpdateView(LoginRequiredMixin,UpdateView):
         context['order'] = self.order
         return context
 
- ## 20.4 OrderDeliveryDeleteView
+   #### 2.8.5.4 OrderDeliveryDeleteView
 class OrderDeliveryDeleteView(LoginRequiredMixin,DeleteView):
     model = OrderDelivery
     template_name = 'orderdelivery/orderdelivery_confirm_delete.html'

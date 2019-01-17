@@ -8,18 +8,23 @@ User = get_user_model()
 # 1. Category
 # 2. Color
 # 3. Size
-# 4. Product
- ## 4.1 Product
- ## 4.2 PackageMeasurement
- ## 4.3 ProductBundle
+# 4. Status
+# 5. Currency
+# 6. Product
+ ## 6.1 Product
+ ## 6.2 PackageMeasurement
+ ## 6.3 ProductBundle
 
 # 1. Category
 class Category(models.Model):
     name = models.CharField(max_length=200)
     parent = models.ForeignKey('self',on_delete=models.CASCADE,related_name="children",blank=True,null=True)
 
+    class Meta:
+        unique_together = ('name', 'parent')
+
     def get_absolute_url(self):
-        return reverse('products:category_detail',kwargs={'pk':self.pk})
+        return reverse('products:category_list')
 
     def __str__(self):
         full_path = [self.name]
@@ -35,6 +40,9 @@ class Category(models.Model):
 class Color(models.Model):
     name = models.CharField(max_length=100,unique=True)
 
+    def get_absolute_url(self):
+        return reverse('products:color_list')
+
     def __str__(self):
         return self.name
 
@@ -42,11 +50,46 @@ class Color(models.Model):
 class Size(models.Model):
     name = models.CharField(max_length=100,unique=True)
 
+    def get_absolute_url(self):
+        return reverse('products:size_list')
+
     def __str__(self):
         return self.name
 
-# 4. Product
- ## 4.1 Product
+# 4. Status
+class Status(models.Model):
+    title = models.CharField(max_length=200)
+    parent = models.ForeignKey('self',on_delete=models.CASCADE,related_name="children",blank=True,null=True)
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('products:status_list')
+
+    def __str__(self):
+        full_path = [self.title]
+        k = self.parent
+
+        while k is not None:
+            full_path.append(k.title)
+            k = k.parent
+
+        return ' -> '.join(full_path[::-1])
+
+# 5. Currency
+class Currency(models.Model):
+    title = models.CharField(max_length=200)
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('products:currency_list')
+
+    def __str__(self):
+        return self.title
+
+# 6. Product
+ ## 6.1 Product
 class Product(models.Model):
     STATUS_CLASS = {"Planning":"primary", "In Progress":"secondary", "Final":"success"}
 
@@ -61,7 +104,7 @@ class Product(models.Model):
     weight = models.DecimalField(max_digits=6, decimal_places=2)
     category = models.ForeignKey(Category,on_delete=models.PROTECT,verbose_name="Select Category")
     detail = models.TextField(blank=True)
-    status = models.ForeignKey('suppliers.Status',on_delete=models.PROTECT,verbose_name="Select Status")
+    status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -79,7 +122,7 @@ class Product(models.Model):
     def __str__(self):
         return self.title
 
- ## 4.2 PackageMeasurement
+ ## 6.2 PackageMeasurement
 class PackageMeasurement(models.Model):
     UNIT_TYPE = (
     ('GM-CM','Gm-cm'),
@@ -109,7 +152,7 @@ class PackageMeasurement(models.Model):
     def __str__(self):
         return self.title
 
- ## 4.3 ProductBundle
+ ## 6.3 ProductBundle
 class ProductBundle(models.Model):
     product = models.ForeignKey(Product,on_delete=models.CASCADE)
     size = models.ForeignKey(Size,on_delete=models.PROTECT,blank=True,null=True,verbose_name="Select Size")

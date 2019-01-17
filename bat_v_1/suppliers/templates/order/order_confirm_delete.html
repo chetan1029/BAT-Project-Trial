@@ -2,7 +2,7 @@
 {% extends "base_menu.html" %}
 {% load staticfiles %}
 {% block content %}
-{% include 'menu.html' %}
+{% include 'suppliers_menu.html' %}
 <div class="row">
   <div class="col-12 list">
 
@@ -42,7 +42,7 @@
             <form action="" method="post">{% csrf_token %}
               <p>Are you sure you want to delete "{{ object }}"?</p>
               <input class='btn btn-danger' type="submit" value="Confirm" />
-              <a href="{% url 'suppliers:order_list' pk=supplier.pk %}" class="btn btn-info mb-0">Cancel</a>
+              <a href="{% url 'suppliers:order_detail' pk=object.pk %}" class="btn btn-info mb-0">Cancel</a>
             </form>
           </div>
         </div>

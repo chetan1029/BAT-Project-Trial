@@ -2,6 +2,7 @@
 {% extends "base_menu.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
+{% include 'products_menu.html' %}
 <div class="row">
   <div class="col-12 list">
 
@@ -43,7 +44,7 @@
                   <i class="simple-icon-trash"></i>
                 </a>
               </div>
-              <span class="badge badge-pill badge-{{product.get_status_class}} position-absolute badge-top-left">{{ product.status }}</span>
+              <span class="badge badge-pill badge-{{product.get_status_class}} position-absolute badge-top-left">{{ product.status.title }}</span>
               <img src="{{MEDIA_URL}}{{ product.image }}" alt="{{ product.title }}" class="card-img-top" />
 
               <div class="card-body">

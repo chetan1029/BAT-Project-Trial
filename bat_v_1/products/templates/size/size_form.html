@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'products_menu.html' %}
+<div class="row">
+  <div class="col-12">
+    {% if not form.instance.pk %}
+    <h1>Add Size</h1>
+    {% else %}
+    <h1>Edit Size</h1>
+    {% endif %}
+    <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+      <ol class="breadcrumb pt-0">
+        <li class="breadcrumb-item">
+          <a href="{% url 'dashboard' %}">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{% url 'products:size_list' %}">Size</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Add Size</li>
+      </ol>
+    </nav>
+    <div class="separator mb-5"></div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-12">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="mb-4">Basic</h5>
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{form|crispy}}
+          <button type="submit" class="btn btn-primary mb-0">Submit</button>
+          <a href="{% url 'products:size_list' %}" class="btn btn-danger mb-0">Cancel</a>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

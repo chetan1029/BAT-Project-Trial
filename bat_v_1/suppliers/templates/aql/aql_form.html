@@ -3,7 +3,7 @@
 {% load staticfiles %}
 {% load crispy_forms_tags %}
 {% block content %}
-{% include 'menu.html' %}
+{% include 'suppliers_menu.html' %}
 <div class="row">
   <div class="col-12 list">
 
@@ -52,7 +52,11 @@
               {% csrf_token %}
               {{form|crispy}}
               <button type="submit" class="btn btn-primary mb-0">Submit</button>
+              {% if not form.instance.pk %}
               <a href="{% url 'suppliers:aql_list' supplier.pk %}" class="btn btn-danger mb-0">Cancel</a>
+              {% else %}
+              <a href="{% url 'suppliers:aql_detail' pk=form.instance.pk %}" class="btn btn-danger mb-0">Cancel</a>
+              {% endif %}
             </form>
           </div>
         </div>

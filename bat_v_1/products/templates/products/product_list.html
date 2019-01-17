@@ -2,6 +2,7 @@
 {% extends "base_menu.html" %}
 {% load staticfiles %}
 {% block content %}
+{% include 'products_menu.html' %}
 <div class="row">
   <div class="col-12">
     <div class="mb-3">
@@ -91,7 +92,7 @@
           <p class="mb-1 text-muted text-small w-15 w-sm-100">{{ product.category.name }}</p>
           <p class="mb-1 text-muted text-small w-15 w-sm-100">{{ product.create_date|date:"d M Y"}}</p>
           <div class="w-15 w-sm-100">
-            <span class="badge badge-pill badge-{{product.get_status_class}}">{{ product.status }}</span>
+            <span class="badge badge-pill badge-{{product.get_status_class}}">{{ product.status.title }}</span>
           </div>
         </div>
 
