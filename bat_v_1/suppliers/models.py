@@ -2,7 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 import random
-from products.models import Product, Category, Status, Currency
+from products.models import (Product)
+from settings.models import (Category, Status, Currency)
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
 import os, datetime

@@ -112,6 +112,11 @@
                     </li>
                 </ul>
                 <ul class="list-unstyled" data-link="basic">
+                  <li {% if active_menu.menu2 == 'settings' %}class="active"{% endif %}>
+                      <a href="{% url 'settings:category_list' %}">
+                          <i class="simple-icon-settings"></i> Settings
+                      </a>
+                  </li>
                     <li {% if active_menu.menu2 == 'products' %}class="active"{% endif %}>
                         <a href="{% url 'products:product_list' %}">
                             <i class="simple-icon-rocket"></i> Products

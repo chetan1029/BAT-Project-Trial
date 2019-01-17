@@ -1,0 +1,21 @@
+{% include 'settings_menu.html' %}
+<ul class="nav nav-tabs separator-tabs ml-0 mb-5" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu4 == 'category' %}active{% endif %}" href="{% url 'settings:category_list' %}">CATEGORY</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu4 == 'status' %}active{% endif %}" href="{% url 'settings:status_list' %}">STATUS</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu4 == 'currency' %}active{% endif %}" href="{% url 'settings:currency_list' %}">CURRENCY</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu4 == 'color' %}active{% endif %}" href="{% url 'settings:color_list' %}">COLOR</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu4 == 'size' %}active{% endif %}" href="{% url 'settings:size_list' %}">SIZE</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu4 == 'box' %}active{% endif %}" href="{% url 'settings:box_list' %}">BOX</a>
+  </li>
+</ul>

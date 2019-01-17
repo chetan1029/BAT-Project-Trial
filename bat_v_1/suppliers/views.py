@@ -13,7 +13,8 @@ from suppliers.forms import (SupplierForm, PaymentTermsForm, ContactForm, BankFo
                              ProductPriceForm, MoldForm, MoldProductForm, MoldFileForm, AqlForm,
                              AqlFileForm, AqlProductForm, OrderForm, OrderProductForm, OrderFileForm,
                              OrderPaymentForm, OrderDeliveryForm)
-from products.models import (Status, Product)
+from products.models import (Product)
+from settings.models import (Status)
 from django.db.models import Q, ProtectedError
 from django import forms
 from django.db import IntegrityError
