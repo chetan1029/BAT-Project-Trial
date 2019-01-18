@@ -14,7 +14,7 @@ from suppliers.forms import (SupplierForm, PaymentTermsForm, ContactForm, BankFo
                              AqlFileForm, AqlProductForm, OrderForm, OrderProductForm, OrderFileForm,
                              OrderPaymentForm, OrderDeliveryForm)
 from products.models import (Product)
-from settings.models import (Status)
+from settings.models import (Status, Category)
 from django.db.models import Q, ProtectedError
 from django import forms
 from django.db import IntegrityError
@@ -1161,7 +1161,7 @@ class CreateOrderProductView(LoginRequiredMixin,CreateView):
         self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
         context['supplier'] = self.supplier
         context['order'] = self.order
-        context['form'].fields['product'].queryset = Product.objects.filter(id__in=AqlProduct.objects.filter(aql_id=self.order.aql_id))
+        context['form'].fields['product'].queryset = AqlProduct.objects.filter(aql_id=self.order.aql_id).select_related()
         return context
 
    #### 2.8.2.3 OrderProductUpdateView
@@ -1184,7 +1184,7 @@ class OrderProductUpdateView(LoginRequiredMixin,UpdateView):
         self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
         context['supplier'] = self.supplier
         context['order'] = self.order
-        context['form'].fields['product'].queryset = Product.objects.filter(id__in=AqlProduct.objects.filter(aql_id=self.order.aql_id))
+        context['form'].fields['product'].queryset = AqlProduct.objects.filter(aql_id=self.order.aql_id).select_related()
         return context
 
    #### 2.8.2.4 OrderProductDeleteView

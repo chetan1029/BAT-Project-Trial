@@ -26,6 +26,7 @@ urlpatterns = [
     path('settings/',include('settings.urls', namespace="settings")),
     path('products/',include('products.urls', namespace="products")),
     path('suppliers/',include('suppliers.urls', namespace="suppliers")),
+    path('shipping/',include('shipping.urls', namespace="shipping")),
     path('accounts/',include('django.contrib.auth.urls')),
     path('test/',views.TestPage.as_view(),name="test"),
     path('dashboard/',views.DashboardPage.as_view(),name="dashboard"),

@@ -92,9 +92,9 @@ class Currency(models.Model):
  ## 1.6 Box
 class Box(models.Model):
     title = models.CharField(max_length=200)
-    length = models.DecimalField(max_digits=6, decimal_places=2)
-    width = models.DecimalField(max_digits=6, decimal_places=2)
-    depth = models.DecimalField(max_digits=6, decimal_places=2)
+    length = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Length (cm)")
+    width = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Width (cm)")
+    depth = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Depth (cm)")
     cbm = models.DecimalField(max_digits=7, decimal_places=3, verbose_name="CBM")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())

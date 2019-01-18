@@ -37,11 +37,11 @@ from django.db.models import Q
   ### 1.5.2 CreateCurrecyView
   ### 1.5.3 CurrecyUpdateView
   ### 1.5.4 CurrecyDeleteView
- ## 1.5 Box
-  ### 1.5.1 BoxListView
-  ### 1.5.2 CreateBoxView
-  ### 1.5.3 BoxUpdateView
-  ### 1.5.4 BoxDeleteView
+ ## 1.6 Box
+  ### 1.6.1 BoxListView
+  ### 1.6.2 CreateBoxView
+  ### 1.6.3 BoxUpdateView
+  ### 1.6.4 BoxDeleteView
 
 # 2. Amazon
  ## 2.1 AmazonMarket
@@ -311,8 +311,8 @@ class CurrencyDeleteView(LoginRequiredMixin,DeleteView):
         context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"currency"}
         return context
 
- ## 1.5 Box
-  ### 1.5.1 BoxListView
+ ## 1.6 Box
+  ### 1.6.1 BoxListView
 class BoxListView(LoginRequiredMixin,ListView):
     model = Box
     template_name = 'box/box_list.html'
@@ -322,26 +322,15 @@ class BoxListView(LoginRequiredMixin,ListView):
         context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"box"}
         return context
 
-  ### 1.5.2 CreateBoxView
+  ### 1.6.2 CreateBoxView
 class CreateBoxView(LoginRequiredMixin,CreateView):
-    form_class = BoxForm
-    model = Box
-    template_name = 'box/box_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"box"}
-        return context
-
-  ### 1.5.3 BoxUpdateView
-class BoxUpdateView(LoginRequiredMixin,UpdateView):
     form_class = BoxForm
     model = Box
     template_name = 'box/box_form.html'
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.update_date = timezone.now()
+        self.object.cbm = round(((self.object.length/100)*(self.object.width/100)*(self.object.depth/100)),3)
         self.object.save()
         return super().form_valid(form)
 
@@ -350,7 +339,25 @@ class BoxUpdateView(LoginRequiredMixin,UpdateView):
         context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"box"}
         return context
 
-  ### 1.5.4 BoxDeleteView
+  ### 1.6.3 BoxUpdateView
+class BoxUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = BoxForm
+    model = Box
+    template_name = 'box/box_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.cbm = round(((self.object.length/100)*(self.object.width/100)*(self.object.depth/100)),3)
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"box"}
+        return context
+
+  ### 1.6.4 BoxDeleteView
 class BoxDeleteView(LoginRequiredMixin,DeleteView):
     model = Box
     template_name = 'box/box_confirm_delete.html'

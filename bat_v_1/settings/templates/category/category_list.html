@@ -43,7 +43,7 @@
                 <p class="list-item-heading">{{ category.name }}</p>
               </td>
               <td>
-                <p class="list-item-heading">{% if category.parent %}{{ category.parent }}{% endif %}</p>
+                <p class="list-item-heading">{{ category.parent|default_if_none:"" }}</p>
               </td>
               <td>
                 <a href="{% url 'settings:update_category' pk=category.pk %}" class="btn btn-outline-info icon-button ">

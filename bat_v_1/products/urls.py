@@ -19,4 +19,10 @@ urlpatterns = [
     path('<int:pk>/product-bundle/add',views.CreateProductBundleView.as_view(),name='create_productbundle'),
     path('product-bundle/<int:pk>/edit',views.ProductBundleUpdateView.as_view(),name='update_productbundle'),
     path('product-bundle/<int:pk>/delete',views.ProductBundleDeleteView.as_view(),name='delete_productbundle'),
+    # AmazonProduct
+    path('amazon',views.AmazonProductListView.as_view(),name='amazonproduct_list'),
+    path('amazon/add',views.CreateAmazonProductView.as_view(),name='create_amazonproduct'),
+    path('amazon/<int:pk>',views.AmazonProductDetailView.as_view(),name='amazonproduct_detail'),
+    path('amazon/<int:pk>/edit/',views.AmazonProductUpdateView.as_view(),name='update_amazonproduct'),
+    path('amazon/<int:pk>/delete/',views.AmazonProductDeleteView.as_view(),name='delete_amazonproduct'),
 ]

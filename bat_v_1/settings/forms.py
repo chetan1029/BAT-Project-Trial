@@ -54,7 +54,7 @@ class BoxForm(forms.ModelForm):
 
     class Meta:
         model = Box
-        fields = ('title','length','width','depth','cbm')
+        fields = ('title','length','width','depth')
 
 # 2. Amazon
  ## 2.1 AmazonMarketForm
