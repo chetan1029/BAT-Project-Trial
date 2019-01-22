@@ -127,6 +127,11 @@
                             <i class="simple-icon-pie-chart"></i> Suppliers
                         </a>
                     </li>
+                    <li {% if active_menu.menu2 == 'shipping' %}class="active"{% endif %}>
+                        <a href="{% url 'shipping:shipment_list' %}">
+                            <i class="simple-icon-plane"></i> Shipping
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>

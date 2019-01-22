@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'shipping_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ shipment.name }}</h1>
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'shipping:shipment_list' %}">Shipment</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ shipment.name }}</li>
+        </ol>
+      </nav>
+    </div>
+
+   {% include 'shipment/menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
+        <div class="row">
+          <div class="col-lg-4 col-12 mb-4">
+            <div class="card mb-4">
+              <div class="position-absolute card-top-buttons">
+                <a href="{% url 'shipping:update_shipment' pk=shipment.pk %}" class="btn btn-outline-info icon-button ">
+                  <i class="simple-icon-pencil"></i>
+                </a>
+                <a href="{% url 'shipping:delete_shipment' pk=shipment.pk %}" class="btn btn-outline-danger icon-button ">
+                  <i class="simple-icon-trash"></i>
+                </a>
+              </div>
+
+              <div class="card-body">
+                <h6 class="mb-3"><strong>Shipment via {{shipment.type}}</strong></h6>
+
+                <p class="text-muted text-small mb-2">Packing Type</p>
+                <p class="mb-3">{{shipment.packing_type}}</p>
+                <p class="text-muted text-small mb-2">Order ID</p>
+                <p class="mb-3">{{shipment.order}}</p>
+                <p class="text-muted text-small mb-2">CBM/KG Price</p>
+                <p class="mb-3">{{shipment.kg_cbm_price}} {{shipment.currency}}</p>
+                <p class="text-muted text-small mb-2">Invoice Agent</p>
+                <p class="mb-3">{{shipment.invoice_agent}}</p>
+                <p class="text-muted text-small mb-2">Invoice Value</p>
+                <p class="mb-3">{{shipment.invoice_value}} {{shipment.invoice_currency}}</p>
+                <p class="text-muted text-small mb-2">Carrier</p>
+                {% if shipment.carrier is not None %}
+                <p class="mb-3">{{shipment.carrier}}</p>
+                {% else %}
+                <p class="mb-3">---</p>
+                {% endif %}
+                <p class="text-muted text-small mb-2">Prepaid VAT</p>
+                <p class="mb-3">{{shipment.prepaid_vat}} {{shipment.vat_currency}}</p>
+                <p class="text-muted text-small mb-2">Actual VAT</p>
+                {% if shipment.actual_vat is not None %}
+                <p class="mb-3">{{shipment.actual_vat}} {{shipment.vat_currency}}</p>
+                {% else %}
+                <p class="mb-3">---</p>
+                {% endif %}
+                <p class="text-muted text-small mb-2">VAT Claimed</p>
+                {% if shipment.vat_claimed is not None %}
+                <p class="mb-3">{{shipment.vat_claimed}} {{shipment.vat_currency}}</p>
+                {% else %}
+                <p class="mb-3">---</p>
+                {% endif %}
+                <p class="text-muted text-small mb-2">Pickup Date</p>
+                {% if shipment.pickup_date is not None %}
+                <p class="mb-3">{{shipment.pickup_date| date:"d M Y h:i A"}}</p>
+                {% else %}
+                <p class="mb-3">---</p>
+                {% endif %}
+                <p class="text-muted text-small mb-2">ETA</p>
+                {% if shipment.eta is not None %}
+                <p class="mb-3">{{shipment.eta| date:"d M Y h:i A"}}</p>
+                {% else %}
+                <p class="mb-3">---</p>
+                {% endif %}
+                <p class="text-muted text-small mb-2">ETD</p>
+                {% if shipment.etd is not None %}
+                <p class="mb-3">{{shipment.etd| date:"d M Y h:i A"}}</p>
+                {% else %}
+                <p class="mb-3">---</p>
+                {% endif %}
+                <hr >
+                <p class="text-muted text-small mb-2">Created at</p>
+                <p class="mb-3">{{shipment.create_date| date:"d M Y h:i A"}}</p>
+                <p class="text-muted text-small mb-2">Updated at</p>
+                <p class="mb-3">{{shipment.update_date| date:"d M Y h:i A"}}</p>
+
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-12 col-lg-8">
+            <div class="row">
+              <div class="col-6 mb-4">
+                <div class="card dashboard-small-chart">
+                  <div class="card-body">
+                    <p class="lead color-theme-1 mb-1 value"></p>
+                    <p class="mb-0 label text-small"></p>
+                    <div class="chart">
+                      <canvas id="smallChart1"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 mb-4">
+                <div class="card dashboard-small-chart">
+                  <div class="card-body">
+                    <p class="lead color-theme-1 mb-1 value"></p>
+                    <p class="mb-0 label text-small"></p>
+                    <div class="chart">
+                      <canvas id="smallChart2"></canvas>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <div class="col-6 mb-4">
+                <div class="card dashboard-small-chart">
+                  <div class="card-body">
+                    <p class="lead color-theme-1 mb-1 value"></p>
+                    <p class="mb-0 label text-small"></p>
+                    <div class="chart">
+                      <canvas id="smallChart3"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 mb-4">
+                <div class="card dashboard-small-chart">
+                  <div class="card-body">
+                    <p class="lead color-theme-1 mb-1 value"></p>
+                    <p class="mb-0 label text-small"></p>
+                    <div class="chart">
+                      <canvas id="smallChart4"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-4">
+              <div class="card-body">
+                <p class="list-item-heading mb-4">Popularity</p>
+                <div class="chart-container">
+                  <canvas id="areaChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

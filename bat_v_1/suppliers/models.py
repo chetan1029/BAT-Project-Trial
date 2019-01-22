@@ -374,7 +374,7 @@ class OrderPayment(models.Model):
     def __str__(self):
         return "Invoice ID: "+str(self.id)
 
- ## 2.7.4 OrderPayment
+ ## 2.7.5 OrderDelivery
 def generate_orderdeliveryfilename(instance, filename):
     name, extension = os.path.splitext(filename)
     return 'suppliers/{0}/Orders/{1}/delivery/delivery-{2}-{3}-{4}{5}'.format(instance.order.aql.supplier.id, instance.order.id, slugify(instance.order.aql.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
@@ -382,6 +382,7 @@ def generate_orderdeliveryfilename(instance, filename):
 class OrderDelivery(models.Model):
     order = models.ForeignKey(Order,on_delete=models.CASCADE,verbose_name="Select Order")
     title = models.CharField(max_length=100)
+    orderproduct = models.ForeignKey(OrderProduct,on_delete=models.CASCADE,verbose_name="Select Order Product", default="")
     quantity = models.IntegerField()
     orderpayment = models.ForeignKey(OrderPayment,on_delete=models.CASCADE,verbose_name="Select Order Payment")
     status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status")

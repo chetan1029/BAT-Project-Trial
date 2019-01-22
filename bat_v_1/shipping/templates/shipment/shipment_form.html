@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'shipping_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+    <div class="mb-2">
+      {% if not form.instance.pk %}
+      <h1>Create Shipment</h1>
+      {% else %}
+      <h1>Update Shipment</h1>
+      {% endif %}
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'shipping:shipment_list' %}">Shipment</a>
+          </li>
+          {% if not form.instance.pk %}
+          <li class="breadcrumb-item active" aria-current="page">Create Shipment</li>
+          {% else %}
+          <li class="breadcrumb-item active" aria-current="page">Update Shipment</li>
+          {% endif %}
+        </ol>
+      </nav>
+    </div>
+    <div class="tab-content">
+      <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
+        <div class="tab-card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                <h5 class="card-title">Shipment</h5>
+              </div>
+            </div>
+            <form method="POST">
+              {% csrf_token %}
+              {{form|crispy}}
+              <button type="submit" class="btn btn-primary mb-0">Submit</button>
+              <a href="{% url 'shipping:shipment_detail' pk=form.instance.pk %}" class="btn btn-danger mb-0">Cancel</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

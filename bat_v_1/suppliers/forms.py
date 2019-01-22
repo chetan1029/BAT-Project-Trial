@@ -156,4 +156,4 @@ class OrderDeliveryForm(forms.ModelForm):
 
     class Meta:
         model = OrderDelivery
-        fields = ('title','quantity','orderpayment','status','file_url')
+        fields = ('title','orderproduct','quantity','orderpayment','status','file_url')

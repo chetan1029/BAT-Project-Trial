@@ -18,7 +18,11 @@
         <li class="breadcrumb-item">
           <a href="{% url 'products:product_list' %}">Products</a>
         </li>
+        {% if not form.instance.pk %}
         <li class="breadcrumb-item active" aria-current="page">Add Product</li>
+        {% else %}
+        <li class="breadcrumb-item active" aria-current="page">Edit Product</li>
+        {% endif %}
       </ol>
     </nav>
     <div class="separator mb-5"></div>

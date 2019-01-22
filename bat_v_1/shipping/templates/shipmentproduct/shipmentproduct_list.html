@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% block content %}
+{% include 'shipping_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ shipment.name }}</h1>
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'shipping:shipment_list' %}">Shipment</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ shipment.name }}</li>
+        </ol>
+      </nav>
+    </div>
+
+   {% include 'shipment/menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                <h5 class="card-title">Shipment Products</h5>
+              </div>
+              <div class="col-6">
+                <div class="float-sm-right text-zero">
+                  <a href="{% url 'shipping:create_shipmentproduct' pk=shipment.pk %}" class="btn btn-primary mr-1">Add Product</a>
+                </div>
+              </div>
+            </div>
+
+            <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Quantity Send</th>
+                  <th>Quantity Received</th>
+                  <th>Missing Units</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for shipmentproduct in shipmentproduct_list %}
+                <tr>
+                  <td>
+                    <p class="list-item-heading">{{ shipmentproduct.product }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ shipmentproduct.quantity_send }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{% if shipmentproduct.quantity_received is not None %}{{ shipmentproduct.quantity_received }}{% endif %}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{% if shipmentproduct.missing_units is not None %}{{ shipmentproduct.missing_units }}{% endif %}</p>
+                  </td>
+                  <td>
+                    <a href="{% url 'shipping:update_shipmentproduct' pk=shipmentproduct.pk %}" class="btn btn-outline-info icon-button ">
+                      <i class="simple-icon-pencil"></i>
+                    </a>
+                    <a href="{% url 'shipping:delete_shipmentproduct' pk=shipmentproduct.pk %}" class="btn btn-outline-danger icon-button ">
+                      <i class="simple-icon-trash"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
