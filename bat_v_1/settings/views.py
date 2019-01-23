@@ -6,9 +6,9 @@ from django.views.generic import (TemplateView, ListView, DetailView, CreateView
                                   DeleteView)
 from django.urls import reverse_lazy
 from settings.models import (Category, Status, Currency, Color, Size,
-                             AmazonMarket, Box)
+                             AmazonMarket, AmazonMwsauth, Box)
 from settings.forms import (CategoryForm, StatusForm, CurrencyForm, ColorForm, SizeForm,
-                            AmazonMarketForm, BoxForm)
+                            AmazonMarketForm, AmazonMwsauthForm, BoxForm)
 from django.db.models import Q
 # Create your views here.
 # 1. Basic
@@ -49,6 +49,12 @@ from django.db.models import Q
   ### 2.1.2 CreateAmazonMarketView
   ### 2.1.3 AmazonMarketUpdateView
   ### 2.1.4 AmazonMarketDeleteView
+ ## 2.2 AmazonMwsauth
+  ### 2.2.1 AmazonMwsauthListView
+  ### 2.2.2 CreateAmazonMwsauthView
+  ### 2.2.3 AmazonMwsauthUpdateView
+  ### 2.2.4 AmazonMwsauthDeleteView
+
 
 # 1. Basic
  ## 1.1 Category
@@ -421,4 +427,56 @@ class AmazonMarketDeleteView(LoginRequiredMixin,DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"market"}
+        return context
+
+ ## 2.2 AmazonMwsauth
+  ### 2.2.1 AmazonMwsauthListView
+class AmazonMwsauthListView(LoginRequiredMixin,ListView):
+    model = AmazonMwsauth
+    template_name = 'amazonmwsauth/amazonmwsauth_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"mwsauth"}
+        return context
+
+  ### 2.1.2 CreateAmazonMarketView
+class CreateAmazonMwsauthView(LoginRequiredMixin,CreateView):
+    form_class = AmazonMwsauthForm
+    model = AmazonMwsauth
+    template_name = 'amazonmwsauth/amazonmwsauth_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"mwsauth"}
+        return context
+
+  ### 2.1.3 AmazonMwsauthUpdateView
+class AmazonMwsauthUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = AmazonMwsauthForm
+    model = AmazonMwsauth
+    template_name = 'amazonmwsauth/amazonmwsauth_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"mwsauth"}
+        return context
+
+  ### 2.1.4 AmazonMwsauthDeleteView
+class AmazonMwsauthDeleteView(LoginRequiredMixin,DeleteView):
+    model = AmazonMwsauth
+    template_name = 'amazonmwsauth/amazonmwsauth_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('settings:amazonmarket_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"mwsauth"}
         return context

@@ -40,7 +40,7 @@ class SupplierForm(forms.ModelForm):
 
     class Meta:
         model = Supplier
-        fields = ('category','name','alternate_name','logo','address1','address2','city','zip','region','country','detail')
+        fields = ('category','name','alternate_name','logo','address1','address2','city','zip','region','region_code','country','country_code','detail')
 
  ## 2.2 ContactForm
 class ContactForm(forms.ModelForm):

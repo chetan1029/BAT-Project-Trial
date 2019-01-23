@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 from suppliers.models import (Order, Supplier)
-from settings.models import (Currency, Status)
+from settings.models import (Currency, Status, AmazonMarket)
 from products.models import (Product, AmazonProduct)
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -11,9 +11,25 @@ User = get_user_model()
 # 1. Shipment
  ## 1.1 Shipment
  ## 1.2 ShipmentProduct
- ## 1.3 ShipmentAmazon
+ ## 1.3 ShipmentFullfillment
+ ## 1.4 ShipmentFiles
 
 # 1. Shipment
+ ## 1.3 ShipmentFullfillment
+class ShipmentFullfillment(models.Model):
+    center_id = models.CharField(max_length=30,unique=True)
+    name = models.CharField(max_length=100)
+    address_line1 = models.CharField(max_length=100)
+    city = models.CharField(max_length=30)
+    state = models.CharField(max_length=50)
+    postal_code = models.CharField(max_length=30)
+    country_code = models.CharField(max_length=30)
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def __str__(self):
+        return self.center_id+": "+self.name
+
  ## 1.1 Shipment
 class Shipment(models.Model):
     PACKING_TYPE_VALUE = (
@@ -25,6 +41,7 @@ class Shipment(models.Model):
     ('Sea','Sea')
     )
 
+    amazonmarket = models.ForeignKey(AmazonMarket,on_delete=models.PROTECT,verbose_name="Select MarketPlace")
     name = models.CharField(max_length=200)
     order = models.ForeignKey(Order,on_delete=models.PROTECT,verbose_name="Select Order")
     packing_type = models.CharField(max_length=50,choices=PACKING_TYPE_VALUE)
@@ -43,6 +60,9 @@ class Shipment(models.Model):
     eta = models.DateTimeField(verbose_name="Select ETA",blank=True,null=True)
     etd = models.DateTimeField(verbose_name="Select ETD",blank=True,null=True)
     tracking_id = models.CharField(verbose_name="Tracking ID",max_length=100,blank=True,null=True)
+    amazon_shipment_id = models.CharField(max_length=30,blank=True,null=True)
+    amazon_labelprep = models.CharField(max_length=50,blank=True,null=True)
+    shipmentfullfillment = models.ForeignKey(ShipmentFullfillment,on_delete=models.PROTECT,blank=True,null=True)
     status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
@@ -53,7 +73,7 @@ class Shipment(models.Model):
     def __str__(self):
         return self.name
 
-  ### 1.2 ShipmentProduct
+ ## 1.2 ShipmentProduct
 class ShipmentProduct(models.Model):
     shipment = models.ForeignKey(Shipment,on_delete=models.CASCADE,verbose_name="Select Shipment")
     product = models.ForeignKey(Product,on_delete=models.PROTECT,verbose_name="Select Product")
@@ -69,3 +89,18 @@ class ShipmentProduct(models.Model):
 
     def __str__(self):
         return self.product.title
+
+ ## 1.4 ShipmentFiles
+def generate_shipmentfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'shipments/{0}/files/shipment-{1}-{2}-{3}{4}'.format(instance.shipment.id, slugify(instance.shipment.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
+
+class ShipmentFiles(models.Model):
+    title = models.CharField(max_length=100)
+    file_url = models.FileField(upload_to=generate_shipmentfilename)
+    shipment = models.ForeignKey(Shipment,on_delete=models.CASCADE,verbose_name="Select Shipment")
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def __str__(self):
+        return self.title

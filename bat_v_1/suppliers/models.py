@@ -59,8 +59,10 @@ class Supplier(models.Model):
     address2 = models.CharField(max_length=200,blank=True)
     city = models.CharField(max_length=200,blank=True)
     zip = models.CharField(verbose_name="Zip/Pin Code",max_length=200,blank=True)
-    region = models.CharField(verbose_name="Region/State",max_length=200,blank=True)
+    region = models.CharField(verbose_name="State/Province",max_length=200,blank=True)
+    region_code = models.CharField(verbose_name="State/Province Code",max_length=10,blank=True,default="")
     country = models.CharField(max_length=200,blank=True)
+    country_code = models.CharField(max_length=10,blank=True,default="")
     category = models.ForeignKey(Category,on_delete=models.CASCADE,verbose_name="Select Category")
     detail = models.TextField(blank=True)
     create_date = models.DateTimeField(default=timezone.now())
@@ -82,8 +84,12 @@ class Supplier(models.Model):
                 address += ", "+self.city
             if self.region:
                 address += ", "+self.region
+            if self.region_code:
+                address += " ("+self.region_code+")"
             if self.country:
                 address += ", "+self.country
+            if self.country_code:
+                address += " ("+self.country_code+")"
             if self.zip:
                 address += ", "+self.zip
         return address.strip(",")

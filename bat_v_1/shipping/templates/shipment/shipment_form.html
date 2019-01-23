@@ -41,7 +41,11 @@
               {% csrf_token %}
               {{form|crispy}}
               <button type="submit" class="btn btn-primary mb-0">Submit</button>
+              {% if not form.instance.pk %}
+              <a href="{% url 'shipping:shipment_list' %}" class="btn btn-danger mb-0">Cancel</a>
+              {% else %}
               <a href="{% url 'shipping:shipment_detail' pk=form.instance.pk %}" class="btn btn-danger mb-0">Cancel</a>
+              {% endif %}
             </form>
           </div>
         </div>

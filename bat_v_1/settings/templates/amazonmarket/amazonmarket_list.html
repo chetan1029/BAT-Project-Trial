@@ -31,6 +31,7 @@
         <table class="data-table responsive nowrap" data-order="[[ 0, &quot;asc&quot; ]]">
           <thead>
             <tr>
+              <th>Identifier</th>
               <th>Name</th>
               <th>Domain</th>
               <th>Amazon ID</th>
@@ -41,7 +42,10 @@
             {% for amazonmarket in amazonmarket_list %}
             <tr>
               <td>
-                <p class="list-item-heading">{{ amazonmarket.name }} ({{ amazonmarket.short_name }})</p>
+                <p class="list-item-heading">{{ amazonmarket.identifier }}</p>
+              </td>
+              <td>
+                <p class="list-item-heading">{{ amazonmarket.name }} ({{ amazonmarket.country_code }})</p>
               </td>
               <td>
                 <p class="list-item-heading">{{ amazonmarket.domain }}</p>

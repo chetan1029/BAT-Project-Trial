@@ -14,6 +14,7 @@ User = get_user_model()
  ## 1.6 Box
 # 2. Amazon
  ## 2.1 AmazonMarket
+ ## 2.2 AmazonMwsauth
 
 # 1. Basic
  ## 1.1 Category
@@ -108,10 +109,18 @@ class Box(models.Model):
 # 2. Amazon
  ## 2.1 AmazonMarket
 class AmazonMarket(models.Model):
+    MARKET_IDENTIFIER = (
+    ('US','US'),
+    ('Europe','Europe'),
+    ('Japan','Japan')
+    )
+
+    identifier = models.CharField(max_length=30,choices=MARKET_IDENTIFIER,default="US",verbose_name="Select Identifier")
     name = models.CharField(max_length=50)
-    short_name = models.CharField(max_length=10)
+    country_code = models.CharField(max_length=10)
     domain = models.CharField(max_length=50)
     amazon_id = models.CharField(max_length=10)
+    marketplace_id = models.CharField(max_length=50,default="")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -120,3 +129,25 @@ class AmazonMarket(models.Model):
 
     def __str__(self):
         return self.name
+
+ ## 2.2 AmazonMwsauth
+class AmazonMwsauth(models.Model):
+    MARKET_IDENTIFIER = (
+    ('US','US'),
+    ('Europe','Europe'),
+    ('Japan','Japan')
+    )
+
+    identifier = models.CharField(max_length=30,choices=MARKET_IDENTIFIER,default="US",verbose_name="Select Identifier")
+    seller_id = models.CharField(max_length=50,verbose_name="Seller ID")
+    auth_token = models.CharField(max_length=100,verbose_name="Auth Token")
+    access_key = models.CharField(max_length=100,verbose_name="Access Key")
+    secret_key = models.CharField(max_length=100,verbose_name="Secret Key")
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('settings:amazonmwsauth_list')
+
+    def __str__(self):
+        return self.identifier

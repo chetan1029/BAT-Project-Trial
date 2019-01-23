@@ -38,4 +38,9 @@ urlpatterns = [
     path('box/add',views.CreateBoxView.as_view(),name='create_box'),
     path('box/<int:pk>/edit/',views.BoxUpdateView.as_view(),name='update_box'),
     path('box/<int:pk>/delete/',views.BoxDeleteView.as_view(),name='delete_box'),
+    # AmazonMwsauth
+    path('amazon-mwsauth',views.AmazonMwsauthListView.as_view(),name='amazonmwsauth_list'),
+    path('amazon-mwsauth/add',views.CreateAmazonMwsauthView.as_view(),name='create_amazonmwsauth'),
+    path('amazon-mwsauth/<int:pk>/edit/',views.AmazonMwsauthUpdateView.as_view(),name='update_amazonmwsauth'),
+    path('amazon-mwsauth/<int:pk>/delete/',views.AmazonMwsauthDeleteView.as_view(),name='delete_amazonmwsauth'),
 ]

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% block content %}
+{% include 'settings_amazon_menu.html' %}
+<div class="row">
+  <div class="col-12">
+    <div class="mb-3">
+      <h1>MWS Auth</h1>
+      <div class="float-sm-right text-zero">
+        <a href="{% url 'settings:create_amazonmwsauth' %}" class="btn btn-primary btn-lg mr-1">Add MWS Auth</a>
+      </div>
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">MWS Auth</li>
+        </ol>
+      </nav>
+
+    </div>
+    <div class="separator mb-5"></div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12 list">
+    <div class="card h-100">
+      <div class="card-body">
+        <table class="data-table responsive nowrap" data-order="[[ 0, &quot;asc&quot; ]]">
+          <thead>
+            <tr>
+              <th>Identifier</th>
+              <th>Seller ID</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for amazonmwsauth in amazonmwsauth_list %}
+            <tr>
+              <td>
+                <p class="list-item-heading">{{ amazonmwsauth.identifier }}</p>
+              </td>
+              <td>
+                <p class="list-item-heading">{{ amazonmwsauth.seller_id }}</p>
+              </td>
+              <td>
+                <a href="{% url 'settings:update_amazonmwsauth' pk=amazonmwsauth.pk %}" class="btn btn-outline-info icon-button ">
+                  <i class="simple-icon-pencil"></i>
+                </a>
+                <a href="{% url 'settings:delete_amazonmwsauth' pk=amazonmwsauth.pk %}" class="btn btn-outline-danger icon-button ">
+                  <i class="simple-icon-trash"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
