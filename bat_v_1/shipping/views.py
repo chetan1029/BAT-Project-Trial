@@ -5,12 +5,18 @@ from django.utils import timezone
 from django.views.generic import (TemplateView, ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
 from django.urls import reverse_lazy
-from shipping.models import (Shipment, ShipmentProduct, ShipmentFullfillment)
+from shipping.models import (Shipment, ShipmentProduct, ShipmentFullfillment, ShipmentFiles)
 from shipping.forms import (ShipmentForm, ShipmentProductForm)
 from settings.models import (Status, AmazonMwsauth)
 from suppliers.models import (Order,OrderProduct,Aql,Supplier)
 from django.db.models import Q
 import requests
+import logging
+import tempfile
+from django.core.files import File
+
+logger = logging.getLogger(__name__)
+
 # Create your views here.
 # 1. Shipment
  ## 1.1 Shipment
@@ -80,6 +86,7 @@ class ShipmentUpdateView(LoginRequiredMixin,UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment"}
+        context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Shipping'))
         return context
 
   ### 1.1.5 ShipmentDeleteView
@@ -172,6 +179,42 @@ class ShipmentProductDeleteView(LoginRequiredMixin,DeleteView):
         context['shipment'] = self.shipment
         return context
 
+ ## 1.3 ShipmentFiles
+  ### 1.3.1 ShipmentFilesListView
+class ShipmentFilesListView(LoginRequiredMixin,ListView):
+    model = ShipmentFiles
+    template_name = 'shipmentfiles/shipmentfiles_list.html'
+
+    def get_queryset(self):
+        shipment_id = self.kwargs['pk']
+        self.shipment = Shipment.objects.get(pk=shipment_id)
+        return ShipmentFiles.objects.filter(shipment_id = shipment_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"files"}
+        context['shipment_id'] = self.kwargs['pk']
+        context['shipment'] = self.shipment
+        return context
+
+  ### 1.3.2 ShipmentFilesDeleteView
+class ShipmentFilesDeleteView(LoginRequiredMixin,DeleteView):
+    model = ShipmentFiles
+    template_name = 'shipmentfiles/shipmentfiles_confirm_delete.html'
+
+    def get_queryset(self):
+        shipmentfiles_id = self.kwargs['pk']
+        self.shipment = Shipment.objects.get(pk=(ShipmentFiles.objects.get(pk=shipmentfiles_id).shipment_id))
+        return ShipmentFiles.objects.filter(pk=shipmentfiles_id)
+
+    def get_success_url(self):
+        return reverse_lazy('shipping:shipmentfiles_list', kwargs={'pk': ShipmentFiles.objects.get(id=self.kwargs['pk']).shipment_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"files"}
+        context['shipment'] = self.shipment
+        return context
 
 ########## MWS API Calls ############
 def create_amazon_shipment(request, pk):
@@ -184,6 +227,7 @@ def create_amazon_shipment(request, pk):
         shipment_product_data1 = {}
         shipment_product_data1["SellerSKU"] = shipment_p.amazonproduct.seller_sku
         shipment_product_data1["Quantity"] = shipment_p.quantity_send
+        shipment_product_data1["UnitsPerBox"] = shipment_p.amazonproduct.units_per_box
         shipment_product_data.append(shipment_product_data1)
 
     amazonmwsauth = AmazonMwsauth.objects.get(identifier=shipment.amazonmarket.country_code)
@@ -196,6 +240,7 @@ def create_amazon_shipment(request, pk):
 
     shipment_data = {
     "LabelPrepPreference": "SELLER_LABEL",
+    "ShipmentType": shipment.type,
     "Name": shipment.order.aql.supplier.name,
     "AddressLine1": shipment.order.aql.supplier.address1,
     "AddressLine2": shipment.order.aql.supplier.address2,
@@ -209,27 +254,78 @@ def create_amazon_shipment(request, pk):
     "amazon_auth": amazon_auth
     }
 
-    response = requests.post("http://174.138.71.123/amazon/shipments/api/createinboundshipmentplan.php", json=shipment_data)
-    response_data = response.json()
+    logger.warning(shipment_data)
 
-    if ShipmentFullfillment.objects.filter(center_id=response_data["fulfillmentcenter"]).exists():
-        fullfillmentcenter = ShipmentFullfillment.objects.get(center_id=response_data["fulfillmentcenter"])
-    else:
-        fullfillmentcenter = ShipmentFullfillment.objects.create(center_id=response_data["fulfillmentcenter"],name=response_data["fulfillment_name"],address_line1=response_data["fulfillment_address1"],city=response_data["fulfillment_city"],state=response_data["fulfillment_state"],postal_code=response_data["fulfillment_postalcode"],country_code=response_data["fulfillment_countrycode"])
+    # response = requests.post("http://174.138.71.123/amazon/shipments/api/createinboundshipmentplan.php", json=shipment_data)
+    # response_data = response.json()
+    #
+    # if ShipmentFullfillment.objects.filter(center_id=response_data["fulfillmentcenter"]).exists():
+    #     fullfillmentcenter = ShipmentFullfillment.objects.get(center_id=response_data["fulfillmentcenter"])
+    # else:
+    #     fullfillmentcenter = ShipmentFullfillment.objects.create(center_id=response_data["fulfillmentcenter"],name=response_data["fulfillment_name"],address_line1=response_data["fulfillment_address1"],city=response_data["fulfillment_city"],state=response_data["fulfillment_state"],postal_code=response_data["fulfillment_postalcode"],country_code=response_data["fulfillment_countrycode"])
+    #
+    # shipment.amazon_shipment_id = response_data["shipment_id"]
+    # shipment.amazon_labelprep = response_data["labelprep"]
+    # shipment.shipmentfullfillment = fullfillmentcenter
+    # shipment.save()
+    #
+    # ## Create InboundShipment
+    # shipment_data["ShipmentId"] = response_data["shipment_id"]
+    # shipment_data["ShipmentName"] = shipment.name
+    # shipment_data["DestinationFulfillmentCenterId"] = response_data["fulfillmentcenter"]
+    # shipment_data["ShipmentStatus"] = "WORKING"
+    # shipment_data["IntendedBoxContentsSource"] = "FEED"
+    #
+    # response = requests.post("http://174.138.71.123/amazon/shipments/api/createinboundshipment.php", json=shipment_data)
+    # response_data = response.json()
+    shipment_data["ShipmentId"] = shipment.amazon_shipment_id
+    #response = requests.post("http://174.138.71.123/amazon/shipments/api/submitfeed.php", json=shipment_data)
+    #response_data = response.json()
+    #logger.warning(response_data)
+    shipment_data["NumberOfPackages"] = 25
+    #response = requests.post("http://174.138.71.123/amazon/shipments/api/getpackagelabels.php", json=shipment_data)
+    #response_data = response.json()
+    #logger.warning(response_data)
 
-    shipment.amazon_shipment_id = response_data["shipment_id"]
-    shipment.amazon_labelprep = response_data["labelprep"]
-    shipment.shipmentfullfillment = fullfillmentcenter
-    shipment.save()
+    ## Process Packagelabels pdf file and save to ShipmentFiles Database
+    # box_labels_request = requests.get(response_data['file_url'], stream=True)
+    #
+    # box_labels_temp = tempfile.NamedTemporaryFile()
+    # for block in box_labels_request.iter_content(1024 * 8):
+    #     if not block:
+    #         break
+    #     box_labels_temp.write(block)
+    #
+    # shipment_box_labels = ShipmentFiles(title="Box Labels",shipment=shipment)
+    # shipment_box_labels.file_url.save('box-label.pdf', File(box_labels_temp))
+    #
+    # response = requests.post("http://174.138.71.123/amazon/shipments/api/getpalletlabels.php", json=shipment_data)
+    # response_data = response.json()
+    # logger.warning(response_data)
+    #
+    # ## Process Packagelabels pdf file and save to ShipmentFiles Database
+    # pallet_labels_request = requests.get(response_data['file_url'], stream=True)
+    #
+    # pallet_labels_temp = tempfile.NamedTemporaryFile()
+    # for block in pallet_labels_request.iter_content(1024 * 8):
+    #     if not block:
+    #         break
+    #     pallet_labels_temp.write(block)
+    #
+    # shipment_pallet_labels = ShipmentFiles(title="Pallet Labels",shipment=shipment)
+    # shipment_pallet_labels.file_url.save('pallet-label.pdf', File(pallet_labels_temp))
 
-    ## Create InboundShipment
-    shipment_data["ShipmentId"] = response_data["shipment_id"]
-    shipment_data["ShipmentName"] = shipment.name
-    shipment_data["DestinationFulfillmentCenterId"] = response_data["fulfillmentcenter"]
-    shipment_data["ShipmentStatus"] = "WORKING"
-    shipment_data["IntendedBoxContentsSource"] = "FEED"
+    if shipment.bol_number:
+        shipment_data["BOLNumber"] = shipment.bol_number
+        response = requests.post("http://174.138.71.123/amazon/shipments/api/puttransportcontent.php", json=shipment_data)
+        response_data = response.json()
+        logger.warning(response_data)
 
-    response = requests.post("http://174.138.71.123/amazon/shipments/api/createinboundshipment.php", json=shipment_data)
-    response_data = response.json()
+    return redirect('shipping:shipment_detail', pk=pk)
+
+def submit_package_info(request, pk):
+    shipment = Shipment.objects.get(pk=pk)
+    logger.warning("Your log message is here")
+    shipment_product = ShipmentProduct.objects.filter(shipment_id=pk)
 
     return redirect('shipping:shipment_detail', pk=pk)

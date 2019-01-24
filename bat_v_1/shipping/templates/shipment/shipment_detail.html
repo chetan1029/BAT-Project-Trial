@@ -25,7 +25,7 @@
     <div class="tab-content">
       <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
         <div class="row">
-          <div class="col-lg-6 col-12 mb-6">
+          <div class="col-12">
             <div class="card mb-4">
               <div class="position-absolute card-top-buttons">
                 <a href="{% url 'shipping:update_shipment' pk=shipment.pk %}" class="btn btn-outline-info icon-button ">
@@ -37,62 +37,140 @@
               </div>
 
               <div class="card-body">
-                <h6 class="mb-3"><strong>Shipment via {{shipment.type}}</strong></h6>
-                <p class="text-muted text-small mb-2">Amazon Marketplace</p>
-                <p class="mb-3">{{shipment.amazonmarket}}</p>
-                <p class="text-muted text-small mb-2">Packing Type</p>
-                <p class="mb-3">{{shipment.packing_type}}</p>
-                <p class="text-muted text-small mb-2">Order ID</p>
-                <p class="mb-3">{{shipment.order}}</p>
-                <p class="text-muted text-small mb-2">CBM/KG Price</p>
-                <p class="mb-3">{{shipment.kg_cbm_price}} {{shipment.currency}}</p>
-                <p class="text-muted text-small mb-2">Invoice Agent</p>
-                <p class="mb-3">{{shipment.invoice_agent}}</p>
-                <p class="text-muted text-small mb-2">Invoice Value</p>
-                <p class="mb-3">{{shipment.invoice_value}} {{shipment.invoice_currency}}</p>
-                <p class="text-muted text-small mb-2">Carrier</p>
-                {% if shipment.carrier is not None %}
-                <p class="mb-3">{{shipment.carrier}}</p>
-                {% else %}
-                <p class="mb-3">---</p>
-                {% endif %}
-                <p class="text-muted text-small mb-2">Prepaid VAT</p>
-                <p class="mb-3">{{shipment.prepaid_vat}} {{shipment.vat_currency}}</p>
-                <p class="text-muted text-small mb-2">Actual VAT</p>
-                {% if shipment.actual_vat is not None %}
-                <p class="mb-3">{{shipment.actual_vat}} {{shipment.vat_currency}}</p>
-                {% else %}
-                <p class="mb-3">---</p>
-                {% endif %}
-                <p class="text-muted text-small mb-2">VAT Claimed</p>
-                {% if shipment.vat_claimed is not None %}
-                <p class="mb-3">{{shipment.vat_claimed}} {{shipment.vat_currency}}</p>
-                {% else %}
-                <p class="mb-3">---</p>
-                {% endif %}
-                <p class="text-muted text-small mb-2">Pickup Date</p>
-                {% if shipment.pickup_date is not None %}
-                <p class="mb-3">{{shipment.pickup_date| date:"d M Y h:i A"}}</p>
-                {% else %}
-                <p class="mb-3">---</p>
-                {% endif %}
-                <p class="text-muted text-small mb-2">ETA</p>
-                {% if shipment.eta is not None %}
-                <p class="mb-3">{{shipment.eta| date:"d M Y h:i A"}}</p>
-                {% else %}
-                <p class="mb-3">---</p>
-                {% endif %}
-                <p class="text-muted text-small mb-2">ETD</p>
-                {% if shipment.etd is not None %}
-                <p class="mb-3">{{shipment.etd| date:"d M Y h:i A"}}</p>
-                {% else %}
-                <p class="mb-3">---</p>
-                {% endif %}
+                <span class="badge badge-pill badge-primary position-absolute badge-top-left">{{ shipment.status.title }}</span>
+                <div class="row mt-4">
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Shipment Type</p>
+                    <p class="mb-3">{{shipment.type}}</p>
+                    <p class="text-muted text-small mb-2">Shipment Status</p>
+                    <p class="mb-3">{{ shipment.status.title }}</p>
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Shipment ID</p>
+                    <p class="mb-3">{{shipment.amazon_shipment_id}}</p>
+                    <p class="text-muted text-small mb-2">Amazon Marketplace</p>
+                    <p class="mb-3">{{shipment.amazonmarket}}</p>
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Ship From</p>
+                    <p class="mb-1">{{shipment.order.aql.supplier.name}}</p>
+                    <p class="mb-1">{{shipment.order.aql.supplier.address1}}</p>
+                    <p class="mb-1">{{shipment.order.aql.supplier.city}}, {{shipment.order.aql.supplier.region_code}} - {{shipment.order.aql.supplier.zip}}</p>
+                    <p class="mb-3">{{shipment.order.aql.supplier.country_code}}</p>
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Ship to</p>
+                    <p class="mb-1">{{shipment.shipmentfullfillment.name}}</p>
+                    <p class="mb-1">{{shipment.shipmentfullfillment.address_line1}}</p>
+                    <p class="mb-1">{{shipment.shipmentfullfillment.city}}, {{shipment.shipmentfullfillment.state}} - {{shipment.shipmentfullfillment.postal_code}}</p>
+                    <p class="mb-3">{{shipment.shipmentfullfillment.country_code}}({{shipment.shipmentfullfillment.center_id}})</p>
+                  </div>
+
+                </div>
                 <hr>
-                <p class="text-muted text-small mb-2">Created at</p>
-                <p class="mb-3">{{shipment.create_date| date:"d M Y h:i A"}}</p>
-                <p class="text-muted text-small mb-2">Updated at</p>
-                <p class="mb-3">{{shipment.update_date| date:"d M Y h:i A"}}</p>
+                <div class="row mt-4">
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Invoice Agent</p>
+                    <p class="mb-3">{{shipment.invoice_agent}}</p>
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Invoice Value</p>
+                    <p class="mb-3">{{shipment.invoice_value}} {{shipment.invoice_currency}}</p>
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">CBM/KG Price</p>
+                    <p class="mb-3">{{shipment.kg_cbm_price}} {{shipment.currency}}</p>
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Carrier</p>
+                    {% if shipment.carrier is not None %}
+                    <p class="mb-3">{{shipment.carrier}}</p>
+                    {% else %}
+                    <p class="mb-3">---</p>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="row mt-4">
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Prepaid VAT</p>
+                    <p class="mb-3">{{shipment.prepaid_vat}} {{shipment.vat_currency}}</p>
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Actual VAT</p>
+                    {% if shipment.actual_vat is not None %}
+                    <p class="mb-3">{{shipment.actual_vat}} {{shipment.vat_currency}}</p>
+                    {% else %}
+                    <p class="mb-3">---</p>
+                    {% endif %}
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">VAT Claimed</p>
+                    {% if shipment.vat_claimed is not None %}
+                    <p class="mb-3">{{shipment.vat_claimed}} {{shipment.vat_currency}}</p>
+                    {% else %}
+                    <p class="mb-3">---</p>
+                    {% endif %}
+                  </div>
+                  <div class="col-3">
+
+                  </div>
+                </div>
+                <div class="row mt-4">
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Packing Type</p>
+                    <p class="mb-3">{{shipment.packing_type}}</p>
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Order ID</p>
+                    <p class="mb-3">{{shipment.order}}</p>
+                  </div>
+                </div>
+                <div class="row mt-4">
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Pickup Date</p>
+                    {% if shipment.pickup_date is not None %}
+                    <p class="mb-3">{{shipment.pickup_date| date:"d M Y h:i A"}}</p>
+                    {% else %}
+                    <p class="mb-3">---</p>
+                    {% endif %}
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">ETA</p>
+                    {% if shipment.eta is not None %}
+                    <p class="mb-3">{{shipment.eta| date:"d M Y h:i A"}}</p>
+                    {% else %}
+                    <p class="mb-3">---</p>
+                    {% endif %}
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">ETD</p>
+                    {% if shipment.etd is not None %}
+                    <p class="mb-3">{{shipment.etd| date:"d M Y h:i A"}}</p>
+                    {% else %}
+                    <p class="mb-3">---</p>
+                    {% endif %}
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">BOL Number</p>
+                    {% if shipment.bol_number is not None %}
+                    <p class="mb-3">{{shipment.bol_number}}</p>
+                    {% else %}
+                    <p class="mb-3">---</p>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <hr>
+                <div class="row">
+                  <div class="col-6">
+                    <p class="text-muted text-small mb-2">Created at</p>
+                    <p class="mb-3">{{shipment.create_date| date:"d M Y h:i A"}}</p>
+                  </div>
+                  <div class="col-6">
+                    <p class="text-muted text-small mb-2">Updated at</p>
+                    <p class="mb-3">{{shipment.update_date| date:"d M Y h:i A"}}</p>
+                  </div>
+                </div>
 
               </div>
             </div>
@@ -100,7 +178,13 @@
           </div>
 
           <div class="col-12 col-lg-6">
-            <a href="{% url 'shipping:create_amazon_shipment' pk=shipment.pk %}" class="btn btn-danger mb-1">Create Amazon Shipment</a>
+            <div class="card mb-4">
+              <div class="card-body">
+                <a href="{% url 'shipping:create_amazon_shipment' pk=shipment.pk %}" class="btn btn-danger mb-1">Create Amazon Shipment</a>
+                <a href="{% url 'shipping:submit_package_info' pk=shipment.pk %}" class="btn btn-danger mb-1">Submit Package Info</a>
+
+              </div>
+            </div>
           </div>
         </div>
       </div>

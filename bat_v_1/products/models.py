@@ -116,7 +116,6 @@ class AmazonProduct(models.Model):
     def get_status_class(self):
         status_class_v = "a"
         for status_k in self.STATUS_CLASS:
-            print(status_k)
             if status_k == self.status.title:
                 status_class_v = self.STATUS_CLASS[status_k]
         return status_class_v

@@ -5,4 +5,7 @@
   <li class="nav-item">
     <a class="nav-link {% if active_menu.menu4 == 'product' %}active{% endif %}" href="{% url 'shipping:shipmentproduct_list' pk=shipment.pk %}">PRODUCTS</a>
   </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu4 == 'files' %}active{% endif %}" href="{% url 'shipping:shipmentfiles_list' pk=shipment.pk %}">FILES</a>
+  </li>
 </ul>

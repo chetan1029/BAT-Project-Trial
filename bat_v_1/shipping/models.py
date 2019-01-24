@@ -5,6 +5,8 @@ from suppliers.models import (Order, Supplier)
 from settings.models import (Currency, Status, AmazonMarket)
 from products.models import (Product, AmazonProduct)
 from django.contrib.auth import get_user_model
+from django.utils.text import slugify
+import os, datetime
 User = get_user_model()
 
 # Create your models here.
@@ -59,7 +61,7 @@ class Shipment(models.Model):
     pickup_date = models.DateTimeField(verbose_name="Select Pickup date",blank=True,null=True)
     eta = models.DateTimeField(verbose_name="Select ETA",blank=True,null=True)
     etd = models.DateTimeField(verbose_name="Select ETD",blank=True,null=True)
-    tracking_id = models.CharField(verbose_name="Tracking ID",max_length=100,blank=True,null=True)
+    bol_number = models.CharField(verbose_name="BOL Number",max_length=100,blank=True,null=True)
     amazon_shipment_id = models.CharField(max_length=30,blank=True,null=True)
     amazon_labelprep = models.CharField(max_length=50,blank=True,null=True)
     shipmentfullfillment = models.ForeignKey(ShipmentFullfillment,on_delete=models.PROTECT,blank=True,null=True)
