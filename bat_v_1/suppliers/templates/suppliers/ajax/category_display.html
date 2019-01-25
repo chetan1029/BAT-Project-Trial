@@ -1,0 +1,14 @@
+{% if categories %}
+<div class="row icon-cards-row" id="category_block{{category_id}}">
+{% for category in categories %}
+<div class="col-md-3 col-lg-2 col-sm-4 col-6 mb-4">
+  <a href="#" class="card" onclick="load_display_categories({{category.pk}},{{category_id}})">
+    <div class="card-body text-center">
+      <i class="iconsmind-Alarm"></i>
+      <p class="card-text font-weight-semibold mb-0">{{category.name}}</p>
+    </div>
+  </a>
+</div>
+{% endfor %}
+</div>
+{% endif %}

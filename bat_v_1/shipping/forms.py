@@ -12,7 +12,7 @@ class ShipmentForm(forms.ModelForm):
 
     class Meta:
         model = Shipment
-        fields = ('amazonmarket','name','order','packing_type','type','kg_cbm_price','currency','invoice_agent','invoice_value','invoice_currency','carrier','prepaid_vat','vat_currency','actual_vat','vat_claimed','pickup_date','eta','etd','bol_number','status')
+        fields = ('amazonmarket','order','packing_type','type','kg_cbm_price','currency','invoice_agent','invoice_value','invoice_currency','carrier','prepaid_vat','vat_currency','actual_vat','vat_claimed','pickup_date','eta','etd','bol_number','status')
         widgets = {
             'pickup_date': forms.TextInput(attrs={'class': 'datepicker'}),
             'eta': forms.TextInput(attrs={'class': 'datepicker'}),
@@ -24,4 +24,4 @@ class ShipmentProductForm(forms.ModelForm):
 
     class Meta:
         model = ShipmentProduct
-        fields = ('product','amazonproduct','quantity_send','quantity_received','missing_units')
+        fields = ('product','amazonproduct','quantity_send')

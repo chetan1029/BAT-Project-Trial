@@ -49,10 +49,42 @@
                 <p class="text-muted text-small mb-2">Detail</p>
                 <p class="mb-3">{{aql.detail}}</p>
                 <hr >
-                <p class="text-muted text-small mb-2">Created at</p>
-                <p class="mb-3">{{aql.create_date| date:"d M Y h:i A"}}</p>
-                <p class="text-muted text-small mb-2">Updated at</p>
-                <p class="mb-3">{{aql.update_date| date:"d M Y h:i A"}}</p>
+                <h6>{{aql.version}} Products</h6>
+                <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>EAN</th>
+                      <th>SKU</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for aqlproduct in aql.product.all %}
+                    <tr>
+                      <td>
+                        <p class="list-item-heading">{{ aqlproduct.title }}</p>
+                      </td>
+                      <td>
+                        <p class="list-item-heading">{{ aqlproduct.ean }}</p>
+                      </td>
+                      <td>
+                        <p class="list-item-heading">{{ aqlproduct.sku }}</p>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <hr >
+                <div class="row">
+                  <div class="col-6">
+                    <p class="text-muted text-small mb-2">Created at</p>
+                    <p class="mb-3">{{aql.create_date| date:"d M Y h:i A"}}</p>
+                  </div>
+                  <div class="col-6">
+                    <p class="text-muted text-small mb-2">Updated at</p>
+                    <p class="mb-3">{{aql.update_date| date:"d M Y h:i A"}}</p>
+                  </div>
+                </div>
 
               </div>
             </div>

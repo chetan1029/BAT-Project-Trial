@@ -9,6 +9,8 @@ urlpatterns = [
     path('<int:pk>',views.ProductDetailView.as_view(),name='product_detail'),
     path('<int:pk>/edit/',views.ProductUpdateView.as_view(),name='update_product'),
     path('<int:pk>/delete/',views.ProductDeleteView.as_view(),name='delete_product'),
+    ## Extra function views for Product
+    path('ajax/load-category',views.load_categories,name='ajax_load_category'),
     # PackageMeasurement
     path('<int:pk>/package-measurement',views.PackageMeasurementListView.as_view(),name='packagemeasurement_list'),
     path('<int:pk>/package-measurement/add',views.CreatePackageMeasurementView.as_view(),name='create_packagemeasurement'),

@@ -67,7 +67,6 @@
                   </div>
 
                 </div>
-                <hr>
                 <div class="row mt-4">
                   <div class="col-3">
                     <p class="text-muted text-small mb-2">Invoice Agent</p>
@@ -129,7 +128,7 @@
                   <div class="col-3">
                     <p class="text-muted text-small mb-2">Pickup Date</p>
                     {% if shipment.pickup_date is not None %}
-                    <p class="mb-3">{{shipment.pickup_date| date:"d M Y h:i A"}}</p>
+                    <p class="mb-3">{{shipment.pickup_date| date:"d M Y"}}</p>
                     {% else %}
                     <p class="mb-3">---</p>
                     {% endif %}
@@ -137,7 +136,7 @@
                   <div class="col-3">
                     <p class="text-muted text-small mb-2">ETA</p>
                     {% if shipment.eta is not None %}
-                    <p class="mb-3">{{shipment.eta| date:"d M Y h:i A"}}</p>
+                    <p class="mb-3">{{shipment.eta| date:"d M Y"}}</p>
                     {% else %}
                     <p class="mb-3">---</p>
                     {% endif %}
@@ -145,7 +144,7 @@
                   <div class="col-3">
                     <p class="text-muted text-small mb-2">ETD</p>
                     {% if shipment.etd is not None %}
-                    <p class="mb-3">{{shipment.etd| date:"d M Y h:i A"}}</p>
+                    <p class="mb-3">{{shipment.etd| date:"d M Y"}}</p>
                     {% else %}
                     <p class="mb-3">---</p>
                     {% endif %}
@@ -181,7 +180,6 @@
             <div class="card mb-4">
               <div class="card-body">
                 <a href="{% url 'shipping:create_amazon_shipment' pk=shipment.pk %}" class="btn btn-danger mb-1">Create Amazon Shipment</a>
-                <a href="{% url 'shipping:submit_package_info' pk=shipment.pk %}" class="btn btn-danger mb-1">Submit Package Info</a>
 
               </div>
             </div>

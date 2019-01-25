@@ -34,6 +34,7 @@
       <div class="card-body">
         <h5 class="mb-4">Basic</h5>
         <form method="POST" enctype="multipart/form-data">
+          <div id="ajax_url" load-categories-url="{% url 'products:ajax_load_category' %}"></div>
           {% csrf_token %}
           {{form|crispy}}
           <button type="submit" class="btn btn-primary mb-0">Submit</button>
@@ -48,5 +49,27 @@
     </div>
   </div>
 </div>
-
+<script type="text/javascript">
+  function load_categories(category, parent = "") {
+    $("#id_category" + parent).nextAll().remove();
+    if (category != '') {
+      var url = $("#ajax_url").attr("load-categories-url");
+      $.ajax({
+        url: url,
+        data: {
+          'category': category
+        },
+        success: function(data) {
+          $("#id_category" + parent).after(data);
+        }
+      })
+    }
+  }
+  function edit_categories(){
+    alert("dddd");
+  }
+  {% if form.instance.pk %}
+  edit_categories();
+  {% endif %}
+</script>
 {% endblock %}

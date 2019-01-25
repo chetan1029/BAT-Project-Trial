@@ -37,6 +37,8 @@ class Category(models.Model):
             k = k.parent
 
         return ' -> '.join(full_path[::-1])
+    # def __str__(self):
+    #     return self.name
 
  ## 1.2 Color
 class Color(models.Model):

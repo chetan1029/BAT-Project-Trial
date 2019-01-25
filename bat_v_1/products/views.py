@@ -104,6 +104,7 @@ class CreateProductView(LoginRequiredMixin,CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products"}
+        context['form'].fields['category'].queryset = Category.objects.filter(parent_id=Category.objects.get(name__exact='Products'))
         context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Products'))
         return context
 
@@ -122,6 +123,8 @@ class ProductUpdateView(LoginRequiredMixin,UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products"}
+        context['form'].fields['category'].queryset = Category.objects.filter(parent_id=Category.objects.get(name__exact='Products'))
+        context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Products'))
         return context
 
   ### 1.1.5 ProductDeleteView
@@ -133,6 +136,12 @@ class ProductDeleteView(LoginRequiredMixin,DeleteView):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products"}
         return context
+
+  ### 1.1.6 Views for Product
+def load_categories(request):
+    category_id = request.GET.get('category')
+    subcategory = Category.objects.filter(parent=category_id)
+    return render(request, 'products/ajax/category_list_drodown.html',{'categories':subcategory,'category_id':category_id})
 
  ## 1.2 PackageMeasurement
   ### 1.2.1 PackageMeasurementListView

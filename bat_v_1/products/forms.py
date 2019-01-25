@@ -16,6 +16,9 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ('category','title','sku','detail','upc','ean','model_number','size','color','weight','status','image')
+        widgets = {
+            'category': forms.Select(attrs = {'onchange' : "load_categories(this.value);"})
+        }
 
  ## 1.2 PackageMeasurementForm
 class PackageMeasurementForm(forms.ModelForm):

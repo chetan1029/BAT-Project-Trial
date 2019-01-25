@@ -65,7 +65,7 @@
                     <p class="text-muted">{{ bank.country }}</p>
                   </td>
                   <td>
-                    <p class="text-muted">{{ bank.currency }}</p>
+                    <p class="text-muted">{{ bank.currency.all|join:", " }}</p>
                   </td>
                   <td>
                     <a href="{% url 'suppliers:update_bank' pk=bank.pk %}" class="btn btn-outline-info icon-button ">

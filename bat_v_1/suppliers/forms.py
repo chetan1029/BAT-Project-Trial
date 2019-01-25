@@ -1,7 +1,7 @@
 from django import forms
 from suppliers.models import (Supplier, PaymentTerms, Contact, Bank, Contract,
-                              ProductPrice, Mold, MoldProduct, MoldFile, Aql,
-                              AqlFile, AqlProduct, Order, OrderProduct, OrderFile,
+                              ProductPrice, Mold, MoldFile, Aql,
+                              AqlFile, Order, OrderProduct, OrderFile,
                               OrderPayment, OrderDelivery)
 
 # form details
@@ -19,7 +19,6 @@ from suppliers.models import (Supplier, PaymentTerms, Contact, Bank, Contract,
  ## 2.7 AqlForm
   ### 2.7.1 AqlForm
   ### 2.7.2 AqlFileForm
-  ### 2.7.3 AqlProductForm
  ## 2.8 OrderForm
   ### 2.8.1 OrderForm
   ### 2.8.2 OrderProductForm
@@ -32,7 +31,7 @@ class PaymentTermsForm(forms.ModelForm):
 
     class Meta:
         model = PaymentTerms
-        fields = ('title','identifier','prepay','days')
+        fields = ('prepay','days')
 
 # 2. SupplierForm
  ## 2.1 SupplierForm
@@ -76,20 +75,13 @@ class MoldForm(forms.ModelForm):
 
     class Meta:
         model = Mold
-        fields = ('title','mold_supplier','x_units','price','currency','paid_by','no_of_layers','production_date')
+        fields = ('title','mold_supplier','x_units','price','currency','paid_by','no_of_layers','production_date','product')
         widgets = {
             'paid_by': forms.RadioSelect(),
             'production_date': forms.TextInput(attrs={'class': 'datepicker'})
         }
 
-  ### 2.6.2 MoldProductForm
-class MoldProductForm(forms.ModelForm):
-
-    class Meta:
-        model = MoldProduct
-        fields = ('product',)
-
-  ### 2.6.3 MoldFileForm
+  ### 2.6.2 MoldFileForm
 class MoldFileForm(forms.ModelForm):
 
     class Meta:
@@ -102,7 +94,7 @@ class AqlForm(forms.ModelForm):
 
     class Meta:
         model = Aql
-        fields = ('version','detail')
+        fields = ('version','detail','product')
 
 
   ### 2.7.2 AqlFileForm
@@ -112,12 +104,6 @@ class AqlFileForm(forms.ModelForm):
         model = AqlFile
         fields = ('title','file_url')
 
-  ### 2.7.3 AqlProductForm
-class AqlProductForm(forms.ModelForm):
-
-    class Meta:
-        model = AqlProduct
-        fields = ('product',)
 
  ## 2.8 OrderForm
   ### 2.8.1 OrderForm

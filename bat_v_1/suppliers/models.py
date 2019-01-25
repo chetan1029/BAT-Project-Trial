@@ -18,12 +18,10 @@ User = get_user_model()
  ## 2.4 ProductPrice
  ## 2.5 Mold
   ### 2.5.1 Mold
-  ### 2.5.2 MoldProduct
-  ### 2.5.3 MoldFile
+  ### 2.5.2 MoldFile
  ## 2.6 Aql
   ### 2.6.1 Aql
   ### 2.6.2 AqlFile
-  ### 2.6.3 AqlProduct
  ## 2.7 Order
   ### 2.7.1 Order
   ### 2.7.2 OrderProduct
@@ -34,7 +32,6 @@ User = get_user_model()
 # 1. PaymentTerms
 class PaymentTerms(models.Model):
     title = models.CharField(max_length=200)
-    identifier = models.CharField(max_length=200)
     prepay = models.DecimalField(max_digits=5, decimal_places=2)
     days = models.IntegerField()
     create_date = models.DateTimeField(default=timezone.now())
@@ -128,7 +125,7 @@ class Bank(models.Model):
     account_number = models.CharField(max_length=50)
     swift_number = models.CharField(max_length=50)
     swift_code = models.CharField(max_length=50)
-    currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Currency",default="")
+    currency = models.ManyToManyField(Currency,verbose_name="Select Currency")
     supplier = models.ForeignKey(Supplier,on_delete=models.CASCADE,verbose_name="Select Supplier")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
@@ -210,6 +207,7 @@ class Mold(models.Model):
     no_of_layers = models.IntegerField()
     paid_by = models.CharField(max_length=20,choices=PAID_BY_OPTIONS,default="")
     production_date = models.DateField()
+    product = models.ManyToManyField(Product,verbose_name="Select Products")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -219,20 +217,7 @@ class Mold(models.Model):
     def __str__(self):
         return self.title
 
-  ### 2.5.2 MoldProduct
-class MoldProduct(models.Model):
-    product = models.ForeignKey(Product,on_delete=models.PROTECT,verbose_name="Select Product")
-    mold = models.ForeignKey(Mold,on_delete=models.PROTECT,verbose_name="Select Mold")
-    create_date = models.DateTimeField(default=timezone.now())
-    update_date = models.DateTimeField(default=timezone.now())
-
-    def get_absolute_url(self):
-        return reverse('suppliers:moldproduct_list', kwargs={'pk':self.mold_id})
-
-    def __str__(self):
-        return self.product.title
-
-  ### 2.5.3 MoldFile
+  ### 2.5.2 MoldFile
 def generate_moldfilename(instance, filename):
     name, extension = os.path.splitext(filename)
     return 'suppliers/{0}/Molds/{1}/mold-{2}-{3}-{4}{5}'.format(instance.mold.supplier.id, instance.mold.id, slugify(instance.mold.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
@@ -258,6 +243,7 @@ class Aql(models.Model):
     supplier = models.ForeignKey(Supplier,on_delete=models.PROTECT,verbose_name="Select Supplier",default=1)
     version = models.CharField(max_length=50)
     detail = models.TextField(blank=True)
+    product = models.ManyToManyField(Product,verbose_name="Select Products")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -285,22 +271,6 @@ class AqlFile(models.Model):
 
     def __str__(self):
         return self.title
-
-  ### 2.6.3 AqlProduct
-class AqlProduct(models.Model):
-    aql = models.ForeignKey(Aql,on_delete=models.PROTECT,verbose_name="Select AQL")
-    product = models.ForeignKey(Product,on_delete=models.PROTECT,verbose_name="Select Product")
-    create_date = models.DateTimeField(default=timezone.now())
-    update_date = models.DateTimeField(default=timezone.now())
-
-    class Meta:
-        unique_together = ('aql', 'product',)
-
-    def get_absolute_url(self):
-        return reverse('suppliers:aqlproduct_list', kwargs={'pk':self.aql_id})
-
-    def __str__(self):
-        return self.product.title
 
 
  ## 2.7 Order

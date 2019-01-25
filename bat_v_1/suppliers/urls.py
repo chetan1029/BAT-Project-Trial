@@ -9,6 +9,8 @@ urlpatterns = [
     path('<int:pk>',views.SupplierDetailView.as_view(),name='supplier_detail'),
     path('<int:pk>/edit/',views.SupplierUpdateView.as_view(),name='update_supplier'),
     path('<int:pk>/delete/',views.SupplierDeleteView.as_view(),name='delete_supplier'),
+    ## Extra function views for Supplier
+    path('ajax/load-display-category',views.load_display_categories,name='ajax_load_display_category'),
     # Payment Terms
     path('payment-terms',views.PaymentTermsListView.as_view(),name='paymentterms_list'),
     path('payment-terms/add',views.CreatePaymentTermsView.as_view(),name='create_paymentterms'),
@@ -41,10 +43,6 @@ urlpatterns = [
     path('mold/<int:pk>',views.MoldDetailView.as_view(),name='mold_detail'),
     path('mold/<int:pk>/edit/',views.MoldUpdateView.as_view(),name='update_mold'),
     path('mold/<int:pk>/delete/',views.MoldDeleteView.as_view(),name='delete_mold'),
-    # MoldProduct
-    path('mold/<int:pk>/product',views.MoldProductListView.as_view(),name='moldproduct_list'),
-    path('mold/<int:pk>/product/add',views.CreateMoldProductView.as_view(),name='create_moldproduct'),
-    path('mold/product/<int:pk>/delete/',views.MoldProductDeleteView.as_view(),name='delete_moldproduct'),
     # MoldFile
     path('mold/<int:pk>/file',views.MoldFileListView.as_view(),name='moldfile_list'),
     path('mold/<int:pk>/file/add',views.CreateMoldFileView.as_view(),name='create_moldfile'),
@@ -61,11 +59,6 @@ urlpatterns = [
     path('aql/<int:pk>/file/add',views.CreateAqlFileView.as_view(),name='create_aqlfile'),
     path('aql/file/<int:pk>/edit/',views.AqlFileUpdateView.as_view(),name='update_aqlfile'),
     path('aql/file/<int:pk>/delete/',views.AqlFileDeleteView.as_view(),name='delete_aqlfile'),
-    # AqlProduct
-    path('aql/<int:pk>/product',views.AqlProductListView.as_view(),name='aqlproduct_list'),
-    path('aql/<int:pk>/product/add',views.CreateAqlProductView.as_view(),name='create_aqlproduct'),
-    path('aql/product/<int:pk>/edit/',views.AqlProductUpdateView.as_view(),name='update_aqlproduct'),
-    path('aql/product/<int:pk>/delete/',views.AqlProductDeleteView.as_view(),name='delete_aqlproduct'),
     # Order
     path('<int:pk>/order',views.OrderListView.as_view(),name='order_list'),
     path('<int:pk>/order/add',views.CreateOrderView.as_view(),name='create_order'),

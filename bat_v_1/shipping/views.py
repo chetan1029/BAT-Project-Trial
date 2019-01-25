@@ -61,6 +61,7 @@ class CreateShipmentView(LoginRequiredMixin,CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        self.object.name = self.object.amazonmarket.country_code+"-"+timezone.now().strftime("%Y%m%d")+"-"+self.object.type
         self.object.user = self.request.user
         self.object.save()
         return super().form_valid(form)
