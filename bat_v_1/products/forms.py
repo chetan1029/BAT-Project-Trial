@@ -15,9 +15,11 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ('category','title','sku','detail','upc','ean','model_number','size','color','weight','status','image')
+        fields = ('category','title','sku','upc','ean','model_number','manufacturer_part_number','size','color','weight','bullet_points','description','status','image')
         widgets = {
-            'category': forms.Select(attrs = {'onchange' : "load_categories(this.value);"})
+            'category': forms.Select(attrs = {'onchange' : "load_categories(this.value);"}),
+            'bullet_points': forms.Textarea(attrs={'class': 'ckEditorClassic'}),
+            'description': forms.Textarea(attrs={'class': 'ckEditorClassic'}),
         }
 
  ## 1.2 PackageMeasurementForm

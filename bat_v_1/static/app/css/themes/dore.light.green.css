@@ -411,6 +411,9 @@ p {
     border-color: #576a3d;
     color: #fff; }
 
+#displayOptions button.btn-primary {
+  color: #fff; }
+
 #displayOptions .btn-outline-dark:not(:disabled):not(.disabled):active,
 #displayOptions .btn-outline-dark:not(:disabled):not(.disabled).active,
 #displayOptions .show > .btn-outline-dark.dropdown-toggle {

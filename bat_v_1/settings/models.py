@@ -111,13 +111,15 @@ class Box(models.Model):
 # 2. Amazon
  ## 2.1 AmazonMarket
 class AmazonMarket(models.Model):
-    MARKET_IDENTIFIER = (
-    ('US','US'),
+    MARKET_REGION = (
+    ('Asia','Asia'),
     ('Europe','Europe'),
-    ('Japan','Japan')
+    ('North America','North America'),
+    ('Oceania','Oceania'),
+    ('South America','South America'),
     )
 
-    identifier = models.CharField(max_length=30,choices=MARKET_IDENTIFIER,default="US",verbose_name="Select Identifier")
+    region = models.CharField(max_length=30,choices=MARKET_REGION,default="Asia",verbose_name="Select Region")
     name = models.CharField(max_length=50)
     country_code = models.CharField(max_length=10)
     domain = models.CharField(max_length=50)
@@ -134,13 +136,15 @@ class AmazonMarket(models.Model):
 
  ## 2.2 AmazonMwsauth
 class AmazonMwsauth(models.Model):
-    MARKET_IDENTIFIER = (
-    ('US','US'),
+    MARKET_REGION = (
+    ('Asia','Asia'),
     ('Europe','Europe'),
-    ('Japan','Japan')
+    ('North America','North America'),
+    ('Oceania','Oceania'),
+    ('South America','South America'),
     )
 
-    identifier = models.CharField(max_length=30,choices=MARKET_IDENTIFIER,default="US",verbose_name="Select Identifier")
+    region = models.CharField(max_length=30,choices=MARKET_REGION,default="Asia",verbose_name="Select Region")
     seller_id = models.CharField(max_length=50,verbose_name="Seller ID")
     auth_token = models.CharField(max_length=100,verbose_name="Auth Token")
     access_key = models.CharField(max_length=100,verbose_name="Access Key")
@@ -152,4 +156,4 @@ class AmazonMwsauth(models.Model):
         return reverse('settings:amazonmwsauth_list')
 
     def __str__(self):
-        return self.identifier
+        return self.region

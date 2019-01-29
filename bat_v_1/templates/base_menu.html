@@ -73,14 +73,15 @@
             <div class="scroll">
                 <ul class="list-unstyled">
                     <li {% if active_menu.menu1 == 'dashboard' %}class="active"{% endif %}>
-                        <a href="#dashboard">
+                        <a href="{% url 'dashboard' %}">
                             <i class="iconsmind-Shop-4"></i>
-                            <span>Dashboards</span>
+                            <span>Dashboard</span>
                         </a>
                     </li>
                     <li {% if active_menu.menu1 == 'basic' %}class="active"{% endif %}>
                         <a href="#basic">
-                            <i class="iconsmind-Digital-Drawing"></i> Basic
+                            <i class="iconsmind-Ship"></i>
+                            <span>InventoriZe</span>
                         </a>
                     </li>
                 </ul>
@@ -89,37 +90,16 @@
 
         <div class="sub-menu">
             <div class="scroll">
-                <ul class="list-unstyled" data-link="dashboard">
-                    <li {% if active_menu.menu2 == 'basic' %}class="active"{% endif %}>
-                        <a href="{% url 'dashboard' %}">
-                            <i class="simple-icon-rocket"></i> Basic
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="simple-icon-pie-chart"></i> Advanced
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="simple-icon-basket-loaded"></i> Sales
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="simple-icon-doc"></i> PPC
-                        </a>
-                    </li>
-                </ul>
+
                 <ul class="list-unstyled" data-link="basic">
                   <li {% if active_menu.menu2 == 'settings' %}class="active"{% endif %}>
                       <a href="{% url 'settings:category_list' %}">
-                          <i class="simple-icon-settings"></i> Settings
+                          <i class="simple-icon-settings"></i> Catalog Management
                       </a>
                   </li>
                     <li {% if active_menu.menu2 == 'products' %}class="active"{% endif %}>
                         <a href="{% url 'products:product_list' %}">
-                            <i class="simple-icon-rocket"></i> Products
+                            <i class="simple-icon-rocket"></i> Product Catalog
                         </a>
                     </li>
                     <li {% if active_menu.menu2 == 'suppliers' %}class="active"{% endif %}>

@@ -566,6 +566,10 @@ p {
         }
     }
 
+    button.btn-primary{
+      color: $button-text-color;
+    }
+
     .btn-outline-dark:not(:disabled):not(.disabled):active,
     .btn-outline-dark:not(:disabled):not(.disabled).active,
     .show>.btn-outline-dark.dropdown-toggle {

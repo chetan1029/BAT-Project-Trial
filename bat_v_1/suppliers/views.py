@@ -176,11 +176,21 @@ class SupplierListView(LoginRequiredMixin,ListView):
         if self.order_by is None:
             self.order_by = "-create_date"
 
+        self.item_view = self.request.GET.get('item_view', self.queryset)
+        if self.item_view is None:
+            self.item_view = "thumb_view"
+
         self.search_q = self.request.GET.get('search_q', self.queryset)
-        if self.search_q is None:
+        self.category_q = self.request.GET.get('category_q', self.queryset)
+
+        if self.search_q is None and not self.category_q:
             queryset = Supplier.objects.all().order_by(self.order_by)
-        else:
+        elif self.search_q is not None and not self.category_q:
             queryset = Supplier.objects.filter(name__icontains=self.search_q)
+        elif self.search_q is None and self.category_q:
+            queryset = Supplier.objects.filter(category__id=self.category_q)
+        else:
+            queryset = Supplier.objects.filter(name__icontains=self.search_q, category__id=self.category_q)
         return queryset
 
     def get_paginate_by(self, queryset):
@@ -193,10 +203,18 @@ class SupplierListView(LoginRequiredMixin,ListView):
         context['order_by_list'] = [('create_date','Created Date: ASC'),('-create_date','Created Date: DESC')]
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers"}
         context['order_by'] = self.order_by
+        context['item_view'] = self.item_view
         if self.search_q is None:
             context['search_q'] = ""
         else:
             context['search_q'] = self.search_q
+
+        if not self.category_q:
+            context['category_q'] = ""
+            context['category_q_parent'] = Category.objects.get(name__exact='Suppliers').pk
+        else:
+            context['category_q'] = self.category_q
+            context['category_q_parent'] = Category.objects.get(pk=self.category_q).parent_id
 
         extra_url = ''
         if self.order_by is not None:
@@ -205,9 +223,10 @@ class SupplierListView(LoginRequiredMixin,ListView):
             extra_url += '&paginate_by='+str(self.paginate_by)
         if self.search_q is not None:
             extra_url += '&search_q='+self.search_q
+        if self.category_q is not None:
+            extra_url += '&category_q='+self.category_q
 
         context['extra_url'] = extra_url
-        context['categories'] = Category.objects.filter(parent_id=Category.objects.get(name__exact='Suppliers'))
         return context
 
   ### 2.1.2 SupplierDetailView
@@ -265,8 +284,12 @@ class SupplierDeleteView(LoginRequiredMixin,DeleteView):
   ### 2.1.6 View Functions for Supplier
 def load_display_categories(request):
     category_id = request.GET.get('category')
+    active = request.GET.get('active')
+    if active:
+        active = int(active)
+    parent_category_id = Category.objects.get(pk=category_id).parent_id
     subcategory = Category.objects.filter(parent=category_id)
-    return render(request, 'suppliers/ajax/category_display.html',{'categories':subcategory,'category_id':category_id})
+    return render(request, 'suppliers/ajax/category_display.html',{'categories':subcategory,'category_id':category_id,'parent_category_id':parent_category_id,'active':active})
 
 
  ## 2.2 Contact

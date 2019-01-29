@@ -63,11 +63,11 @@ class AmazonMarketForm(forms.ModelForm):
 
     class Meta:
         model = AmazonMarket
-        fields = ('identifier','name','country_code','domain','amazon_id','marketplace_id')
+        fields = ('region','name','country_code','domain','amazon_id','marketplace_id')
 
  ## 2.2 AmazonMwsauthForm
 class AmazonMwsauthForm(forms.ModelForm):
 
     class Meta:
         model = AmazonMwsauth
-        fields = ('identifier','seller_id','auth_token','access_key','secret_key')
+        fields = ('region','seller_id','auth_token','access_key','secret_key')

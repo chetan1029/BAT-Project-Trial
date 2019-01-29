@@ -48,9 +48,10 @@
                 {% endif %}
               </div>
             </div>
-            <form method="POST"  enctype="multipart/form-data">
+            <form method="POST" enctype="multipart/form-data">
               {% csrf_token %}
               {{form|crispy}}
+              
               <button type="submit" class="btn btn-primary mb-0">Submit</button>
               <a href="{% url 'suppliers:mold_list' supplier.pk %}" class="btn btn-danger mb-0">Cancel</a>
             </form>

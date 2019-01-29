@@ -40,10 +40,7 @@
 
               <div class="card-body">
                 <h6><strong>{{product.category.name}}</strong></h6>
-                <p class="text-muted text-small mb-2">Description</p>
-                <p class="mb-3">
-                  {{ product.detail }}
-                </p>
+
                 <p class="text-muted text-small mb-2">EAN</p>
                 <p class="mb-3">{{product.ean}}</p>
                 {% if product.sku is not None %}
@@ -70,6 +67,7 @@
                 <p class="text-muted text-small mb-2">Weight</p>
                 <p class="mb-3">{{product.weight}} gm</p>
                 {% endif %}
+
                 <hr >
                 <p class="text-muted text-small mb-2">Created at</p>
                 <p class="mb-3">{{product.create_date| date:"d M Y h:i A"}}</p>
@@ -138,7 +136,15 @@
                 </div>
               </div>
             </div>
-
+            <div class="card mb-4">
+              <div class="card-body">
+                <p class="list-item-heading mb-4">Bullet Points</p>
+                {{ product.bullet_points|safe|linebreaksbr }}
+                <hr>
+                <p class="list-item-heading mb-4">Description</p>
+                {{product.description|safe|linebreaksbr}}
+              </div>
+            </div>
           </div>
         </div>
       </div>
