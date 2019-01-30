@@ -2,20 +2,20 @@
 {% extends "base_menu.html" %}
 {% load staticfiles %}
 {% block content %}
-{% include 'settings_basic_menu.html' %}
+{% include 'suppliers_menu.html' %}
 <div class="row">
   <div class="col-12">
     <div class="mb-3">
-      <h1>Box</h1>
+      <h1>Shipping Box</h1>
       <div class="float-sm-right text-zero">
-        <a href="{% url 'settings:create_box' %}" class="btn btn-primary btn-lg mr-1">Add Box</a>
+        <a href="{% url 'settings:create_box' %}" class="btn btn-primary btn-lg mr-1">Add Shipping Box</a>
       </div>
       <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
         <ol class="breadcrumb pt-0">
           <li class="breadcrumb-item">
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
-          <li class="breadcrumb-item active" aria-current="page">Box</li>
+          <li class="breadcrumb-item active" aria-current="page">Shipping Box</li>
         </ol>
       </nav>
 

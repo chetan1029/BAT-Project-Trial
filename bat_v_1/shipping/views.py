@@ -40,7 +40,7 @@ class ShipmentListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment"}
         return context
 
   ### 1.1.2 ShipmentDetailView
@@ -50,7 +50,7 @@ class ShipmentDetailView(LoginRequiredMixin,DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"detail"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"detail"}
         return context
 
   ### 1.1.3 CreateShipmentView
@@ -68,7 +68,7 @@ class CreateShipmentView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment"}
         context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Shipping'))
         return context
 
@@ -86,7 +86,7 @@ class ShipmentUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment"}
         context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Shipping'))
         return context
 
@@ -98,7 +98,7 @@ class ShipmentDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment"}
         return context
 
  ## 1.2 ShipmentProduct
@@ -114,7 +114,7 @@ class ShipmentProductListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"product"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"product"}
         context['shipment_id'] = self.kwargs['pk']
         context['shipment'] = self.shipment
         return context
@@ -133,7 +133,7 @@ class CreateShipmentProductView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"product"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"product"}
         shipment_id = self.kwargs['pk']
         self.shipment = Shipment.objects.get(pk=shipment_id)
         context['shipment'] = self.shipment
@@ -154,7 +154,7 @@ class ShipmentProductUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"product"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"product"}
         shipmentproduct_id = self.kwargs['pk']
         self.shipment = Shipment.objects.get(pk=(ShipmentProduct.objects.get(pk=shipmentproduct_id).shipment_id))
         context['shipment'] = self.shipment
@@ -176,7 +176,7 @@ class ShipmentProductDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"product"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"product"}
         context['shipment'] = self.shipment
         return context
 
@@ -193,7 +193,7 @@ class ShipmentFilesListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"files"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"files"}
         context['shipment_id'] = self.kwargs['pk']
         context['shipment'] = self.shipment
         return context
@@ -213,7 +213,7 @@ class ShipmentFilesDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"files"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"files"}
         context['shipment'] = self.shipment
         return context
 

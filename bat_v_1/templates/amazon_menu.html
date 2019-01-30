@@ -43,7 +43,7 @@
   <div class="header-icons d-inline-block align-middle">
     <div class="dropdown d-inline-block">
       <button class="btn btn-sm btn-outline-primary dropdown-toggle mb-1" type="button" id="dropdown1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        Global
+        Amazon
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdown1">
         <a class="dropdown-item" href="{% url 'dashboard' %}">Global</a>
@@ -90,15 +90,21 @@
             <div class="scroll">
                 <ul class="list-unstyled">
                     <li {% if active_menu.menu1 == 'dashboard' %}class="active"{% endif %}>
-                        <a href="{% url 'dashboard' %}">
+                        <a href="{% url 'amazondashboard' %}">
                             <i class="iconsmind-Shop-4"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
-                    <li {% if active_menu.menu1 == 'basic' %}class="active"{% endif %}>
-                        <a href="#basic">
-                            <i class="iconsmind-Recycling-2"></i>
-                            <span>Supply Chain</span>
+                    <li {% if active_menu.menu1 == 'sales-channels' %}class="active"{% endif %}>
+                        <a href="#sales-channels">
+                            <i class="iconsmind-Globe-2"></i>
+                            <span>Sales Channels</span>
+                        </a>
+                    </li>
+                    <li {% if active_menu.menu1 == 'inventorize' %}class="active"{% endif %}>
+                        <a href="#inventorize">
+                            <i class="iconsmind-Ship"></i>
+                            <span>InventoriZe</span>
                         </a>
                     </li>
                     <li {% if active_menu.menu1 == 'setting' %}class="active"{% endif %}>
@@ -114,34 +120,32 @@
         <div class="sub-menu">
             <div class="scroll">
 
-                <ul class="list-unstyled" data-link="basic">
-                   <li {% if active_menu.menu2 == 'products' %}class="active"{% endif %}>
-                        <a href="{% url 'products:product_list' %}">
-                            <i class="iconsmind-Add-Bag"></i> Product Catalog
-                        </a>
-                    </li>
-                    <li {% if active_menu.menu2 == 'suppliers' %}class="active"{% endif %}>
-                        <a href="{% url 'suppliers:supplier_list' %}">
-                            <i class="iconsmind-Factory"></i> Vendors
+                <ul class="list-unstyled" data-link="sales-channels">
+                  <li {% if active_menu.menu2 == 'market' %}class="active"{% endif %}>
+                      <a href="{% url 'settings:amazonmarket_list' %}">
+                          <i class="simple-icon-globe-alt"></i> Amazon Markets
+                      </a>
+                  </li>
+                  <li {% if active_menu.menu2 == 'mwsauth' %}class="active"{% endif %}>
+                      <a href="{% url 'settings:amazonmwsauth_list' %}">
+                          <i class="simple-icon-lock"></i> MWS Auth
+                      </a>
+                  </li>
+                </ul>
+                <ul class="list-unstyled" data-link="inventorize">
+                  <li {% if active_menu.menu2 == 'amazon-products' %}class="active"{% endif %}>
+                       <a href="{% url 'products:amazonproduct_list' %}">
+                           <i class="iconsmind-Add-Bag"></i> Product Catalog
+                       </a>
+                  </li>
+                  <li {% if active_menu.menu2 == 'shipping' %}class="active"{% endif %}>
+                        <a href="{% url 'shipping:shipment_list' %}">
+                            <i class="simple-icon-plane"></i> Shipping
                         </a>
                     </li>
                 </ul>
                 <ul class="list-unstyled" data-link="setting">
-                  <li {% if active_menu.menu2 == 'category' %}class="active"{% endif %}>
-                      <a href="{% url 'settings:category_list' %}">
-                          <i class="simple-icon-organization"></i> Category Management
-                      </a>
-                  </li>
-                  <li {% if active_menu.menu2 == 'status' %}class="active"{% endif %}>
-                      <a href="{% url 'settings:status_list' %}">
-                          <i class="simple-icon-flag"></i> Status Management
-                      </a>
-                  </li>
-                  <li {% if active_menu.menu2 == 'catalog' %}class="active"{% endif %}>
-                      <a href="{% url 'settings:color_list' %}">
-                          <i class="iconsmind-Gears"></i> Catalog Management
-                      </a>
-                  </li>
+
                 </ul>
             </div>
         </div>

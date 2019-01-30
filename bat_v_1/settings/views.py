@@ -65,7 +65,7 @@ class CategoryListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"category"}
+        context['active_menu'] = {"menu1":"setting","menu2":"category","menu3":"basic","menu4":"category"}
         return context
 
   ### 1.1.2 CreateCategoryView
@@ -76,7 +76,7 @@ class CreateCategoryView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"category"}
+        context['active_menu'] = {"menu1":"setting","menu2":"category","menu3":"basic","menu4":"category"}
         return context
 
   ### 1.1.3 CategoryUpdateView
@@ -93,7 +93,7 @@ class CategoryUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"category"}
+        context['active_menu'] = {"menu1":"setting","menu2":"category","menu3":"basic","menu4":"category"}
         return context
 
   ### 1.1.4 CategoryDeleteView
@@ -106,7 +106,7 @@ class CategoryDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"category"}
+        context['active_menu'] = {"menu1":"setting","menu2":"category","menu3":"basic","menu4":"category"}
         return context
 
  ## 1.2 Color
@@ -117,7 +117,7 @@ class ColorListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"color"}
+        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"color"}
         return context
 
   ### 1.2.2 CreateColorView
@@ -128,7 +128,7 @@ class CreateColorView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"color"}
+        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"color"}
         return context
 
   ### 1.2.3 ColorUpdateView
@@ -145,7 +145,7 @@ class ColorUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"color"}
+        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"color"}
         return context
 
   ### 1.2.4 ColorDeleteView
@@ -158,7 +158,7 @@ class ColorDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"color"}
+        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"color"}
         return context
 
  ## 1.3 Size
@@ -169,7 +169,7 @@ class SizeListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"size"}
+        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"size"}
         return context
 
   ### 1.3.2 CreateSizeView
@@ -180,7 +180,7 @@ class CreateSizeView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"size"}
+        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"size"}
         return context
 
   ### 1.3.3 SizeUpdateView
@@ -197,7 +197,7 @@ class SizeUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"size"}
+        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"size"}
         return context
 
   ### 1.3.4 SizeDeleteView
@@ -210,7 +210,7 @@ class SizeDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"size"}
+        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"size"}
         return context
 
  ## 1.4 Status
@@ -221,7 +221,7 @@ class StatusListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"status"}
+        context['active_menu'] = {"menu1":"setting","menu2":"status","menu3":"basic","menu4":"status"}
         return context
 
   ### 1.4.2 CreateStatusView
@@ -232,7 +232,7 @@ class CreateStatusView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"status"}
+        context['active_menu'] = {"menu1":"setting","menu2":"status","menu3":"basic","menu4":"status"}
         return context
 
   ### 1.4.3 StatusUpdateView
@@ -249,7 +249,7 @@ class StatusUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"status"}
+        context['active_menu'] = {"menu1":"setting","menu2":"status","menu3":"basic","menu4":"status"}
         return context
 
   ### 1.4.4 StatusDeleteView
@@ -262,7 +262,7 @@ class StatusDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"status"}
+        context['active_menu'] = {"menu1":"setting","menu2":"status","menu3":"basic","menu4":"status"}
         return context
 
  ## 1.5 Currency
@@ -273,7 +273,7 @@ class CurrencyListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"currency"}
+        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"currency"}
         return context
 
   ### 1.5.2 CreateCurrencyView
@@ -284,7 +284,7 @@ class CreateCurrencyView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"currency"}
+        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"currency"}
         return context
 
   ### 1.5.3 CurrencyUpdateView
@@ -301,7 +301,7 @@ class CurrencyUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"currency"}
+        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"currency"}
         return context
 
   ### 1.5.4 CurrencyDeleteView
@@ -314,7 +314,7 @@ class CurrencyDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"currency"}
+        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"currency"}
         return context
 
  ## 1.6 Box
@@ -325,7 +325,7 @@ class BoxListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"box"}
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"box"}
         return context
 
   ### 1.6.2 CreateBoxView
@@ -342,7 +342,7 @@ class CreateBoxView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"box"}
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"box"}
         return context
 
   ### 1.6.3 BoxUpdateView
@@ -360,7 +360,7 @@ class BoxUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"box"}
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"box"}
         return context
 
   ### 1.6.4 BoxDeleteView
@@ -373,7 +373,7 @@ class BoxDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"basic","menu4":"box"}
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"box"}
         return context
 
 # 2. Amazon
@@ -385,7 +385,7 @@ class AmazonMarketListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"market"}
+        context['active_menu'] = {"menu1":"sales-channels","menu2":"market"}
         return context
 
   ### 2.1.2 CreateAmazonMarketView
@@ -396,7 +396,7 @@ class CreateAmazonMarketView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"market"}
+        context['active_menu'] = {"menu1":"sales-channels","menu2":"market"}
         return context
 
   ### 2.1.3 AmazonMarketUpdateView
@@ -413,7 +413,7 @@ class AmazonMarketUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"market"}
+        context['active_menu'] = {"menu1":"sales-channels","menu2":"market"}
         return context
 
   ### 2.1.4 AmazonMarketDeleteView
@@ -426,7 +426,7 @@ class AmazonMarketDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"market"}
+        context['active_menu'] = {"menu1":"sales-channels","menu2":"market"}
         return context
 
  ## 2.2 AmazonMwsauth
@@ -437,7 +437,7 @@ class AmazonMwsauthListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"mwsauth"}
+        context['active_menu'] = {"menu1":"sales-channels","menu2":"mwsauth"}
         return context
 
   ### 2.1.2 CreateAmazonMarketView
@@ -448,7 +448,7 @@ class CreateAmazonMwsauthView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"mwsauth"}
+        context['active_menu'] = {"menu1":"sales-channels","menu2":"mwsauth"}
         return context
 
   ### 2.1.3 AmazonMwsauthUpdateView
@@ -465,7 +465,7 @@ class AmazonMwsauthUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"mwsauth"}
+        context['active_menu'] = {"menu1":"sales-channels","menu2":"mwsauth"}
         return context
 
   ### 2.1.4 AmazonMwsauthDeleteView
@@ -478,5 +478,5 @@ class AmazonMwsauthDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"settings","menu3":"amazon","menu4":"mwsauth"}
+        context['active_menu'] = {"menu1":"sales-channels","menu2":"mwsauth"}
         return context

@@ -30,5 +30,6 @@ urlpatterns = [
     path('accounts/',include('django.contrib.auth.urls')),
     path('test/',views.TestPage.as_view(),name="test"),
     path('dashboard/',views.DashboardPage.as_view(),name="dashboard"),
+    path('amazon-dashboard/',views.AmazonDashboardPage.as_view(),name="amazondashboard"),
     path('logout/',views.LogoutPage.as_view(),name="logout"),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

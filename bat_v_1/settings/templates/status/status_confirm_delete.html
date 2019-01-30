@@ -2,7 +2,17 @@
 {% extends "base_menu.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-{% include 'settings_basic_menu.html' %}
+<ul class="nav nav-tabs separator-tabs ml-0 mb-5" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu3 == 'basic' %}active{% endif %}" href="{% url 'settings:category_list' %}">PRODUCT</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu3 == 'amazon' %}active{% endif %}" href="{% url 'settings:amazonmarket_list' %}">ORDER</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu3 == 'amazon' %}active{% endif %}" href="{% url 'settings:amazonmarket_list' %}">SHIPPING</a>
+  </li>
+</ul>
 <div class="row">
   <div class="col-12">
     <h1>Delete Status</h1>

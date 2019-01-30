@@ -340,7 +340,7 @@ class AmazonProductListView(LoginRequiredMixin,ListView):
         context = super().get_context_data(**kwargs)
         context['paginate_list'] = (2,10,20,50,100)
         context['order_by_list'] = [('create_date','Created Date: ASC'),('-create_date','Created Date: DESC')]
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"amazon-products"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"amazon-products"}
         context['order_by'] = self.order_by
         if self.search_q is None:
             context['search_q'] = ""
@@ -365,7 +365,7 @@ class AmazonProductDetailView(LoginRequiredMixin,DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"amazon-products","menu4":"detail"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"amazon-products","menu3":"detail"}
         return context
 
   ### 2.1.3 CreateAmazonProductView
@@ -383,7 +383,7 @@ class CreateAmazonProductView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"amazon-products"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"amazon-products"}
         context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Products'))
         return context
 
@@ -401,7 +401,7 @@ class AmazonProductUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"amazon-products"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"amazon-products"}
         return context
 
   ### 2.1.5 AmazonProductDeleteView
@@ -412,5 +412,5 @@ class AmazonProductDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"amazon-products"}
+        context['active_menu'] = {"menu1":"inventorize","menu2":"amazon-products"}
         return context
