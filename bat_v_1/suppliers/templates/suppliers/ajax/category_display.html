@@ -3,6 +3,6 @@
 <button type="button" class="btn btn-xs btn-outline-dark mb-1" onclick="load_display_categories({{parent_category_id}})"><i class="simple-icon-arrow-left"></i></button>
 {% endif %}
 {% for category in categories %}
-<button type="button" class="btn btn-xs btn{% if category.pk == active %}{%else%}-outline{%endif%}-primary mb-1" onclick="load_display_categories({{category.pk}},{{category_id}})">{{category.name}}</button>
+<button type="button" class="btn btn-xs btn{% if category.pk == active %}{%else%}-outline{%endif%}-primary mb-1" onclick="load_display_categories({{category.pk}},{{category_id}})" id="category_{{category.pk}}">{{category.name}}</button>
 {% endfor %}
 {% endif %}

@@ -50,16 +50,7 @@
         <a class="dropdown-item" href="{% url 'amazondashboard' %}">Amazon</a>
       </div>
     </div>
-    <div class="dropdown d-inline-block">
-      <button class="btn btn-sm btn-outline-primary dropdown-toggle mb-1" type="button" id="dropdown2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        All Markets
-      </button>
-      <div class="dropdown-menu" aria-labelledby="dropdown2">
-        {% for market in marketplace %}
-        <a class="dropdown-item" href="#">{{market.country_code}}</a>
-        {% endfor %}
-      </div>
-    </div>
+    
     <button class="header-icon btn btn-empty d-none d-sm-inline-block" type="button" id="fullScreenButton">
       <i class="simple-icon-size-fullscreen"></i>
       <i class="simple-icon-size-actual"></i>

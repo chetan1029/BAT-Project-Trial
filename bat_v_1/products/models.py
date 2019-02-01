@@ -16,18 +16,15 @@ User = get_user_model()
 # 1. Product
  ## 1.1 Product
 class Product(models.Model):
-    STATUS_CLASS = {"Planning":"primary", "In Progress":"secondary", "Final":"success"}
 
     title = models.CharField(verbose_name="Product Title", max_length=500)
     image = models.ImageField(upload_to='products/images/',blank=True)
     sku = models.CharField(verbose_name="SKU",max_length=200,blank=True)
-    upc = models.CharField(verbose_name="UPC",max_length=200,blank=True)
     ean = models.CharField(verbose_name="EAN",max_length=200,unique=True)
     model_number = models.CharField(max_length=200,blank=True)
     manufacturer_part_number = models.CharField(max_length=200, default="")
-    size = models.ForeignKey(Size,on_delete=models.PROTECT,blank=True,null=True,verbose_name="Select Size")
-    color = models.ForeignKey(Color,on_delete=models.PROTECT,blank=True,null=True,verbose_name="Select Color")
-    weight = models.DecimalField(max_digits=6, decimal_places=2)
+    size = models.CharField(verbose_name="Size",max_length=50,blank=True,default="")
+    color = models.CharField(verbose_name="Color",max_length=50,blank=True,default="")
     category = models.ForeignKey(Category,on_delete=models.PROTECT,verbose_name="Select Category")
     bullet_points = models.TextField(blank=True)
     description = models.TextField(blank=True)
@@ -37,14 +34,6 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse('products:product_detail',kwargs={'pk':self.pk})
-
-    def get_status_class(self):
-        status_class_v = "a"
-        for status_k in self.STATUS_CLASS:
-            print(status_k)
-            if status_k == self.status.title:
-                status_class_v = self.STATUS_CLASS[status_k]
-        return status_class_v
 
     def __str__(self):
         return self.title
@@ -81,9 +70,9 @@ class PackageMeasurement(models.Model):
 
  ## 1.3 ProductBundle
 class ProductBundle(models.Model):
-    product = models.ForeignKey(Product,on_delete=models.CASCADE)
-    size = models.ForeignKey(Size,on_delete=models.PROTECT,blank=True,null=True,verbose_name="Select Size")
-    color = models.ForeignKey(Color,on_delete=models.PROTECT,blank=True,null=True,verbose_name="Select Color")
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name="product")
+    bundle_product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name="bundle_product",default="")
+    quantity = models.IntegerField(default="1")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 

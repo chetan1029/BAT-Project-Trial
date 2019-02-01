@@ -7,8 +7,12 @@ from django.views.generic import (TemplateView, ListView, DetailView, CreateView
 from django.urls import reverse_lazy
 from products.models import (Product, PackageMeasurement, ProductBundle, AmazonProduct)
 from settings.models import (Category, Status, Currency, Color, Size)
-from products.forms import (ProductForm, PackageMeasurementForm, ProductBundleForm, AmazonProductForm)
+from products.forms import (ProductForm, PackageMeasurementForm, ProductBundleForm, AmazonProductForm, ProductBundleFormSet)
 from django.db.models import Q
+from django.utils.text import slugify
+from django.db import IntegrityError, transaction
+import logging
+logger = logging.getLogger(__name__)
 # Create your views here.
 # 1. Product
  ## 1.1 Product
@@ -40,7 +44,7 @@ from django.db.models import Q
   ### 1.1.1 ProductListView
 class ProductListView(LoginRequiredMixin,ListView):
     model = Product
-    paginate_by = 10
+    paginate_by = 12
 
     def get_queryset(self):
         self.order_by = self.request.GET.get('order_by', self.queryset)
@@ -71,9 +75,9 @@ class ProductListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['paginate_list'] = (2,10,20,50,100)
+        context['paginate_list'] = (3,12,30,60,90)
         context['order_by_list'] = [('create_date','Created Date: ASC'),('-create_date','Created Date: DESC')]
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
         context['order_by'] = self.order_by
         context['item_view'] = self.item_view
         if self.search_q is None:
@@ -109,7 +113,9 @@ class ProductDetailView(LoginRequiredMixin,DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products","menu4":"detail"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"detail"}
+        context['productbundles'] = ProductBundle.objects.filter(product_id=self.kwargs['pk'])
+        logger.warning(context)
         return context
 
   ### 1.1.3 CreateProductView
@@ -126,10 +132,64 @@ class CreateProductView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products"}
-        context['form'].fields['category'].queryset = Category.objects.filter(parent_id=Category.objects.get(name__exact='Products'))
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
         context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Products'))
+        context['colors'] = Color.objects.all()
+        context['sizes'] = Size.objects.all()
         return context
+
+def create_product(request):
+    form = ProductForm
+    parent_category_id = Category.objects.get(name__exact="Products").pk
+    active_menu = {"menu1":"basic","menu2":"products"}
+
+    if request.method == 'POST':
+        category = request.POST['category']
+        category_i = Category.objects.get(pk=category)
+        title = request.POST['title']
+        status  = request.POST['status']
+        status_i  = Status.objects.get(pk=status)
+        variation  = request.POST['variation']
+
+        if variation == "size":
+            for size in request.POST.getlist('sizes[]'):
+                if size:
+                    size_url = slugify(size)
+                    ean = request.POST['ean'+size_url]
+                    manufacturer_part_number = request.POST['manufacturer_part_number'+size_url]
+                    sku = request.POST['sku'+size_url]
+                    new_title = title+" "+size
+                    color = ""
+                    product = Product(title=new_title,category=category_i,ean=ean,manufacturer_part_number=manufacturer_part_number,sku=sku,status=status_i,size=size,color=color)
+                    product.save()
+        elif variation == "color":
+            for color in request.POST.getlist('colors[]'):
+                if color:
+                    color_url = slugify(color)
+                    ean = request.POST['ean'+color_url]
+                    manufacturer_part_number = request.POST['manufacturer_part_number'+color_url]
+                    sku = request.POST['sku'+color_url]
+                    new_title = title+" "+color
+                    size = ""
+                    product = Product(title=new_title,category=category_i,ean=ean,manufacturer_part_number=manufacturer_part_number,sku=sku,status=status_i,size=size,color=color)
+                    product.save()
+        elif variation == "color-size":
+            for color in request.POST.getlist('colors[]'):
+                for size in request.POST.getlist('sizes[]'):
+                    if color and size:
+                        color_url = slugify(color)
+                        size_url = slugify(size)
+                        ean = request.POST['ean'+color_url+''+size_url]
+                        manufacturer_part_number = request.POST['manufacturer_part_number'+color_url+''+size_url]
+                        sku = request.POST['sku'+color_url+''+size_url]
+                        new_title = title+" "+size+" "+color
+                        product = Product(title=new_title,category=category_i,ean=ean,manufacturer_part_number=manufacturer_part_number,sku=sku,status=status_i,size=size,color=color)
+                        product.save()
+
+
+
+        return redirect('products:product_list')
+    return render(request,'products/product_form.html',{'form':form, 'active_menu':active_menu, 'parent_category_id':parent_category_id})
 
   ### 1.1.4 ProductUpdateView
 class ProductUpdateView(LoginRequiredMixin,UpdateView):
@@ -145,9 +205,10 @@ class ProductUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products"}
-        context['form'].fields['category'].queryset = Category.objects.filter(parent_id=Category.objects.get(name__exact='Products'))
-        context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Products'))
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
+        self.category = Category.objects.get(pk=self.get_object().category_id);
+        context['category_name'] =  self.category.name
+        context['parent_category_id'] = self.category.parent_id
         return context
 
   ### 1.1.5 ProductDeleteView
@@ -157,7 +218,7 @@ class ProductDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products"}
         return context
 
   ### 1.1.6 Views for Product
@@ -175,6 +236,19 @@ def load_display_categories(request):
     subcategory = Category.objects.filter(parent=category_id)
     return render(request, 'products/ajax/category_display.html',{'categories':subcategory,'category_id':category_id,'parent_category_id':parent_category_id,'active':active})
 
+def generate_variation(request):
+    get_colors = request.GET.get('colors')
+    get_sizes = request.GET.get('sizes')
+    if get_colors:
+        colors = get_colors.split(',')
+    else:
+        colors = []
+
+    if get_sizes:
+        sizes = get_sizes.split(',')
+    else:
+        sizes = []
+    return render(request, 'products/ajax/variation.html',{'sizes':sizes,'colors':colors})
 
  ## 1.2 PackageMeasurement
   ### 1.2.1 PackageMeasurementListView
@@ -189,7 +263,7 @@ class PackageMeasurementListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products","menu4":"packagemeasurement"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"packagemeasurement"}
         context['product_id'] = self.kwargs['pk']
         context['product'] = self.product
         return context
@@ -208,7 +282,7 @@ class CreatePackageMeasurementView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products","menu4":"packagemeasurement"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"packagemeasurement"}
         context['product'] = Product.objects.get(pk=self.kwargs['pk'])
         return context
 
@@ -226,7 +300,7 @@ class PackageMeasurementUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products","menu4":"packagemeasurement"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"packagemeasurement"}
         context['product'] = Product.objects.get(pk=PackageMeasurement.objects.get(id=self.kwargs['pk']).product_id)
         return context
 
@@ -240,7 +314,7 @@ class PackageMeasurementDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products","menu4":"packagemeasurement"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"packagemeasurement"}
         context['product'] = Product.objects.get(pk=PackageMeasurement.objects.get(id=self.kwargs['pk']).product_id)
         return context
 
@@ -257,45 +331,65 @@ class ProductBundleListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products","menu4":"productbundle"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"productbundle"}
         context['product_id'] = self.kwargs['pk']
         context['product'] = self.product
         return context
 
   ### 1.3.2 CreateProductBundleView
 class CreateProductBundleView(LoginRequiredMixin,CreateView):
-    form_class = ProductBundleForm
-    model = ProductBundle
+    form_class = ProductForm
+    model = Product
     template_name = 'productbundle/productbundle_form.html'
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.product = Product.objects.get(id=self.kwargs['pk'])
-        self.object.save()
-        return super().form_valid(form)
+        context = self.get_context_data()
+        productbundles = context['productbundles']
+        with transaction.atomic():
+            self.object = form.save()
+
+            if productbundles.is_valid():
+                productbundles.instance = self.object
+                productbundles.save()
+        return super(CreateProductBundleView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products","menu4":"productbundle"}
-        context['product'] = Product.objects.get(pk=self.kwargs['pk'])
+        context = super(CreateProductBundleView, self).get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"productbundle"}
+        context['parent_category_id'] = Category.objects.get(name__exact="Products").pk
+        if self.request.POST:
+            context['productbundles'] = ProductBundleFormSet(self.request.POST)
+        else:
+            context['productbundles'] = ProductBundleFormSet()
         return context
 
   ### 1.3.3 ProductBundleUpdateView
 class ProductBundleUpdateView(LoginRequiredMixin,UpdateView):
-    form_class = ProductBundleForm
-    model = ProductBundle
+    form_class = ProductForm
+    model = Product
     template_name = 'productbundle/productbundle_form.html'
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.update_date = timezone.now()
-        self.object.save()
+        context = self.get_context_data()
+        productbundles = context['productbundles']
+        with transaction.atomic():
+            self.object = form.save()
+
+            if productbundles.is_valid():
+                productbundles.instance = self.object
+                productbundles.save()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products","menu4":"productbundle"}
-        context['product'] = Product.objects.get(pk=ProductBundle.objects.get(id=self.kwargs['pk']).product_id)
+        context = super(ProductBundleUpdateView, self).get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"productbundle"}
+        self.category = Category.objects.get(pk=self.get_object().category_id);
+        context['category_name'] =  self.category.name
+        context['parent_category_id'] = self.category.parent_id
+        if self.request.POST:
+            context['productbundles'] = ProductBundleFormSet(self.request.POST, instance=self.object)
+        else:
+            context['productbundles'] = ProductBundleFormSet(instance=self.object)
         return context
 
   ### 1.3.4 ProductBundleDeleteView
@@ -308,7 +402,7 @@ class ProductBundleDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"products","menu4":"productbundle"}
+        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"productbundle"}
         context['product'] = Product.objects.get(pk=ProductBundle.objects.get(id=self.kwargs['pk']).product_id)
         return context
 

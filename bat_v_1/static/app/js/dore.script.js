@@ -3100,7 +3100,7 @@ $.dore = function(element, options) {
     }
 
     /* 03.15. Form Validation */
-    var forms = document.getElementsByClassName("needs-validation");
+    /*var forms = document.getElementsByClassName("needs-validation");
     var validation = Array.prototype.filter.call(forms, function(form) {
       form.addEventListener(
         "submit",
@@ -3113,7 +3113,7 @@ $.dore = function(element, options) {
         },
         false
       );
-    });
+    });*/
 
     /* 03.16. Tooltip */
     if ($().tooltip) {

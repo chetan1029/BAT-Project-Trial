@@ -12,12 +12,12 @@ from suppliers.models import (Supplier, PaymentTerms, Contact, Bank, Contract,
 from suppliers.forms import (SupplierForm, PaymentTermsForm, ContactForm, BankForm, ContractForm,
                              ProductPriceForm, MoldForm, MoldFileForm, AqlForm,
                              AqlFileForm, OrderForm, OrderProductForm, OrderFileForm,
-                             OrderPaymentForm, OrderDeliveryForm)
+                             OrderPaymentForm, OrderDeliveryForm, ContactFormSet)
 from products.models import (Product)
 from settings.models import (Status, Category)
 from django.db.models import Q, ProtectedError
 from django import forms
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.contrib import messages
 # Create your views here.
@@ -245,14 +245,31 @@ class CreateSupplierView(LoginRequiredMixin,CreateView):
     model = Supplier
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.user = self.request.user
-        self.object.save()
-        return super().form_valid(form)
+        # self.object = form.save(commit=False)
+        # self.object.user = self.request.user
+        # self.object.save()
+        # return super().form_valid(form)
+        context = self.get_context_data()
+        contacts = context['contacts']
+        with transaction.atomic():
+            self.object = form.save()
+
+            if contacts.is_valid():
+                contacts.instance = self.object
+                contacts.save()
+        return super(CreateSupplierView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        # context = super().get_context_data(**kwargs)
+        # context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers"}
+        # return context
+        context = super(CreateSupplierView, self).get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers"}
+        context['parent_category_id'] = Category.objects.get(name__exact="Suppliers").pk
+        if self.request.POST:
+            context['contacts'] = ContactFormSet(self.request.POST)
+        else:
+            context['contacts'] = ContactFormSet()
         return context
 
   ### 2.1.4 SupplierUpdateView
@@ -261,14 +278,34 @@ class SupplierUpdateView(LoginRequiredMixin,UpdateView):
     model = Supplier
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.update_date = timezone.now()
-        self.object.save()
-        return super().form_valid(form)
+        # self.object = form.save(commit=False)
+        # self.object.update_date = timezone.now()
+        # self.object.save()
+        # return super().form_valid(form)
+        context = self.get_context_data()
+        contacts = context['contacts']
+        with transaction.atomic():
+            self.object = form.save()
+
+            if contacts.is_valid():
+                contacts.instance = self.object
+                contacts.save()
+        return super(SupplierUpdateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        # context = super().get_context_data(**kwargs)
+        # context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers"}
+        # return context
+        context = super(SupplierUpdateView, self).get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers"}
+        self.category = Category.objects.get(pk=self.get_object().category_id);
+        context['category_name'] =  self.category.name
+        context['parent_category_id'] = self.category.parent_id
+
+        if self.request.POST:
+            context['contacts'] = ContactFormSet(self.request.POST, instance=self.object)
+        else:
+            context['contacts'] = ContactFormSet(instance=self.object)
         return context
 
   ### 2.1.5 SupplierDeleteView

@@ -20,7 +20,8 @@ urlpatterns = [
     path('currency/<int:pk>/delete/',views.CurrencyDeleteView.as_view(),name='delete_currency'),
     # Color
     path('color',views.ColorListView.as_view(),name='color_list'),
-    path('color/add',views.CreateColorView.as_view(),name='create_color'),
+    #path('color/add',views.CreateColorView.as_view(),name='create_color'),
+    path('color/add',views.create_color,name='create_color'),
     path('color/<int:pk>/edit/',views.ColorUpdateView.as_view(),name='update_color'),
     path('color/<int:pk>/delete/',views.ColorDeleteView.as_view(),name='delete_color'),
     # Size

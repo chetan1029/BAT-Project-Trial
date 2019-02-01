@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% extends "base_menu.html" %}
+{% load staticfiles %}
 {% load crispy_forms_tags %}
 {% block content %}
 {% include 'suppliers_menu.html' %}
@@ -29,9 +30,93 @@
     <div class="card mb-4">
       <div class="card-body">
         <h5 class="mb-4">Basic</h5>
-        <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" id="ajax_url" load-display-categories-url="{% url 'suppliers:ajax_load_display_category' %}" />
+        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
           {% csrf_token %}
-          {{form|crispy}}
+          <div class="row form-row d-none">
+            <div class="col-md-12">
+              {{ form.category|as_crispy_field }}
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="category_block">Category<span class="asteriskField">*</span></label>
+            <div id="category_block" class="mt-1">
+
+            </div>
+            {% for e in form.category.errors %}
+            <p class="invalid-feedback d-block"><strong>{{e}}</strong></p>
+            {% endfor %}
+          </div>
+          <div class="row form-row">
+            <div class="col-md-6">
+              {{ form.name|as_crispy_field }}
+            </div>
+            <div class="col-md-6">
+              {{ form.alternate_name|as_crispy_field }}
+            </div>
+          </div>
+          <div class="row form-row">
+            <div class="col-md-12">
+              {{ form.address1|as_crispy_field }}
+            </div>
+          </div>
+          <div class="row form-row">
+            <div class="col-md-12">
+              {{ form.address2|as_crispy_field }}
+            </div>
+          </div>
+          <div class="row form-row">
+            <div class="col-md-5">
+              {{ form.city|as_crispy_field }}
+            </div>
+            <div class="col-md-5">
+              {{ form.region|as_crispy_field }}
+            </div>
+            <div class="col-md-2">
+              {{ form.region_code|as_crispy_field }}
+            </div>
+          </div>
+          <div class="row form-row">
+            <div class="col-md-5">
+              {{ form.zip|as_crispy_field }}
+            </div>
+            <div class="col-md-5">
+              {{ form.country|as_crispy_field }}
+            </div>
+            <div class="col-md-2">
+              {{ form.country_code|as_crispy_field }}
+            </div>
+          </div>
+          <div class="row form-row">
+            <div class="col-md-12">
+              {{ form.logo|as_crispy_field }}
+            </div>
+          </div>
+          <div class="row form-row">
+            <div class="col-md-12">
+              {{ form.detail|as_crispy_field }}
+            </div>
+          </div>
+          <div class="extra_form">
+            {{ contacts.management_form }}
+
+            {% for form in contacts.forms %}
+                <div class="row formset_row">
+                    {% for field in form.visible_fields %}
+                        <div class="col">
+                            {# Include the hidden fields in the form #}
+                            {% if forloop.first %}
+                                {% for hidden in form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+                            {% endif %}
+                            {{ field.errors.as_ul }}
+                            {{ field|as_crispy_field }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
           <button type="submit" class="btn btn-primary mb-0">Submit</button>
           {% if not form.instance.pk %}
           <a href="{% url 'suppliers:supplier_list' %}" class="btn btn-danger mb-0">Cancel</a>
@@ -44,5 +129,38 @@
     </div>
   </div>
 </div>
-
+<script src="{% static 'app/js/vendor/jquery.formset.js'%}"></script>
+<script type="text/javascript">
+    $('.formset_row').formset({
+        addText: 'add contact',
+        deleteText: '<i class="simple-icon-trash"></i>',
+        prefix: 'contact_set'
+    });
+    function load_display_categories(category, parent = "", active = "") {
+      if (category != '') {
+        var url = $("#ajax_url").attr("load-display-categories-url");
+        $.ajax({
+          url: url,
+          data: {
+            'category': category,
+            'active': active
+          },
+          success: function(data) {
+            if (data.trim() != "") {
+              $("#category_block").html(data);
+            } else {
+              $("#id_category").val(category);
+              var category_name = $("#category_"+category).html();
+              $("#category_block").html('<button type="button" class="btn btn-xs btn-outline-dark mb-1" onclick="load_display_categories('+parent+')"><i class="simple-icon-arrow-left"></i></button> <button type="button" class="btn btn-xs btn-primary mb-1">'+category_name+'</button>');
+            }
+          }
+        })
+      }
+    }
+    {% if not form.instance.pk %}
+    load_display_categories({{parent_category_id}}, "", "");
+    {% else %}
+    $("#category_block").html('<button type="button" class="btn btn-xs btn-outline-dark mb-1" onclick="load_display_categories({{parent_category_id}})"><i class="simple-icon-arrow-left"></i></button> <button type="button" class="btn btn-xs btn-primary mb-1">{{category_name}}</button>');
+    {% endif %}
+</script>
 {% endblock %}

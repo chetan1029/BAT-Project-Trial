@@ -32,6 +32,8 @@
         <form method="POST" enctype="multipart/form-data">
           {% csrf_token %}
           {{form|crispy}}
+          <input type="text" name="version_1" value="1">
+          <input type="text" name="version_2" value="2">
           <button type="submit" class="btn btn-primary mb-0">Submit</button>
           <a href="{% url 'settings:color_list' %}" class="btn btn-danger mb-0">Cancel</a>
         </form>

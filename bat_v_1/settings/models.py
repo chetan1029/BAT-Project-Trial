@@ -70,15 +70,17 @@ class Status(models.Model):
     def get_absolute_url(self):
         return reverse('settings:status_list')
 
+    # def __str__(self):
+    #     full_path = [self.title]
+    #     k = self.parent
+    #
+    #     while k is not None:
+    #         full_path.append(k.title)
+    #         k = k.parent
+    #
+    #     return ' -> '.join(full_path[::-1])
     def __str__(self):
-        full_path = [self.title]
-        k = self.parent
-
-        while k is not None:
-            full_path.append(k.title)
-            k = k.parent
-
-        return ' -> '.join(full_path[::-1])
+        return self.title
 
  ## 1.5 Currency
 class Currency(models.Model):

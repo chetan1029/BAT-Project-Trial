@@ -10,6 +10,8 @@ from settings.models import (Category, Status, Currency, Color, Size,
 from settings.forms import (CategoryForm, StatusForm, CurrencyForm, ColorForm, SizeForm,
                             AmazonMarketForm, AmazonMwsauthForm, BoxForm)
 from django.db.models import Q
+import logging
+logger = logging.getLogger(__name__)
 # Create your views here.
 # 1. Basic
  ## 1.1 Category
@@ -121,16 +123,30 @@ class ColorListView(LoginRequiredMixin,ListView):
         return context
 
   ### 1.2.2 CreateColorView
-class CreateColorView(LoginRequiredMixin,CreateView):
-    form_class = ColorForm
-    model = Color
-    template_name = 'color/color_form.html'
+# class CreateColorView(LoginRequiredMixin,CreateView):
+#     form_class = ColorForm
+#     model = Color
+#     template_name = 'color/color_form.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"color"}
+#         return context
+def create_color(request):
+    form = ColorForm
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"color"}
-        return context
+    if request.method == 'POST':
+        logger.warning(request.POST['name'])
+        logger.warning(request.POST['version_1'])
+        name = request.POST['name'];
 
+        for x in range(1,3):
+            version = request.POST['version_'+str(x)]
+            color = Color(name=name+" "+version)
+            color.save()
+
+        return redirect('settings:color_list')
+    return render(request,'color/color_form.html',{'form':form})
   ### 1.2.3 ColorUpdateView
 class ColorUpdateView(LoginRequiredMixin,UpdateView):
     form_class = ColorForm

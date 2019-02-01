@@ -1,6 +1,6 @@
 from django import forms
 from products.models import (Product, PackageMeasurement, ProductBundle, AmazonProduct)
-
+from settings.models import (Status)
 # form details
 # 1. ProductForm
  ## 1.1 ProductForm
@@ -12,15 +12,18 @@ from products.models import (Product, PackageMeasurement, ProductBundle, AmazonP
 # 1. ProductForm
  ## 1.1 ProductForm
 class ProductForm(forms.ModelForm):
-
     class Meta:
         model = Product
-        fields = ('category','title','sku','upc','ean','model_number','manufacturer_part_number','size','color','weight','bullet_points','description','status','image')
+        fields = ('category','title','sku','ean','color','size','model_number','manufacturer_part_number','bullet_points','description','status','image')
         widgets = {
             'category': forms.Select(attrs = {'onchange' : "load_categories(this.value);"}),
             'bullet_points': forms.Textarea(attrs={'class': 'ckEditorClassic'}),
             'description': forms.Textarea(attrs={'class': 'ckEditorClassic'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(ProductForm, self).__init__(*args, **kwargs)
+        self.fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Products'))
 
  ## 1.2 PackageMeasurementForm
 class PackageMeasurementForm(forms.ModelForm):
@@ -34,7 +37,9 @@ class ProductBundleForm(forms.ModelForm):
 
     class Meta:
         model = ProductBundle
-        fields = ('size','color')
+        fields = ('bundle_product','quantity')
+
+ProductBundleFormSet = forms.inlineformset_factory(Product, ProductBundle, fk_name="product", form=ProductBundleForm, extra=1)
 
 # 2. AmazonProductForm
  ## 2.1 AmazonProductForm

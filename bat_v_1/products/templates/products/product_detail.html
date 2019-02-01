@@ -27,15 +27,25 @@
           <div class="col-lg-4 col-12 mb-4">
             <div class="card mb-4">
               <div class="position-absolute card-top-buttons">
+                {% if productbundles %}
+                <a href="{% url 'products:update_productbundle' pk=product.pk %}" class="btn btn-outline-info icon-button ">
+                  <i class="simple-icon-pencil"></i>
+                </a>
+                {% else %}
                 <a href="{% url 'products:update_product' pk=product.pk %}" class="btn btn-outline-info icon-button ">
                   <i class="simple-icon-pencil"></i>
                 </a>
+                {% endif %}
                 <a href="{% url 'products:delete_product' pk=product.pk %}" class="btn btn-outline-danger icon-button ">
                   <i class="simple-icon-trash"></i>
                 </a>
               </div>
-              <span class="badge badge-pill badge-{{product.get_status_class}} position-absolute badge-top-left">{{ product.status.title }}</span>
+              <span class="badge badge-pill badge-dark position-absolute badge-top-left">{{ product.status.title }}</span>
+              {% if product.image %}
               <img src="{{MEDIA_URL}}{{ product.image }}" alt="{{ product.title }}" class="card-img-top" />
+              {% else %}
+              <img src="{{MEDIA_URL}}products/no-product-image.png" alt="{{ product.title }}" class="card-img-top" />
+              {% endif %}
 
               <div class="card-body">
                 <h6><strong>{{product.category.name}}</strong></h6>
@@ -142,6 +152,20 @@
                 <hr>
                 <p class="list-item-heading mb-4">Description</p>
                 {{product.description|safe|linebreaksbr}}
+                <hr>
+                <p class="list-item-heading mb-4">Product Bundle</p>
+                <table class="table">
+                  <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                  </tr>
+                  {% for productbundle in productbundles %}
+                  <tr>
+                    <td>{{productbundle.bundle_product.title}}</td>
+                    <td>{{productbundle.quantity}}</td>
+                  </tr>
+                  {% endfor %}
+                </table>
               </div>
             </div>
           </div>

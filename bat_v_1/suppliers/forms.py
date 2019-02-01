@@ -3,7 +3,8 @@ from suppliers.models import (Supplier, PaymentTerms, Contact, Bank, Contract,
                               ProductPrice, Mold, MoldFile, Aql,
                               AqlFile, Order, OrderProduct, OrderFile,
                               OrderPayment, OrderDelivery)
-
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Submit, Row, Column
 # form details
 # 1. PaymentTermsForm
 # 2. SupplierForm
@@ -48,6 +49,7 @@ class ContactForm(forms.ModelForm):
         model = Contact
         fields = ('first_name','last_name','phone','email','skype','wechat')
 
+ContactFormSet = forms.inlineformset_factory(Supplier, Contact, form=ContactForm, extra=1)
  ## 2.3 BankForm
 class BankForm(forms.ModelForm):
 
