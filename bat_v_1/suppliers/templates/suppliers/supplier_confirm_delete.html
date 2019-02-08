@@ -5,16 +5,16 @@
 {% include 'suppliers_menu.html' %}
 <div class="row">
   <div class="col-12">
-    <h1>Delete Supplier</h1>
+    <h1>Delete Vendor</h1>
     <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
       <ol class="breadcrumb pt-0">
         <li class="breadcrumb-item">
           <a href="{% url 'dashboard' %}">Dashboard</a>
         </li>
         <li class="breadcrumb-item">
-          <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+          <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page">Delete Supplier</li>
+        <li class="breadcrumb-item active" aria-current="page">Delete Vendor</li>
       </ol>
     </nav>
     <div class="separator mb-5"></div>
@@ -24,7 +24,7 @@
   <div class="col-12">
     <div class="card mb-4">
       <div class="card-body">
-        <h5 class="mb-4">Delete Supplier</h5>
+        <h5 class="mb-4">Delete Vendor</h5>
         <form action="" method="post">{% csrf_token %}
         <p>Are you sure you want to delete "{{ object }}"?</p>
         <input class='btn btn-danger' type="submit" value="Confirm" />

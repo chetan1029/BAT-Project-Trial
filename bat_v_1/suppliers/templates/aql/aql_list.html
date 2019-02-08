@@ -4,55 +4,51 @@
 {% block content %}
 {% include 'suppliers_menu.html' %}
 <div class="row">
-  <div class="col-12 list">
-
-    <div class="mb-2">
-      <h1>{{ supplier.name }}</h1>
-
+  <div class="col-12">
+    <div class="mb-3">
+      <h1>AQL</h1>
+      <div class="float-sm-right text-zero">
+        <a href="{% url 'suppliers:create_aql' %}" class="btn btn-primary btn-lg mr-1">Create AQL</a>
+      </div>
       <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
         <ol class="breadcrumb pt-0">
           <li class="breadcrumb-item">
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
-          <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
-          </li>
-          <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
-          </li>
           <li class="breadcrumb-item active" aria-current="page">AQL</li>
         </ol>
       </nav>
+
     </div>
+    <div class="separator mb-5"></div>
+  </div>
+</div>
 
 
-    {% include 'suppliers/menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+    <input type="hidden" id="ajax_url" aql-type-url="{% url 'suppliers:change_aql_type' %}" />
     <div class="tab-content">
       <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
         <div class="card h-100">
           <div class="card-body">
-            <div class="row">
-              <div class="col-6">
-                <h5 class="card-title">AQL</h5>
-              </div>
-              <div class="col-6">
-                <div class="float-sm-right text-zero">
-                  <a href="{% url 'suppliers:create_aql' pk=supplier.pk %}" class="btn btn-primary mr-1">Add AQL</a>
-                </div>
-              </div>
-            </div>
 
+            <h6 class="mt-4 mb-3 font-weight-bold">Active AQL</h6>
             <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
               <thead>
                 <tr>
+                  <th>Category</th>
                   <th>Version</th>
                   <th>Created Date</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {% for aql in aql_list %}
+                {% for aql in aql_active %}
                 <tr>
+                  <td>
+                    <p class="list-item-heading"><a href="{% url 'suppliers:aql_detail' pk=aql.pk %}">{{ aql.category.name }}</a></p>
+                  </td>
                   <td>
                     <p class="list-item-heading"><a href="{% url 'suppliers:aql_detail' pk=aql.pk %}">{{ aql.version }}</a></p>
                   </td>
@@ -60,11 +56,40 @@
                     <p class="text-muted">{{ aql.create_date| date:"d M Y" }}</p>
                   </td>
                   <td>
-                    <a href="{% url 'suppliers:update_aql' pk=aql.pk %}" class="btn btn-outline-info icon-button ">
-                      <i class="simple-icon-pencil"></i>
-                    </a>
-                    <a href="{% url 'suppliers:delete_aql' pk=aql.pk %}" class="btn btn-outline-danger icon-button ">
+                    <a href="javascript:void()" onclick="change_type({{ aql.id }},'Archived')" class="btn btn-outline-danger icon-button ">
                       <i class="simple-icon-trash"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <h6 class="mt-4 mb-3 font-weight-bold">Archived AQL</h6>
+            <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Version</th>
+                  <th>Created Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for aql in aql_archived %}
+                <tr>
+                  <td>
+                    <p class="list-item-heading"><a href="{% url 'suppliers:aql_detail' pk=aql.pk %}">{{ aql.category.name }}</a></p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading"><a href="{% url 'suppliers:aql_detail' pk=aql.pk %}">{{ aql.version }}</a></p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ aql.create_date| date:"d M Y" }}</p>
+                  </td>
+
+                  <td>
+                    <a href="javascript:void()" onclick="change_type({{ aql.id }},'Active')" class="btn btn-outline-success icon-button ">
+                      <i class="simple-icon-action-undo"></i>
                     </a>
                   </td>
                 </tr>
@@ -77,4 +102,21 @@
     </div>
   </div>
 </div>
+<script type="text/javascript">
+  function change_type(aql_id,type){
+    var url = $("#ajax_url").attr("aql-type-url");
+    $.ajax({
+      url: url,
+      data: {
+        'aql_id': aql_id,
+        'type': type
+      },
+      success: function(data) {
+        if(data.success){
+          location.reload();
+        }
+      }
+    })
+  }
+</script>
 {% endblock %}

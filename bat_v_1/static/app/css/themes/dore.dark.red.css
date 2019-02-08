@@ -69,7 +69,7 @@ html {
 
 body {
   font-family: "Nunito", sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 400;
   color: #969696;
   background: #1b191b; }
@@ -91,6 +91,9 @@ body {
   right: 0;
   bottom: 0;
   left: 0; }
+
+.col-form-label {
+  font-size: 0.9rem; }
 
 .disable-text-selection {
   -webkit-touch-callout: none;
@@ -432,6 +435,25 @@ p {
 
 #displayOptions .view-icon:hover .view-icon-svg, #displayOptions .view-icon.active .view-icon-svg {
   fill: #8f2938; }
+
+.cursor-pointer {
+  cursor: pointer; }
+
+.input-group select {
+  border-radius: 0px;
+  -webkit-appearance: none; }
+
+#pokemon-selection {
+  height: 870px;
+  overflow: scroll; }
+
+#pokemon-selection .card {
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important; }
+
+#pokemon-selection .card.active {
+  border: 3px solid #98eb2c;
+  box-shadow: 0 1px 15px rgba(0, 0, 0, 0.04), 0 1px 6px rgba(0, 0, 0, 0.04) !important; }
 
 /* 02.Buttons */
 button {
@@ -3840,6 +3862,9 @@ a.ck.ck-button.ck-on:not(.ck-disabled):hover {
 .library-app .list,
 .select-from-library-container .list {
   margin-bottom: -1.5rem; }
+  .library-app .list .card,
+  .select-from-library-container .list .card {
+    cursor: pointer; }
 
 @media (max-width: 1199px) {
   .library-app .drop-area-container,
@@ -3985,6 +4010,11 @@ a.ck.ck-button.ck-on:not(.ck-disabled):hover {
     top: 50%;
     display: block;
     text-align: center; }
+
+.library-app .custom-control,
+.select-from-library-container .custom-control {
+  padding-left: 0;
+  width: 80px; }
 
 .select-from-library-container {
   margin-bottom: -2rem; }

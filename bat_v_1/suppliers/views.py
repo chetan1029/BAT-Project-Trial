@@ -6,20 +6,26 @@ from django.views.generic import (TemplateView, ListView, DetailView, CreateView
                                   DeleteView)
 from django.urls import reverse, reverse_lazy
 from suppliers.models import (Supplier, PaymentTerms, Contact, Bank, Contract,
-                              ProductPrice, Mold, MoldFile, Aql, AqlFile,
+                              ProductPrice, Mold, MoldFile, MoldHost, Aql,
                               Order, OrderProduct, OrderFile, OrderPayment,
-                              OrderDelivery)
+                              OrderDelivery, Certification)
 from suppliers.forms import (SupplierForm, PaymentTermsForm, ContactForm, BankForm, ContractForm,
-                             ProductPriceForm, MoldForm, MoldFileForm, AqlForm,
-                             AqlFileForm, OrderForm, OrderProductForm, OrderFileForm,
-                             OrderPaymentForm, OrderDeliveryForm, ContactFormSet)
+                             ProductPriceForm, MoldForm, MoldFileForm, MoldHostForm, AqlForm,
+                             OrderForm, OrderProductForm, OrderFileForm,
+                             OrderPaymentForm, OrderDeliveryForm, CertificationForm)
 from products.models import (Product)
-from settings.models import (Status, Category)
+from settings.models import (Status, Category, Currency)
 from django.db.models import Q, ProtectedError
 from django import forms
 from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.contrib import messages
+from django.core import serializers
+import logging
+logger = logging.getLogger(__name__)
+
+VENDOR = "Vendors"
+CAT_PRODUCT = "Products"
 # Create your views here.
 # 1. Payment Terms
  ## 1.1 PaymentTermsListView
@@ -66,6 +72,11 @@ from django.contrib import messages
    #### 2.6.2.2 CreateMoldFileView
    #### 2.6.2.3 MoldFileUpdateView
    #### 2.6.2.4 MoldFileDeleteView
+  ### 2.6.3 MoldFile
+   #### 2.6.3.1 MoldHostListView
+   #### 2.6.3.2 CreateMoldHostView
+   #### 2.6.3.3 MoldHostUpdateView
+   #### 2.6.3.4 MoldHostDeleteView
  ## 2.7 Aql
   ### 2.7.1 Aql
    #### 2.7.1.1 AqlListView
@@ -73,11 +84,6 @@ from django.contrib import messages
    #### 2.7.1.3 CreateAqlView
    #### 2.7.1.4 AqlUpdateView
    #### 2.7.1.5 AqlDeleteView
-  ### 2.7.2 AqlFile
-   #### 2.7.2.1 AqlFileListView
-   #### 2.7.2.2 CreateAqlFileView
-   #### 2.7.2.3 AqlFileUpdateView
-   #### 2.7.2.4 AqlFileDeleteView
  ## 2.8 Order
   ### 2.8.1 Order
    #### 2.8.1.1 OrderListView
@@ -104,6 +110,12 @@ from django.contrib import messages
    #### 2.8.5.2 CreateOrderDeliveryView
    #### 2.8.5.3 OrderDeliveryUpdateView
    #### 2.8.5.4 OrderDeliveryDeleteView
+# 3 Certification
+ ## 3.1 Certification
+  ### 3.1.1 CertificationListView
+  ### 3.1.2 CreateCertificationView
+  ### 3.1.3 CertificationUpdateView
+  ### 3.1.4 CertificationDeleteView
 
 # 1. Payment Terms
  ## 1.1 PaymentTermsListView
@@ -124,7 +136,7 @@ class CreatePaymentTermsView(LoginRequiredMixin,CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.title = "PAY"+str(self.object.days)+"-"+str(self.object.prepay)
+        self.object.title = "PAY"+str(self.object.payment_term)+"-"+str(self.object.deposit)+"-"+str(self.object.on_delivery)
         self.object.save()
         return super().form_valid(form)
 
@@ -142,7 +154,7 @@ class PaymentTermsUpdateView(LoginRequiredMixin,UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.update_date = timezone.now()
-        self.object.title = "PAY"+str(self.object.days)+"-"+str(self.object.prepay)
+        self.object.title = "PAY"+str(self.object.payment_term)+"-"+str(self.object.deposit)+"-"+str(self.object.on_delivery)
         self.object.save()
         return super().form_valid(form)
 
@@ -211,7 +223,7 @@ class SupplierListView(LoginRequiredMixin,ListView):
 
         if not self.category_q:
             context['category_q'] = ""
-            context['category_q_parent'] = Category.objects.get(name__exact='Suppliers').pk
+            context['category_q_parent'] = Category.objects.get(name__exact=VENDOR).pk
         else:
             context['category_q'] = self.category_q
             context['category_q_parent'] = Category.objects.get(pk=self.category_q).parent_id
@@ -244,32 +256,10 @@ class CreateSupplierView(LoginRequiredMixin,CreateView):
     form_class = SupplierForm
     model = Supplier
 
-    def form_valid(self, form):
-        # self.object = form.save(commit=False)
-        # self.object.user = self.request.user
-        # self.object.save()
-        # return super().form_valid(form)
-        context = self.get_context_data()
-        contacts = context['contacts']
-        with transaction.atomic():
-            self.object = form.save()
-
-            if contacts.is_valid():
-                contacts.instance = self.object
-                contacts.save()
-        return super(CreateSupplierView, self).form_valid(form)
-
     def get_context_data(self, **kwargs):
-        # context = super().get_context_data(**kwargs)
-        # context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers"}
-        # return context
-        context = super(CreateSupplierView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers"}
-        context['parent_category_id'] = Category.objects.get(name__exact="Suppliers").pk
-        if self.request.POST:
-            context['contacts'] = ContactFormSet(self.request.POST)
-        else:
-            context['contacts'] = ContactFormSet()
+        context['parent_category_id'] = Category.objects.get(name__exact=VENDOR).pk
         return context
 
   ### 2.1.4 SupplierUpdateView
@@ -278,34 +268,17 @@ class SupplierUpdateView(LoginRequiredMixin,UpdateView):
     model = Supplier
 
     def form_valid(self, form):
-        # self.object = form.save(commit=False)
-        # self.object.update_date = timezone.now()
-        # self.object.save()
-        # return super().form_valid(form)
-        context = self.get_context_data()
-        contacts = context['contacts']
-        with transaction.atomic():
-            self.object = form.save()
-
-            if contacts.is_valid():
-                contacts.instance = self.object
-                contacts.save()
-        return super(SupplierUpdateView, self).form_valid(form)
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
-        # context = super().get_context_data(**kwargs)
-        # context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers"}
-        # return context
-        context = super(SupplierUpdateView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers"}
         self.category = Category.objects.get(pk=self.get_object().category_id);
         context['category_name'] =  self.category.name
         context['parent_category_id'] = self.category.parent_id
-
-        if self.request.POST:
-            context['contacts'] = ContactFormSet(self.request.POST, instance=self.object)
-        else:
-            context['contacts'] = ContactFormSet(instance=self.object)
         return context
 
   ### 2.1.5 SupplierDeleteView
@@ -328,6 +301,15 @@ def load_display_categories(request):
     subcategory = Category.objects.filter(parent=category_id)
     return render(request, 'suppliers/ajax/category_display.html',{'categories':subcategory,'category_id':category_id,'parent_category_id':parent_category_id,'active':active})
 
+def change_supplier_type(request):
+    supplier_id = request.GET.get('supplier_id')
+    type = request.GET.get('type')
+
+    Supplier.objects.filter(pk=supplier_id).update(type=type)
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
 
  ## 2.2 Contact
   ### 2.2.1 ContactListView
@@ -338,6 +320,8 @@ class ContactListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         supplier_id = self.kwargs['pk']
         self.supplier = Supplier.objects.get(pk=supplier_id)
+        self.contact_active = Contact.objects.filter(supplier_id = supplier_id).exclude(type="Archived")
+        self.contact_archived = Contact.objects.filter(supplier_id = supplier_id,type="Archived")
         return Contact.objects.filter(supplier_id = supplier_id)
 
     def get_context_data(self, **kwargs):
@@ -345,6 +329,8 @@ class ContactListView(LoginRequiredMixin,ListView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"contact"}
         context['supplier_id'] = self.kwargs['pk']
         context['supplier'] = self.supplier
+        context['contact_active'] = self.contact_active
+        context['contact_archived'] = self.contact_archived
         return context
 
   ### 2.2.2 CreateContactView
@@ -384,18 +370,30 @@ class ContactUpdateView(LoginRequiredMixin,UpdateView):
         return context
 
   ### 2.2.4 ContactDeleteView
-class ContactDeleteView(LoginRequiredMixin,DeleteView):
-    model = Contact
-    template_name = 'contact/contact_confirm_delete.html'
+# class ContactDeleteView(LoginRequiredMixin,DeleteView):
+#     model = Contact
+#     template_name = 'contact/contact_confirm_delete.html'
+#
+#     def get_success_url(self):
+#         return reverse_lazy('suppliers:contact_list', kwargs={'pk': Contact.objects.get(id=self.kwargs['pk']).supplier_id})
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"contact"}
+#         context['supplier'] = Supplier.objects.get(pk=Contact.objects.get(id=self.kwargs['pk']).supplier_id)
+#         return context
 
-    def get_success_url(self):
-        return reverse_lazy('suppliers:contact_list', kwargs={'pk': Contact.objects.get(id=self.kwargs['pk']).supplier_id})
+  ### 2.2.5 View Functions for Contacts
+def change_contact_type(request):
+    contact_id = request.GET.get('contact_id')
+    type = request.GET.get('type')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"contact"}
-        context['supplier'] = Supplier.objects.get(pk=Contact.objects.get(id=self.kwargs['pk']).supplier_id)
-        return context
+    Contact.objects.filter(pk=contact_id).update(type=type)
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
 
  ## 2.3 Bank
   ### 2.3.1 BankListView
@@ -406,6 +404,8 @@ class BankListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         supplier_id = self.kwargs['pk']
         self.supplier = Supplier.objects.get(pk=supplier_id)
+        self.bank_active = Bank.objects.filter(supplier_id = supplier_id,type="Active")
+        self.bank_archived = Bank.objects.filter(supplier_id = supplier_id,type="Archived")
         return Bank.objects.filter(supplier_id = supplier_id)
 
     def get_context_data(self, **kwargs):
@@ -413,6 +413,8 @@ class BankListView(LoginRequiredMixin,ListView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"bank"}
         context['supplier_id'] = self.kwargs['pk']
         context['supplier'] = self.supplier
+        context['bank_active'] = self.bank_active
+        context['bank_archived'] = self.bank_archived
         return context
 
   ### 2.3.2 BankDetailView
@@ -423,7 +425,7 @@ class BankDetailView(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"bank"}
-        context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
+        context['supplier'] = Supplier.objects.get(pk=Bank.objects.get(pk=self.kwargs['pk']).supplier_id)
         return context
 
   ### 2.3.3 CreateBankView
@@ -485,6 +487,8 @@ class ContractListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         supplier_id = self.kwargs['pk']
         self.supplier = Supplier.objects.get(pk=supplier_id)
+        self.contract_active = Contract.objects.filter(supplier_id = supplier_id,type="Active")
+        self.contract_archived = Contract.objects.filter(supplier_id = supplier_id,type="Archived")
         return Contract.objects.filter(supplier_id = supplier_id)
 
     def get_context_data(self, **kwargs):
@@ -492,6 +496,8 @@ class ContractListView(LoginRequiredMixin,ListView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"contract"}
         context['supplier_id'] = self.kwargs['pk']
         context['supplier'] = self.supplier
+        context['contract_active'] = self.contract_active
+        context['contract_archived'] = self.contract_archived
         return context
 
   ### 2.4.2 CreateContractView
@@ -502,6 +508,9 @@ class CreateContractView(LoginRequiredMixin,CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        Contract.objects.all().update(type="Archived")
+        self.object.title = "Contract-"+timezone.now().strftime("%Y%m%d")
+        self.object.type = "Active"
         self.object.supplier = Supplier.objects.get(id=self.kwargs['pk'])
         self.object.save()
         return super().form_valid(form)
@@ -544,6 +553,17 @@ class ContractDeleteView(LoginRequiredMixin,DeleteView):
         context['supplier'] = Supplier.objects.get(pk=Contract.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
+  ### 2.2.5 View Functions for Contract
+def change_contract_type(request):
+    contract_id = request.GET.get('contract_id')
+    type = request.GET.get('type')
+
+    Contract.objects.filter(pk=contract_id).update(type=type)
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
+
  ## 2.5 ProductPrice
   ### 2.5.1 ProductPriceListView
 class ProductPriceListView(LoginRequiredMixin,ListView):
@@ -553,6 +573,8 @@ class ProductPriceListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         supplier_id = self.kwargs['pk']
         self.supplier = Supplier.objects.get(pk=supplier_id)
+        self.productprice_active = ProductPrice.objects.filter(supplier_id = supplier_id,type="Active")
+        self.productprice_archived = ProductPrice.objects.filter(supplier_id = supplier_id,type="Archived")
         return ProductPrice.objects.filter(supplier_id = supplier_id)
 
     def get_context_data(self, **kwargs):
@@ -560,6 +582,8 @@ class ProductPriceListView(LoginRequiredMixin,ListView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"product"}
         context['supplier_id'] = self.kwargs['pk']
         context['supplier'] = self.supplier
+        context['productprice_active'] = self.productprice_active
+        context['productprice_archived'] = self.productprice_archived
         return context
 
   ### 2.5.2 CreateProductPriceView
@@ -578,6 +602,8 @@ class CreateProductPriceView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"product"}
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
+        context['products'] = Product.objects.all()
+        context['currency'] = Currency.objects.all()
         return context
 
   ### 2.5.3 ProductPriceUpdateView
@@ -612,6 +638,34 @@ class ProductPriceDeleteView(LoginRequiredMixin,DeleteView):
         context['supplier'] = Supplier.objects.get(pk=ProductPrice.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
+def add_pricelist(request):
+    if request.method == 'POST':
+        supplier_id = request.POST['supplier_id']
+        supplier = Supplier.objects.get(pk=supplier_id)
+        for product_id in request.POST.getlist('product_id'):
+            if product_id:
+                product = Product.objects.get(pk=product_id)
+                currency = request.POST['currency'+product_id]
+                currency_i = Currency.objects.get(pk=currency)
+                price = request.POST['price'+product_id]
+                if product and currency:
+                    ProductPrice.objects.filter(supplier=supplier,product=product).update(type="Archived")
+                    pricelist = ProductPrice(type="Active",supplier=supplier,product=product,currency=currency_i,price=price)
+                    pricelist.save()
+    return redirect('suppliers:productprice_list', pk=supplier_id)
+
+def change_pricelist_type(request):
+    productprice_id = request.GET.get('productprice_id')
+    type = request.GET.get('type')
+
+    productprice = ProductPrice.objects.get(pk=productprice_id)
+    if type == "Active":
+        ProductPrice.objects.filter(product=productprice.product,supplier=productprice.supplier).update(type="Archived")
+    ProductPrice.objects.filter(pk=productprice_id).update(type=type)
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
  ## 2.6 Mold
   ### 2.6.1 Mold
    #### 2.6.1.1 MoldListView
@@ -658,6 +712,51 @@ class CreateMoldView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold"}
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
+        products = Category.objects.get(name="Products")
+        category = Category.objects.filter(parent=products.id)
+        cat_data = '{"id":"'+str(products.id)+'","text":"'+products.name+'","children":['
+        i=1
+        for cat1 in category:
+            if i!=1:
+                cat_data += ','
+            cat_data += '{"id":"'+str(cat1.id)+'","text":"'+cat1.name+'"'
+            category2 = Category.objects.filter(parent=cat1.id)
+            if category2:
+                i2=1
+                cat_data += ',"children":['
+                for cat2 in category2:
+                    if i2!=1:
+                        cat_data += ','
+                    cat_data += '{"id":"'+str(cat2.id)+'","text":"'+cat2.name+'"'
+                    category3 = Category.objects.filter(parent=cat2.id)
+                    if category3:
+                        i3=1
+                        cat_data += ',"children":['
+                        for cat3 in category3:
+                            if i3!=1:
+                                cat_data += ','
+                            cat_data += '{"id":"'+str(cat3.id)+'","text":"'+cat3.name+'"'
+                            category4 = Category.objects.filter(parent=cat3.id)
+                            if category4:
+                                i4=1
+                                cat_data += ',"children":['
+                                for cat4 in category4:
+                                    if i4!=1:
+                                        cat_data += ','
+                                    cat_data += '{"id":"'+str(cat4.id)+'","text":"'+cat4.name+'"'
+                                    cat_data += "}"
+                                    i4 = i4+1
+                                cat_data += ']'
+                            cat_data += "}"
+                            i3 = i3+1
+                        cat_data += ']'
+                    cat_data += "}"
+                    i2 = i2+1
+                cat_data += ']'
+            cat_data += "}"
+            i = i+1
+        cat_data += ']}'
+        context['cat_data'] = cat_data
         return context
 
    #### 2.6.1.4 MoldUpdateView
@@ -675,7 +774,60 @@ class MoldUpdateView(LoginRequiredMixin,UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold"}
-        context['supplier'] = Supplier.objects.get(pk=Mold.objects.get(id=self.kwargs['pk']).supplier_id)
+        self.mold = Mold.objects.get(id=self.kwargs['pk'])
+        context['supplier'] = Supplier.objects.get(pk=self.mold.supplier_id)
+        categories = self.mold.category.all()
+        category_list = []
+        for category in categories:
+            category_list.append(str(category.pk))
+        category_list = ",".join(category_list)
+        context['category_list'] = category_list
+        context['paid_by'] = self.mold.paid_by
+        products = Category.objects.get(name="Products")
+        category = Category.objects.filter(parent=products.id)
+        cat_data = '{"id":"'+str(products.id)+'","text":"'+products.name+'","children":['
+        i=1
+        for cat1 in category:
+            if i!=1:
+                cat_data += ','
+            cat_data += '{"id":"'+str(cat1.id)+'","text":"'+cat1.name+'"'
+            category2 = Category.objects.filter(parent=cat1.id)
+            if category2:
+                i2=1
+                cat_data += ',"children":['
+                for cat2 in category2:
+                    if i2!=1:
+                        cat_data += ','
+                    cat_data += '{"id":"'+str(cat2.id)+'","text":"'+cat2.name+'"'
+                    category3 = Category.objects.filter(parent=cat2.id)
+                    if category3:
+                        i3=1
+                        cat_data += ',"children":['
+                        for cat3 in category3:
+                            if i3!=1:
+                                cat_data += ','
+                            cat_data += '{"id":"'+str(cat3.id)+'","text":"'+cat3.name+'"'
+                            category4 = Category.objects.filter(parent=cat3.id)
+                            if category4:
+                                i4=1
+                                cat_data += ',"children":['
+                                for cat4 in category4:
+                                    if i4!=1:
+                                        cat_data += ','
+                                    cat_data += '{"id":"'+str(cat4.id)+'","text":"'+cat4.name+'"'
+                                    cat_data += "}"
+                                    i4 = i4+1
+                                cat_data += ']'
+                            cat_data += "}"
+                            i3 = i3+1
+                        cat_data += ']'
+                    cat_data += "}"
+                    i2 = i2+1
+                cat_data += ']'
+            cat_data += "}"
+            i = i+1
+        cat_data += ']}'
+        context['cat_data'] = cat_data
         return context
 
    #### 2.6.1.5 MoldDeleteView
@@ -702,6 +854,8 @@ class MoldFileListView(LoginRequiredMixin,ListView):
         mold_id = self.kwargs['pk']
         self.mold = Mold.objects.get(pk=mold_id)
         self.supplier = Supplier.objects.get(pk=self.mold.supplier_id)
+        self.moldfile_active = MoldFile.objects.filter(mold_id = mold_id,type="Active")
+        self.moldfile_archived = MoldFile.objects.filter(mold_id = mold_id,type="Archived")
         return MoldFile.objects.filter(mold_id = mold_id)
 
     def get_context_data(self, **kwargs):
@@ -710,6 +864,8 @@ class MoldFileListView(LoginRequiredMixin,ListView):
         context['mold_id'] = self.kwargs['pk']
         context['supplier'] = self.supplier
         context['mold'] = self.mold
+        context['moldfile_active'] = self.moldfile_active
+        context['moldfile_archived'] = self.moldfile_archived
         return context
 
    #### 2.6.2.2 CreateMoldFileView
@@ -722,6 +878,8 @@ class CreateMoldFileView(LoginRequiredMixin,CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.mold = Mold.objects.get(id=self.kwargs['pk'])
+        MoldFile.objects.filter(mold=self.object.mold.pk).update(type="Archived")
+        self.object.type = "Active"
         self.object.save()
         return super().form_valid(form)
 
@@ -778,6 +936,99 @@ class MoldFileDeleteView(LoginRequiredMixin,DeleteView):
         context['mold'] = self.mold
         return context
 
+  ### 2.6.3 MoldHost
+   #### 2.6.3.1 MoldHostListView
+class MoldHostListView(LoginRequiredMixin,ListView):
+    model = MoldHost
+    template_name = 'moldhost/moldhost_list.html'
+
+    def get_queryset(self):
+        mold_id = self.kwargs['pk']
+        self.mold = Mold.objects.get(pk=mold_id)
+        self.supplier = Supplier.objects.get(pk=self.mold.supplier_id)
+        self.moldhost_active = MoldHost.objects.filter(mold_id = mold_id,type="Active")
+        self.moldhost_archived = MoldHost.objects.filter(mold_id = mold_id,type="Archived")
+        return MoldHost.objects.filter(mold_id = mold_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"host"}
+        context['mold_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        context['mold'] = self.mold
+        context['moldhost_active'] = self.moldhost_active
+        context['moldhost_archived'] = self.moldhost_archived
+        return context
+
+   #### 2.6.2.2 CreateMoldFileView
+ ### not using query_set here because it don't work with createview
+class CreateMoldHostView(LoginRequiredMixin,CreateView):
+    form_class = MoldHostForm
+    model = MoldHost
+    template_name = 'moldhost/moldhost_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.mold = Mold.objects.get(id=self.kwargs['pk'])
+        MoldHost.objects.filter(mold=self.object.mold.pk).update(type="Archived")
+        self.object.type = "Active"
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"host"}
+        mold_id = self.kwargs['pk']
+        self.mold = Mold.objects.get(pk=mold_id)
+        self.supplier = Supplier.objects.get(pk=self.mold.supplier_id)
+        context['supplier'] = self.supplier
+        context['mold'] = self.mold
+
+        return context
+
+   #### 2.6.2.3 MoldHostUpdateView
+class MoldHostUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = MoldHostForm
+    model = MoldHost
+    template_name = 'moldhost/moldhost_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"host"}
+        moldfile_id = self.kwargs['pk']
+        self.mold = Mold.objects.get(pk=MoldHost.objects.get(id=moldhost_id).mold_id)
+        self.supplier = Supplier.objects.get(pk=self.mold.supplier_id)
+        context['supplier'] = self.supplier
+        context['mold'] = self.mold
+        return context
+
+   #### 2.6.2.4 MoldHostDeleteView
+class MoldHostDeleteView(LoginRequiredMixin,DeleteView):
+    model = MoldHost
+    template_name = 'moldhost/moldhost_confirm_delete.html'
+
+    def get_queryset(self):
+        moldhost_id = self.kwargs['pk']
+        self.mold = Mold.objects.get(pk=MoldHost.objects.get(id=moldhost_id).mold_id)
+        self.supplier = Supplier.objects.get(pk=self.mold.supplier_id)
+        return MoldHost.objects.filter(pk=moldhost_id)
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:moldhost_list', kwargs={'pk': MoldHost.objects.get(id=self.kwargs['pk']).mold_id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"mold","menu5":"host"}
+        context['supplier'] = self.supplier
+        context['mold'] = self.mold
+        return context
+
  ## 2.7 Aql
   ### 2.7.1 Aql
    #### 2.7.1.1 AqlListView
@@ -786,15 +1037,15 @@ class AqlListView(LoginRequiredMixin,ListView):
     template_name = 'aql/aql_list.html'
 
     def get_queryset(self):
-        supplier_id = self.kwargs['pk']
-        self.supplier = Supplier.objects.get(pk=supplier_id)
-        return Aql.objects.filter(supplier_id=supplier_id)
+        self.aql_active = Aql.objects.filter(type="Active")
+        self.aql_archived = Aql.objects.filter(type="Archived")
+        return Aql.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql"}
-        context['supplier_id'] = self.kwargs['pk']
-        context['supplier'] = self.supplier
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"me","menu4":"aql"}
+        context['aql_active'] = self.aql_active
+        context['aql_archived'] = self.aql_archived
         return context
 
    #### 2.7.1.2 AqlDetailView
@@ -804,8 +1055,7 @@ class AqlDetailView(LoginRequiredMixin,DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"detail"}
-        context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).supplier_id)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"me","menu4":"aql","menu5":"detail"}
         return context
 
    #### 2.7.1.3 CreateAqlView
@@ -816,16 +1066,20 @@ class CreateAqlView(LoginRequiredMixin,CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.supplier = Supplier.objects.get(id=self.kwargs['pk'])
+        Aql.objects.filter(category_id=self.object.category).update(type="Archived")
+        aql_version = 1
+        if Aql.objects.filter(category_id=self.object.category).exists():
+            aql_q = Aql.objects.filter(category_id=self.object.category).order_by('-version')[:1].get()
+            aql_version = aql_q.version + 0.1
+        self.object.version = aql_version
+        self.object.type = "Active"
         self.object.save()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql"}
-        context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
-        # Commented for reference if we want to use similar code for diff form filters etc.
-        #context['form'].fields['productprice'].queryset = ProductPrice.objects.filter(supplier_id=self.kwargs['pk'])
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"me","menu4":"aql"}
+        context['parent_category_id'] = Category.objects.get(name__exact=CAT_PRODUCT).pk
         return context
 
    #### 2.7.1.4 AqlUpdateView
@@ -842,8 +1096,7 @@ class AqlUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql"}
-        context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).supplier_id)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"me","menu4":"aql"}
         return context
 
    #### 2.7.1.5 AqlDeleteView
@@ -852,100 +1105,23 @@ class AqlDeleteView(LoginRequiredMixin,DeleteView):
     template_name = 'aql/aql_confirm_delete.html'
 
     def get_success_url(self):
-        return reverse_lazy('suppliers:aql_list', kwargs={'pk': Aql.objects.get(id=self.kwargs['pk']).supplier_id})
+        return reverse_lazy('suppliers:aql_list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql"}
-        context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(id=self.kwargs['pk']).supplier_id)
         return context
 
-  ### 2.7.2 AqlFile
-   #### 2.7.2.1 AqlFileListView
-class AqlFileListView(LoginRequiredMixin,ListView):
-    model = AqlFile
-    template_name = 'aqlfile/aqlfile_list.html'
+    #### 2.7.1.6 Function for AQL
+def change_aql_type(request):
+    aql_id = request.GET.get('aql_id')
+    type = request.GET.get('type')
 
-    def get_queryset(self):
-        aql_id = self.kwargs['pk']
-        self.aql = Aql.objects.get(pk=aql_id)
-        self.supplier = Supplier.objects.get(pk=self.aql.supplier_id)
-        return AqlFile.objects.filter(aql_id = aql_id)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"file"}
-        context['aql_id'] = self.kwargs['pk']
-        context['supplier'] = self.supplier
-        context['aql'] = self.aql
-        return context
-
-   #### 2.7.2.2 CreateAqlFileView
- ### not using query_set here because it don't work with createview
-class CreateAqlFileView(LoginRequiredMixin,CreateView):
-    form_class = AqlFileForm
-    model = AqlFile
-    template_name = 'aqlfile/aqlfile_form.html'
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.aql = Aql.objects.get(id=self.kwargs['pk'])
-        self.object.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"file"}
-        aql_id = self.kwargs['pk']
-        self.aql = Aql.objects.get(pk=aql_id)
-        self.supplier = Supplier.objects.get(pk=self.aql.supplier_id)
-        context['supplier'] = self.supplier
-        context['aql'] = self.aql
-        return context
-
-   #### 2.7.2.3 AqlFileUpdateView
-class AqlFileUpdateView(LoginRequiredMixin,UpdateView):
-    form_class = AqlFileForm
-    model = AqlFile
-    template_name = 'aqlfile/aqlfile_form.html'
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.update_date = timezone.now()
-        self.object.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"file"}
-        aqlfile_id = self.kwargs['pk']
-        self.aql = Aql.objects.get(pk=AqlFile.objects.get(id=aqlfile_id).aql_id)
-        self.supplier = Supplier.objects.get(pk=self.aql.supplier_id)
-        context['supplier'] = self.supplier
-        context['aql'] = self.aql
-        return context
-
-   #### 2.7.2.4 AqlFileDeleteView
-class AqlFileDeleteView(LoginRequiredMixin,DeleteView):
-    model = AqlFile
-    template_name = 'aqlfile/aqlfile_confirm_delete.html'
-
-    def get_queryset(self):
-        aqlfile_id = self.kwargs['pk']
-        self.aql = Aql.objects.get(pk=AqlFile.objects.get(id=aqlfile_id).aql_id)
-        self.supplier = Supplier.objects.get(pk=self.aql.supplier_id)
-        return AqlFile.objects.filter(pk=aqlfile_id)
-
-    def get_success_url(self):
-        return reverse_lazy('suppliers:aqlfile_list', kwargs={'pk': AqlFile.objects.get(id=self.kwargs['pk']).aql_id})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"aql","menu5":"file"}
-        context['supplier'] = self.supplier
-        context['aql'] = self.aql
-        return context
-
+    Aql.objects.filter(pk=aql_id).update(type=type)
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
  ## 2.8 Order
   ### 2.8.1 Order
    #### 2.8.1.1 OrderListView
@@ -1378,3 +1554,79 @@ class OrderDeliveryDeleteView(LoginRequiredMixin,DeleteView):
         context['supplier'] = self.supplier
         context['order'] = self.order
         return context
+
+# 3. Certification
+ ## 3.1 CertificationListView
+class CertificationListView(LoginRequiredMixin,ListView):
+    model = Certification
+    template_name = 'certification/certification_list.html'
+
+    def get_queryset(self):
+        self.certification_active = Certification.objects.filter(type="Active")
+        self.certification_archived = Certification.objects.filter(type="Archived")
+        return Certification.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"certification"}
+        context['certification_active'] = self.certification_active
+        context['certification_archived'] = self.certification_archived
+        return context
+
+ ## 1.2 CreateCertificationView
+class CreateCertificationView(LoginRequiredMixin,CreateView):
+    form_class = CertificationForm
+    model = Certification
+    template_name = 'certification/certification_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.type = "Active"
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"certification"}
+        return context
+
+ ## 1.3 CertificationUpdateView
+class CertificationUpdateView(LoginRequiredMixin,UpdateView):
+    form_class = CertificationForm
+    model = Certification
+    template_name = 'certification/certification_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.update_date = timezone.now()
+        self.object.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"certification"}
+        return context
+
+ ## 1.4 CertificationDeleteView
+class CertificationDeleteView(LoginRequiredMixin,DeleteView):
+    model = Certification
+    template_name = 'certification/certification_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy('suppliers:certification_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"certification"}
+        return context
+
+ ## 1.5 Function for Certification
+def change_certification_type(request):
+    certification_id = request.GET.get('certification_id')
+    type = request.GET.get('type')
+
+    Certification.objects.filter(pk=certification_id).update(type=type)
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)

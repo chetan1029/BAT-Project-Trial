@@ -15,7 +15,7 @@
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
           </li>
           <li class="breadcrumb-item">
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
@@ -52,12 +52,12 @@
                 <p class="mb-3">{{bank.benificary}}</p>
                 <p class="text-muted text-small mb-2">Account Number</p>
                 <p class="mb-3">{{bank.account_number}}</p>
-                <p class="text-muted text-small mb-2">Swift Number</p>
-                <p class="mb-3">{{bank.swift_number}}</p>
                 <p class="text-muted text-small mb-2">Swift Code</p>
                 <p class="mb-3">{{bank.swift_code}}</p>
                 <p class="text-muted text-small mb-2">Currency</p>
-                <p class="mb-3">{{bank.currency.title}}</p>
+                {% for currency in bank.currency.all %}
+                <span class="badge badge-dark">{{currency.title}}</span>
+                {% endfor %}
                 <hr >
                 <p class="text-muted text-small mb-2">Created at</p>
                 <p class="mb-3">{{bank.create_date| date:"d M Y h:i A"}}</p>

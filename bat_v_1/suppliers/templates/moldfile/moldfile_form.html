@@ -15,7 +15,7 @@
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
           </li>
           <li class="breadcrumb-item">
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
@@ -42,9 +42,9 @@
                 <div class="row">
                   <div class="col-6">
                     {% if not form.instance.pk %}
-                    <h5 class="card-title">Add Mold Files</h5>
+                    <h5 class="card-title">Add Mold File</h5>
                     {% else %}
-                    <h5 class="card-title">Edit Mold Product</h5>
+                    <h5 class="card-title">Edit Mold File</h5>
                     {% endif %}
                   </div>
                 </div>

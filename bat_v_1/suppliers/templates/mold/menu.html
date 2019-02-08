@@ -3,6 +3,9 @@
     <a class="nav-link {% if active_menu.menu5 == 'detail' %}active{% endif %}" href="{% url 'suppliers:mold_detail' pk=mold.pk %}">DETAIL</a>
   </li>
   <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu5 == 'host' %}active{% endif %}" href="{% url 'suppliers:moldhost_list' pk=mold.pk %}">MOLD HOST</a>
+  </li>
+  <li class="nav-item">
     <a class="nav-link {% if active_menu.menu5 == 'file' %}active{% endif %}" href="{% url 'suppliers:moldfile_list' pk=mold.pk %}">MOLD FILES</a>
   </li>
 </ul>

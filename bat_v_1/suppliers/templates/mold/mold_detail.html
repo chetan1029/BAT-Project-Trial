@@ -15,7 +15,7 @@
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
           </li>
           <li class="breadcrumb-item">
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
@@ -47,7 +47,7 @@
                 <h2>{{mold.title}}</h2>
                 {% include 'mold/menu.html' %}
                 <p class="text-muted text-small mb-2">Manufacturer</p>
-                <p class="mb-3">{{mold.mold_supplier}}</p>
+                <p class="mb-3">{{mold.supplier}}</p>
                 <div class="row">
                   <div class="col-3">
                     <p class="text-muted text-small mb-2">X Units</p>
@@ -68,32 +68,11 @@
                 </div>
                 <p class="text-muted text-small mb-2">Production Date</p>
                 <p class="mb-3">{{mold.production_date| date:"d M Y"}}</p>
-                <hr>
-                <h6>{{mold.title}} Products</h6>
-                <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
-                  <thead>
-                    <tr>
-                      <th>Title</th>
-                      <th>EAN</th>
-                      <th>SKU</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for moldproduct in mold.product.all %}
-                    <tr>
-                      <td>
-                        <p class="list-item-heading">{{ moldproduct.title }}</p>
-                      </td>
-                      <td>
-                        <p class="list-item-heading">{{ moldproduct.ean }}</p>
-                      </td>
-                      <td>
-                        <p class="list-item-heading">{{ moldproduct.sku }}</p>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+                <p class="text-muted text-small mb-2">Category</p>
+                {% for moldcategory in mold.category.all %}
+                <span class="badge badge-pill badge-outline-dark mb-1 mt-1">{{ moldcategory.name }}</span>
+                {% endfor %}
+
                 <hr>
                 <div class="row">
                   <div class="col-6">

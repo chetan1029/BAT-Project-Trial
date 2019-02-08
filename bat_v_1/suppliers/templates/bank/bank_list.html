@@ -15,7 +15,7 @@
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
           </li>
           <li class="breadcrumb-item">
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
@@ -41,7 +41,7 @@
                 </div>
               </div>
             </div>
-
+            <h6 class="mt-4 mb-2">Active Banks</h6>
             <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
               <thead>
                 <tr>
@@ -49,11 +49,10 @@
                   <th>Benificary</th>
                   <th>Country</th>
                   <th>Currency</th>
-                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {% for bank in bank_list %}
+                {% for bank in bank_active %}
                 <tr>
                   <td>
                     <p class="list-item-heading"><a href="{% url 'suppliers:bank_detail' pk=bank.pk %}" title="{{ bank.name }}">{{ bank.name }}</a></p>
@@ -67,13 +66,34 @@
                   <td>
                     <p class="text-muted">{{ bank.currency.all|join:", " }}</p>
                   </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <h6 class="mt-4 mb-2">Archived Banks</h6>
+            <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Benificary</th>
+                  <th>Country</th>
+                  <th>Currency</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for bank in bank_archived %}
+                <tr>
                   <td>
-                    <a href="{% url 'suppliers:update_bank' pk=bank.pk %}" class="btn btn-outline-info icon-button ">
-                      <i class="simple-icon-pencil"></i>
-                    </a>
-                    <a href="{% url 'suppliers:delete_bank' pk=bank.pk %}" class="btn btn-outline-danger icon-button ">
-                      <i class="simple-icon-trash"></i>
-                    </a>
+                    <p class="list-item-heading"><a href="{% url 'suppliers:bank_detail' pk=bank.pk %}" title="{{ bank.name }}">{{ bank.name }}</a></p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ bank.benificary }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ bank.country }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ bank.currency.all|join:", " }}</p>
                   </td>
                 </tr>
                 {% endfor %}

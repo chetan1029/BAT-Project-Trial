@@ -15,7 +15,7 @@
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
           </li>
           <li class="breadcrumb-item">
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
@@ -23,7 +23,7 @@
           <li class="breadcrumb-item">
             <a href="{% url 'suppliers:productprice_list' pk=supplier.pk %}">Product</a>
           </li>
-          <li class="breadcrumb-item active" aria-current="page">Delete Supplier Product</li>
+          <li class="breadcrumb-item active" aria-current="page">Delete Vendor Product</li>
         </ol>
       </nav>
     </div>
@@ -36,7 +36,7 @@
           <div class="card-body">
             <div class="row">
               <div class="col-6">
-                <h5 class="card-title">Delete Supplier Product</h5>
+                <h5 class="card-title">Delete Vendor Product</h5>
               </div>
             </div>
             <form action="" method="post">{% csrf_token %}

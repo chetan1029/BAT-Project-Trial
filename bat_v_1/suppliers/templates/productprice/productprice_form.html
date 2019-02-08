@@ -16,7 +16,7 @@
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
           </li>
           <li class="breadcrumb-item">
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
@@ -32,32 +32,69 @@
         </ol>
       </nav>
     </div>
-
-
     {% include 'suppliers/menu.html' %}
-    <div class="tab-content">
-      <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
-        <div class="tab-card h-100">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-6">
-                {% if not form.instance.pk %}
-                <h5 class="card-title">Add Product</h5>
-                {% else %}
-                <h5 class="card-title">Edit Product</h5>
-                {% endif %}
-              </div>
-            </div>
-            <form method="POST">
-              {% csrf_token %}
-              {{form|crispy}}
-              <button type="submit" class="btn btn-primary mb-0">Submit</button>
-              <a href="{% url 'suppliers:productprice_list' supplier.pk %}" class="btn btn-danger mb-0">Cancel</a>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
+<form class="" action="{% url 'suppliers:add_pricelist' %}" method="post">
+{% csrf_token %}
+<input type="hidden" name="supplier_id" value="{{supplier.pk}}">
+<div class="row" id="pokemon-selection">
+  {% for product in products %}
+  <div class="col-md-4 col-xl-3 col-lg-4 mb-4">
+    <div class="card cursor-pointer" id="product{{product.pk}}">
+      <div class="position-relative">
+        {% if product.image %}
+        <img class="card-img-top" src="{{MEDIA_URL}}{{ product.image }}" alt="{{ product.title }}">
+        {% else %}
+        <img class="card-img-top" src="{{MEDIA_URL}}products/no-product-image.png" alt="{{ product.title }}">
+        {% endif %}
+        <span class="badge badge-pill badge-dark position-absolute badge-top-left">EAN: {{ product.ean }}</span>
+        <span class="badge badge-pill badge-dark position-absolute badge-top-left-2">{{product.category.name}}</span>
+      </div>
+      <div class="card-body">
+        <p class="list-item-heading mb-4 text-truncate" title="{{product.title}}">{{product.title}}</p>
+        <footer>
+          <input type="hidden" name="product_id" disabled value="{{product.pk}}">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <select class="form-control" name="currency{{product.pk}}" disabled>
+                {% for c in currency  %}
+                {% if c.title == "RMB" %}
+                <option value="{{c.id}}" selected>{{c.title}}</option>
+                {% else %}
+                <option value="{{c.id}}">{{c.title}}</option>
+                {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+            <input type="text" class="form-control" name="price{{product.pk}}" placeholder="Price" aria-label="price" disabled aria-describedby="basic-addon1">
+          </div>
+        </footer>
+      </div>
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+<div class="row mt-4">
+  <div class="col-12 text-center">
+    <button type="submit" class="btn btn-secondary btn-lg mb-1">SUBMIT</button>
+  </div>
+</div>
+</form>
+<script>
+$( ".card" ).click(function(e) {
+  if(e.target.nodeName == "INPUT" || e.target.nodeName == "SELECT"){
+  }else{
+    $(this).toggleClass("active");
+    if($(this).hasClass("active")){
+      $(this).find("input").prop('disabled', false);
+      $(this).find("select").prop('disabled', false);
+    }else{
+      $(this).find("input").prop('disabled', true);
+      $(this).find("select").prop('disabled', true);
+    }
+  }
+});
+</script>
 {% endblock %}

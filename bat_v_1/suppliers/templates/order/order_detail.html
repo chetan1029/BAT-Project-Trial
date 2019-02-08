@@ -15,7 +15,7 @@
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
           </li>
           <li class="breadcrumb-item">
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
@@ -48,7 +48,7 @@
                 {% include 'order/menu.html' %}
                 <p class="text-muted text-small mb-2">AQL Version</p>
                 <p class="mb-3">{{order.aql}}</p>
-                <p class="text-muted text-small mb-2">Supplier Contact Person</p>
+                <p class="text-muted text-small mb-2">Vendor Contact Person</p>
                 <p class="mb-1">{{order.contact}}</p>
                 <p class="mb-1">{{order.contact.phone}}</p>
                 <p class="mb-3">{{order.contact.email}}</p>

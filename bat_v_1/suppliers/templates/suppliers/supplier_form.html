@@ -7,9 +7,9 @@
 <div class="row">
   <div class="col-12">
     {% if not form.instance.pk %}
-    <h1>Add Supplier</h1>
+    <h1>Add Vendor</h1>
     {% else %}
-    <h1>Edit Supplier</h1>
+    <h1>Edit Vendor</h1>
     {% endif %}
     <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
       <ol class="breadcrumb pt-0">
@@ -17,9 +17,9 @@
           <a href="{% url 'dashboard' %}">Dashboard</a>
         </li>
         <li class="breadcrumb-item">
-          <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+          <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page">Add Supplier</li>
+        <li class="breadcrumb-item active" aria-current="page">Add Vendor</li>
       </ol>
     </nav>
     <div class="separator mb-5"></div>
@@ -97,26 +97,7 @@
               {{ form.detail|as_crispy_field }}
             </div>
           </div>
-          <div class="extra_form">
-            {{ contacts.management_form }}
 
-            {% for form in contacts.forms %}
-                <div class="row formset_row">
-                    {% for field in form.visible_fields %}
-                        <div class="col">
-                            {# Include the hidden fields in the form #}
-                            {% if forloop.first %}
-                                {% for hidden in form.hidden_fields %}
-                                    {{ hidden }}
-                                {% endfor %}
-                            {% endif %}
-                            {{ field.errors.as_ul }}
-                            {{ field|as_crispy_field }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        </div>
           <button type="submit" class="btn btn-primary mb-0">Submit</button>
           {% if not form.instance.pk %}
           <a href="{% url 'suppliers:supplier_list' %}" class="btn btn-danger mb-0">Cancel</a>
@@ -129,13 +110,7 @@
     </div>
   </div>
 </div>
-<script src="{% static 'app/js/vendor/jquery.formset.js'%}"></script>
 <script type="text/javascript">
-    $('.formset_row').formset({
-        addText: 'add contact',
-        deleteText: '<i class="simple-icon-trash"></i>',
-        prefix: 'contact_set'
-    });
     function load_display_categories(category, parent = "", active = "") {
       if (category != '') {
         var url = $("#ajax_url").attr("load-display-categories-url");

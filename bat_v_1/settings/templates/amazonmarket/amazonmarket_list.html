@@ -53,6 +53,9 @@
                 <p class="list-item-heading">{{ amazonmarket.amazon_id }}</p>
               </td>
               <td>
+                <a href="{% url 'settings:sync_amazonmarket' pk=amazonmarket.pk %}" class="btn btn-outline-info icon-button ">
+                  <i class="simple-icon-refresh"></i>
+                </a>
                 <a href="{% url 'settings:update_amazonmarket' pk=amazonmarket.pk %}" class="btn btn-outline-info icon-button ">
                   <i class="simple-icon-pencil"></i>
                 </a>

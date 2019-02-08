@@ -15,7 +15,7 @@
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
           </li>
           <li class="breadcrumb-item">
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
@@ -49,22 +49,18 @@
                     </div>
                   </div>
                 </div>
-
+                <h6 class="mt-4 mb-2">Active Mold File</h6>
                 <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
                   <thead>
                     <tr>
-                      <th>Title</th>
                       <th>Created at</th>
                       <th>File</th>
-                      <th>Action</th>
+                      <th>Note</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {% for moldfile in moldfile_list %}
+                    {% for moldfile in moldfile_active %}
                     <tr>
-                      <td>
-                        <p class="list-item-heading">{{ moldfile.title }}</p>
-                      </td>
                       <td>
                         <p class="text-muted">{{ moldfile.create_date| date:"d M Y" }}</p>
                       </td>
@@ -74,14 +70,36 @@
                         </a>
                       </td>
                       <td>
-                        <a href="{% url 'suppliers:update_moldfile' pk=moldfile.pk %}" class="btn btn-outline-info icon-button ">
-                          <i class="simple-icon-pencil"></i>
-                        </a>
-                        <a href="{% url 'suppliers:delete_moldfile' pk=moldfile.pk %}" class="btn btn-outline-danger icon-button ">
-                          <i class="simple-icon-trash"></i>
+                        <p class="text-muted">{{ moldfile.note }}</p>
+                      </td>
+                  </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <h6 class="mt-4 mb-2">Archived Mold File</h6>
+                <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
+                  <thead>
+                    <tr>
+                      <th>Created at</th>
+                      <th>File</th>
+                      <th>Note</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for moldfile in moldfile_archived %}
+                    <tr>
+                      <td>
+                        <p class="text-muted">{{ moldfile.create_date| date:"d M Y" }}</p>
+                      </td>
+                      <td>
+                        <a href="{{MEDIA_URL}}{{ moldfile.file_url }}" target="_blank" class="btn btn-info icon-button ">
+                          <i class="simple-icon-cloud-download"></i>
                         </a>
                       </td>
-                    </tr>
+                      <td>
+                        <p class="text-muted">{{ moldfile.note }}</p>
+                      </td>
+                  </tr>
                     {% endfor %}
                   </tbody>
                 </table>

@@ -1,16 +1,21 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.views.generic import (TemplateView, ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
 from django.urls import reverse_lazy
-from settings.models import (Category, Status, Currency, Color, Size,
+from settings.models import (Category, Status, Currency,
                              AmazonMarket, AmazonMwsauth, Box)
-from settings.forms import (CategoryForm, StatusForm, CurrencyForm, ColorForm, SizeForm,
+from settings.forms import (CategoryForm, StatusForm, CurrencyForm,
                             AmazonMarketForm, AmazonMwsauthForm, BoxForm)
 from django.db.models import Q
+from django.http import JsonResponse, HttpResponseRedirect
+from django.db.models.deletion import ProtectedError
+from django.contrib import messages
 import logging
+import requests
 logger = logging.getLogger(__name__)
 # Create your views here.
 # 1. Basic
@@ -19,31 +24,21 @@ logger = logging.getLogger(__name__)
   ### 1.1.2 CreateCategoryView
   ### 1.1.3 CategoryUpdateView
   ### 1.1.4 CategoryDeleteView
- ## 1.2 Color
-  ### 1.2.1 ColorListView
-  ### 1.2.2 CreateColorView
-  ### 1.2.3 ColorUpdateView
-  ### 1.2.4 ColorDeleteView
- ## 1.3 Size
-  ### 1.3.1 SizeListView
-  ### 1.3.2 CreateSizeView
-  ### 1.3.3 SizeUpdateView
-  ### 1.3.4 SizeDeleteView
- ## 1.4 Status
-  ### 1.4.1 StatusListView
-  ### 1.4.2 CreateStatusView
-  ### 1.4.3 StatusUpdateView
-  ### 1.4.4 StatusDeleteView
- ## 1.5 Currecy
-  ### 1.5.1 CurrecyListView
-  ### 1.5.2 CreateCurrecyView
-  ### 1.5.3 CurrecyUpdateView
-  ### 1.5.4 CurrecyDeleteView
- ## 1.6 Box
-  ### 1.6.1 BoxListView
-  ### 1.6.2 CreateBoxView
-  ### 1.6.3 BoxUpdateView
-  ### 1.6.4 BoxDeleteView
+ ## 1.2 Status
+  ### 1.2.1 StatusListView
+  ### 1.2.2 CreateStatusView
+  ### 1.2.3 StatusUpdateView
+  ### 1.2.4 StatusDeleteView
+ ## 1.3 Currecy
+  ### 1.3.1 CurrecyListView
+  ### 1.3.2 CreateCurrecyView
+  ### 1.3.3 CurrecyUpdateView
+  ### 1.3.4 CurrecyDeleteView
+ ## 1.4 Box
+  ### 1.4.1 BoxListView
+  ### 1.4.2 CreateBoxView
+  ### 1.4.3 BoxUpdateView
+  ### 1.4.4 BoxDeleteView
 
 # 2. Amazon
  ## 2.1 AmazonMarket
@@ -102,8 +97,13 @@ class CategoryUpdateView(LoginRequiredMixin,UpdateView):
 class CategoryDeleteView(LoginRequiredMixin,DeleteView):
     model = Category
     template_name = 'category/category_confirm_delete.html'
+    success_message = "%(name)s was deleted successfully"
+    protected_error = "can't delete %(name)s because it is used by other forms"
 
     def get_success_url(self):
+        return reverse_lazy('settings:category_list')
+
+    def get_error_url(self):
         return reverse_lazy('settings:category_list')
 
     def get_context_data(self, **kwargs):
@@ -111,126 +111,61 @@ class CategoryDeleteView(LoginRequiredMixin,DeleteView):
         context['active_menu'] = {"menu1":"setting","menu2":"category","menu3":"basic","menu4":"category"}
         return context
 
- ## 1.2 Color
-  ### 1.2.1 ColorListView
-class ColorListView(LoginRequiredMixin,ListView):
-    model = Color
-    template_name = 'color/color_list.html'
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        get_success_url = self.get_success_url()
+        get_error_url = self.get_error_url()
+        try:
+            obj.delete()
+            messages.success(self.request, self.success_message % obj.__dict__)
+            return HttpResponseRedirect(get_success_url)
+        except ProtectedError:
+            messages.warning(self.request, self.protected_error % obj.__dict__)
+            return HttpResponseRedirect(get_error_url)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"color"}
-        return context
+  ### 1.1.5 View Functions for Categories
+def load_display_categories(request):
+    category_id = request.GET.get('category')
+    active = request.GET.get('active')
+    if active:
+        active = int(active)
 
-  ### 1.2.2 CreateColorView
-# class CreateColorView(LoginRequiredMixin,CreateView):
-#     form_class = ColorForm
-#     model = Color
-#     template_name = 'color/color_form.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"color"}
-#         return context
-def create_color(request):
-    form = ColorForm
+    if category_id:
+        parent_category_id = Category.objects.get(pk=category_id).parent_id
+        subcategory = Category.objects.filter(parent=category_id)
+        category_breadcrumbs = Category.objects.get(pk=category_id).category_breadcrumbs
+    else:
+        parent_category_id = "parent"
+        subcategory = Category.objects.filter(parent__isnull=True)
+        category_breadcrumbs = ""
 
-    if request.method == 'POST':
-        logger.warning(request.POST['name'])
-        logger.warning(request.POST['version_1'])
-        name = request.POST['name'];
+    return render(request, 'category/ajax/category_display.html',{'categories':subcategory,'category_id':category_id,'parent_category_id':parent_category_id,'active':active, 'category_breadcrumbs':category_breadcrumbs})
 
-        for x in range(1,3):
-            version = request.POST['version_'+str(x)]
-            color = Color(name=name+" "+version)
-            color.save()
+def add_category(request):
+    parent_id = request.POST.get('parent_id')
+    name = request.POST.get('name')
+    category_id = request.POST.get('category_id')
 
-        return redirect('settings:color_list')
-    return render(request,'color/color_form.html',{'form':form})
-  ### 1.2.3 ColorUpdateView
-class ColorUpdateView(LoginRequiredMixin,UpdateView):
-    form_class = ColorForm
-    model = Color
-    template_name = 'color/color_form.html'
+    if category_id:
+        category = Category.objects.get(pk=category_id)
+        category.name = name
+        category.save()
+    else:
+        if parent_id:
+            cat_parent = Category.objects.get(pk=parent_id)
+            category = Category.objects.create(name=name,parent=cat_parent)
+        else:
+            category = Category.objects.create(name=name)
 
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.update_date = timezone.now()
-        self.object.save()
-        return super().form_valid(form)
+    data = {
+        'parent_id':parent_id,
+        'name': name,
+        'success': True
+    }
+    return JsonResponse(data)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"color"}
-        return context
-
-  ### 1.2.4 ColorDeleteView
-class ColorDeleteView(LoginRequiredMixin,DeleteView):
-    model = Color
-    template_name = 'color/color_confirm_delete.html'
-
-    def get_success_url(self):
-        return reverse_lazy('settings:color_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"color"}
-        return context
-
- ## 1.3 Size
-  ### 1.3.1 SizeListView
-class SizeListView(LoginRequiredMixin,ListView):
-    model = Size
-    template_name = 'size/size_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"size"}
-        return context
-
-  ### 1.3.2 CreateSizeView
-class CreateSizeView(LoginRequiredMixin,CreateView):
-    form_class = SizeForm
-    model = Size
-    template_name = 'size/size_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"size"}
-        return context
-
-  ### 1.3.3 SizeUpdateView
-class SizeUpdateView(LoginRequiredMixin,UpdateView):
-    form_class = SizeForm
-    model = Size
-    template_name = 'size/size_form.html'
-
-    def form_valid(self, form):
-        self.object = form.save(commit=False)
-        self.object.update_date = timezone.now()
-        self.object.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"size"}
-        return context
-
-  ### 1.3.4 SizeDeleteView
-class SizeDeleteView(LoginRequiredMixin,DeleteView):
-    model = Size
-    template_name = 'size/size_confirm_delete.html'
-
-    def get_success_url(self):
-        return reverse_lazy('settings:size_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"size"}
-        return context
-
- ## 1.4 Status
-  ### 1.4.1 StatusListView
+ ## 1.2 Status
+  ### 1.2.1 StatusListView
 class StatusListView(LoginRequiredMixin,ListView):
     model = Status
     template_name = 'status/status_list.html'
@@ -240,7 +175,7 @@ class StatusListView(LoginRequiredMixin,ListView):
         context['active_menu'] = {"menu1":"setting","menu2":"status","menu3":"basic","menu4":"status"}
         return context
 
-  ### 1.4.2 CreateStatusView
+  ### 1.2.2 CreateStatusView
 class CreateStatusView(LoginRequiredMixin,CreateView):
     form_class = StatusForm
     model = Status
@@ -251,7 +186,7 @@ class CreateStatusView(LoginRequiredMixin,CreateView):
         context['active_menu'] = {"menu1":"setting","menu2":"status","menu3":"basic","menu4":"status"}
         return context
 
-  ### 1.4.3 StatusUpdateView
+  ### 1.2.3 StatusUpdateView
 class StatusUpdateView(LoginRequiredMixin,UpdateView):
     form_class = StatusForm
     model = Status
@@ -268,12 +203,17 @@ class StatusUpdateView(LoginRequiredMixin,UpdateView):
         context['active_menu'] = {"menu1":"setting","menu2":"status","menu3":"basic","menu4":"status"}
         return context
 
-  ### 1.4.4 StatusDeleteView
+  ### 1.2.4 StatusDeleteView
 class StatusDeleteView(LoginRequiredMixin,DeleteView):
     model = Status
     template_name = 'status/status_confirm_delete.html'
+    success_message = "%(title)s was deleted successfully"
+    protected_error = "can't delete %(title)s because it is used by other forms"
 
     def get_success_url(self):
+        return reverse_lazy('settings:status_list')
+
+    def get_error_url(self):
         return reverse_lazy('settings:status_list')
 
     def get_context_data(self, **kwargs):
@@ -281,8 +221,61 @@ class StatusDeleteView(LoginRequiredMixin,DeleteView):
         context['active_menu'] = {"menu1":"setting","menu2":"status","menu3":"basic","menu4":"status"}
         return context
 
- ## 1.5 Currency
-  ### 1.5.1 CurrencyListView
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        get_success_url = self.get_success_url()
+        get_error_url = self.get_error_url()
+        try:
+            obj.delete()
+            messages.success(self.request, self.success_message % obj.__dict__)
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError:
+            messages.warning(self.request, self.protected_error % obj.__dict__)
+            return HttpResponseRedirect(get_error_url)
+
+  ### 1.2.5 View Functions for Status
+def load_display_status(request):
+    status_id = request.GET.get('status')
+    active = request.GET.get('active')
+    if active:
+        active = int(active)
+
+    if status_id:
+        parent_status_id = Status.objects.get(pk=status_id).parent_id
+        substatus = Status.objects.filter(parent=status_id)
+        status_breadcrumbs = Status.objects.get(pk=status_id).status_breadcrumbs
+    else:
+        parent_status_id = "parent"
+        substatus = Status.objects.filter(parent__isnull=True)
+        status_breadcrumbs = ""
+
+    return render(request, 'status/ajax/status_display.html',{'statuses':substatus,'status_id':status_id,'parent_status_id':parent_status_id,'active':active, 'status_breadcrumbs':status_breadcrumbs})
+
+def add_status(request):
+    parent_id = request.POST.get('parent_id')
+    title = request.POST.get('name')
+    status_id = request.POST.get('status_id')
+
+    if status_id:
+        status = Status.objects.get(pk=status_id)
+        status.title = title
+        status.save()
+    else:
+        if parent_id:
+            status_parent = Status.objects.get(pk=parent_id)
+            status = Status.objects.create(title=title,parent=status_parent)
+        else:
+            status = Status.objects.create(title=title)
+
+    data = {
+        'parent_id':parent_id,
+        'title': title,
+        'success': True
+    }
+    return JsonResponse(data)
+
+ ## 1.3 Currency
+  ### 1.3.1 CurrencyListView
 class CurrencyListView(LoginRequiredMixin,ListView):
     model = Currency
     template_name = 'currency/currency_list.html'
@@ -292,10 +285,11 @@ class CurrencyListView(LoginRequiredMixin,ListView):
         context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"currency"}
         return context
 
-  ### 1.5.2 CreateCurrencyView
-class CreateCurrencyView(LoginRequiredMixin,CreateView):
+  ### 1.3.2 CreateCurrencyView
+class CreateCurrencyView(SuccessMessageMixin, LoginRequiredMixin, CreateView):
     form_class = CurrencyForm
     model = Currency
+    success_message = "%(title)s was created successfully"
     template_name = 'currency/currency_form.html'
 
     def get_context_data(self, **kwargs):
@@ -303,11 +297,12 @@ class CreateCurrencyView(LoginRequiredMixin,CreateView):
         context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"currency"}
         return context
 
-  ### 1.5.3 CurrencyUpdateView
-class CurrencyUpdateView(LoginRequiredMixin,UpdateView):
+  ### 1.3.3 CurrencyUpdateView
+class CurrencyUpdateView(SuccessMessageMixin, LoginRequiredMixin,UpdateView):
     form_class = CurrencyForm
     model = Currency
     template_name = 'currency/currency_form.html'
+    success_message = "%(title)s was updated successfully"
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -320,12 +315,18 @@ class CurrencyUpdateView(LoginRequiredMixin,UpdateView):
         context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"currency"}
         return context
 
-  ### 1.5.4 CurrencyDeleteView
+
+  ### 1.3.4 CurrencyDeleteView
 class CurrencyDeleteView(LoginRequiredMixin,DeleteView):
     model = Currency
     template_name = 'currency/currency_confirm_delete.html'
+    success_message = "%(title)s was deleted successfully"
+    protected_error = "can't delete %(title)s because it is used by other forms"
 
     def get_success_url(self):
+        return reverse_lazy('settings:currency_list')
+
+    def get_error_url(self):
         return reverse_lazy('settings:currency_list')
 
     def get_context_data(self, **kwargs):
@@ -333,8 +334,21 @@ class CurrencyDeleteView(LoginRequiredMixin,DeleteView):
         context['active_menu'] = {"menu1":"setting","menu2":"catalog","menu3":"basic","menu4":"currency"}
         return context
 
- ## 1.6 Box
-  ### 1.6.1 BoxListView
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        get_success_url = self.get_success_url()
+        get_error_url = self.get_error_url()
+        try:
+            obj.delete()
+            messages.success(self.request, self.success_message % obj.__dict__)
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError:
+            messages.warning(self.request, self.protected_error % obj.__dict__)
+            return HttpResponseRedirect(get_error_url)
+
+
+ ## 1.4 Box
+  ### 1.4.1 BoxListView
 class BoxListView(LoginRequiredMixin,ListView):
     model = Box
     template_name = 'box/box_list.html'
@@ -344,7 +358,7 @@ class BoxListView(LoginRequiredMixin,ListView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"box"}
         return context
 
-  ### 1.6.2 CreateBoxView
+  ### 1.4.2 CreateBoxView
 class CreateBoxView(LoginRequiredMixin,CreateView):
     form_class = BoxForm
     model = Box
@@ -352,6 +366,7 @@ class CreateBoxView(LoginRequiredMixin,CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        self.object.title = str(self.object.length)+"x"+str(self.object.width)+"x"+str(self.object.depth);
         self.object.cbm = round(((self.object.length/100)*(self.object.width/100)*(self.object.depth/100)),3)
         self.object.save()
         return super().form_valid(form)
@@ -361,7 +376,7 @@ class CreateBoxView(LoginRequiredMixin,CreateView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"box"}
         return context
 
-  ### 1.6.3 BoxUpdateView
+  ### 1.4.3 BoxUpdateView
 class BoxUpdateView(LoginRequiredMixin,UpdateView):
     form_class = BoxForm
     model = Box
@@ -370,6 +385,7 @@ class BoxUpdateView(LoginRequiredMixin,UpdateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.update_date = timezone.now()
+        self.object.title = str(self.object.length)+"x"+str(self.object.width)+"x"+str(self.object.depth);
         self.object.cbm = round(((self.object.length/100)*(self.object.width/100)*(self.object.depth/100)),3)
         self.object.save()
         return super().form_valid(form)
@@ -379,7 +395,7 @@ class BoxUpdateView(LoginRequiredMixin,UpdateView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"box"}
         return context
 
-  ### 1.6.4 BoxDeleteView
+  ### 1.4.4 BoxDeleteView
 class BoxDeleteView(LoginRequiredMixin,DeleteView):
     model = Box
     template_name = 'box/box_confirm_delete.html'
@@ -444,6 +460,28 @@ class AmazonMarketDeleteView(LoginRequiredMixin,DeleteView):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"sales-channels","menu2":"market"}
         return context
+
+def sync_amazonmarket(request,pk):
+    amazonmarket = AmazonMarket.objects.get(pk=pk)
+
+    amazonmwsauth = AmazonMwsauth.objects.get(region=amazonmarket.region)
+    amazon_auth = {}
+    amazon_auth["MarketPlaceId"] = amazonmarket.marketplace_id
+    amazon_auth["SellerId"] = amazonmwsauth.seller_id
+    amazon_auth["MWSAuthToken"] = amazonmwsauth.auth_token
+    amazon_auth["AccessKey"] = amazonmwsauth.access_key
+    amazon_auth["SecretKey"] = amazonmwsauth.secret_key
+
+    sync_amazon_data = {
+        "domain": amazonmarket.amazon_id,
+        "amazon_auth": amazon_auth
+    }
+
+    response = requests.post("http://174.138.71.123/amazon/shipments/api/sync-amazonmarket.php", json=sync_amazon_data)
+    response_data = response.json()
+    logger.warning(response_data)
+
+    return redirect('settings:amazonmarket_list')
 
  ## 2.2 AmazonMwsauth
   ### 2.2.1 AmazonMwsauthListView

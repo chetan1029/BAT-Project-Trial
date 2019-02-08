@@ -11,6 +11,7 @@ urlpatterns = [
     path('<int:pk>/delete/',views.SupplierDeleteView.as_view(),name='delete_supplier'),
     ## Extra function views for Supplier
     path('ajax/load-display-category',views.load_display_categories,name='ajax_load_display_category'),
+    path('ajax/change-supplier-type',views.change_supplier_type,name='change_supplier_type'),
     # Payment Terms
     path('payment-terms',views.PaymentTermsListView.as_view(),name='paymentterms_list'),
     path('payment-terms/add',views.CreatePaymentTermsView.as_view(),name='create_paymentterms'),
@@ -20,7 +21,8 @@ urlpatterns = [
     path('<int:pk>/contact',views.ContactListView.as_view(),name='contact_list'),
     path('<int:pk>/contact/add',views.CreateContactView.as_view(),name='create_contact'),
     path('contact/<int:pk>/edit/',views.ContactUpdateView.as_view(),name='update_contact'),
-    path('contact/<int:pk>/delete/',views.ContactDeleteView.as_view(),name='delete_contact'),
+    path('ajax/change-contact-type',views.change_contact_type,name='change_contact_type'),
+    ##path('contact/<int:pk>/delete/',views.ContactDeleteView.as_view(),name='delete_contact'),
     # Bank
     path('<int:pk>/bank',views.BankListView.as_view(),name='bank_list'),
     path('<int:pk>/bank/add',views.CreateBankView.as_view(),name='create_bank'),
@@ -30,13 +32,15 @@ urlpatterns = [
     # Contract
     path('<int:pk>/contract',views.ContractListView.as_view(),name='contract_list'),
     path('<int:pk>/contract/add',views.CreateContractView.as_view(),name='create_contract'),
-    path('contract/<int:pk>/edit/',views.ContractUpdateView.as_view(),name='update_contract'),
-    path('contract/<int:pk>/delete/',views.ContractDeleteView.as_view(),name='delete_contract'),
+    ##path('contract/<int:pk>/edit/',views.ContractUpdateView.as_view(),name='update_contract'),
+    ##path('contract/<int:pk>/delete/',views.ContractDeleteView.as_view(),name='delete_contract'),
     # ProductPrice
     path('<int:pk>/product',views.ProductPriceListView.as_view(),name='productprice_list'),
     path('<int:pk>/product/add',views.CreateProductPriceView.as_view(),name='create_productprice'),
-    path('product/<int:pk>/edit/',views.ProductPriceUpdateView.as_view(),name='update_productprice'),
-    path('product/<int:pk>/delete/',views.ProductPriceDeleteView.as_view(),name='delete_productprice'),
+    path('submit-add-pricelist',views.add_pricelist,name='add_pricelist'),
+    path('ajax/change-pricelist-type',views.change_pricelist_type,name='change_pricelist_type'),
+    #path('product/<int:pk>/edit/',views.ProductPriceUpdateView.as_view(),name='update_productprice'),
+    #path('product/<int:pk>/delete/',views.ProductPriceDeleteView.as_view(),name='delete_productprice'),
     # Mold
     path('<int:pk>/mold',views.MoldListView.as_view(),name='mold_list'),
     path('<int:pk>/mold/add',views.CreateMoldView.as_view(),name='create_mold'),
@@ -48,17 +52,18 @@ urlpatterns = [
     path('mold/<int:pk>/file/add',views.CreateMoldFileView.as_view(),name='create_moldfile'),
     path('mold/file/<int:pk>/edit/',views.MoldFileUpdateView.as_view(),name='update_moldfile'),
     path('mold/file/<int:pk>/delete/',views.MoldFileDeleteView.as_view(),name='delete_moldfile'),
+    # MoldHost
+    path('mold/<int:pk>/host',views.MoldHostListView.as_view(),name='moldhost_list'),
+    path('mold/<int:pk>/host/add',views.CreateMoldHostView.as_view(),name='create_moldhost'),
+    path('mold/host/<int:pk>/edit/',views.MoldHostUpdateView.as_view(),name='update_moldhost'),
+    path('mold/host/<int:pk>/delete/',views.MoldHostDeleteView.as_view(),name='delete_moldhost'),
     # Aql
-    path('<int:pk>/aql',views.AqlListView.as_view(),name='aql_list'),
-    path('<int:pk>/aql/add',views.CreateAqlView.as_view(),name='create_aql'),
-    path('aql/<int:pk>',views.AqlDetailView.as_view(),name='aql_detail'),
-    path('aql/<int:pk>/edit/',views.AqlUpdateView.as_view(),name='update_aql'),
-    path('aql/<int:pk>/delete/',views.AqlDeleteView.as_view(),name='delete_aql'),
-    # AqlFile
-    path('aql/<int:pk>/file',views.AqlFileListView.as_view(),name='aqlfile_list'),
-    path('aql/<int:pk>/file/add',views.CreateAqlFileView.as_view(),name='create_aqlfile'),
-    path('aql/file/<int:pk>/edit/',views.AqlFileUpdateView.as_view(),name='update_aqlfile'),
-    path('aql/file/<int:pk>/delete/',views.AqlFileDeleteView.as_view(),name='delete_aqlfile'),
+    path('me/aql',views.AqlListView.as_view(),name='aql_list'),
+    path('me/aql/add',views.CreateAqlView.as_view(),name='create_aql'),
+    path('me/aql/<int:pk>',views.AqlDetailView.as_view(),name='aql_detail'),
+    path('me/aql/<int:pk>/edit/',views.AqlUpdateView.as_view(),name='update_aql'),
+    path('me/aql/<int:pk>/delete/',views.AqlDeleteView.as_view(),name='delete_aql'),
+    path('ajax/change-aql-type',views.change_aql_type,name='change_aql_type'),
     # Order
     path('<int:pk>/order',views.OrderListView.as_view(),name='order_list'),
     path('<int:pk>/order/add',views.CreateOrderView.as_view(),name='create_order'),
@@ -85,4 +90,9 @@ urlpatterns = [
     path('order/<int:pk>/delivery/add',views.CreateOrderDeliveryView.as_view(),name='create_orderdelivery'),
     path('order/delivery/<int:pk>/edit/',views.OrderDeliveryUpdateView.as_view(),name='update_orderdelivery'),
     path('order/delivery/<int:pk>/delete/',views.OrderDeliveryDeleteView.as_view(),name='delete_orderdelivery'),
+    # Ceertification
+    path('certification',views.CertificationListView.as_view(),name='certification_list'),
+    path('certification/add',views.CreateCertificationView.as_view(),name='create_certification'),
+    path('certification/<int:pk>/delete/',views.CertificationDeleteView.as_view(),name='delete_certification'),
+    path('ajax/change-certification-type',views.change_certification_type,name='change_certification_type'),
 ]

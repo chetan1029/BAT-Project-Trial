@@ -6,6 +6,7 @@ from products.models import (Product)
 from settings.models import (Category, Status, Currency)
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
+from decimal import Decimal
 import os, datetime
 User = get_user_model()
 
@@ -21,19 +22,21 @@ User = get_user_model()
   ### 2.5.2 MoldFile
  ## 2.6 Aql
   ### 2.6.1 Aql
-  ### 2.6.2 AqlFile
  ## 2.7 Order
   ### 2.7.1 Order
   ### 2.7.2 OrderProduct
   ### 2.7.3 OrderFile
   ### 2.7.4 OrderPayment
   ### 2.7.5 OrderDelivery
+ ## 2.8 Certification
+  ### 2.8.1 Certification
 
 # 1. PaymentTerms
 class PaymentTerms(models.Model):
     title = models.CharField(max_length=200)
-    prepay = models.DecimalField(max_digits=5, decimal_places=2)
-    days = models.IntegerField()
+    deposit = models.DecimalField(max_digits=5, decimal_places=2)
+    payment_term = models.IntegerField()
+    on_delivery = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Balance on delivery")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -49,6 +52,11 @@ def generate_logofilename(instance, filename):
     return 'suppliers/{0}/logo/logo{1}'.format(instance.id, extension)
 
 class Supplier(models.Model):
+    SUPPLIER_OPTIONS = (
+    ('Active','Active'),
+    ('Archived','Archived')
+    )
+    type = models.CharField(max_length=20,choices=SUPPLIER_OPTIONS,default="Active")
     name = models.CharField(verbose_name="Supplier Name", max_length=200)
     alternate_name = models.CharField(verbose_name="Supplier Alternative Name", max_length=200,blank=True)
     logo = models.ImageField(upload_to=generate_logofilename,blank=True)
@@ -96,6 +104,13 @@ class Supplier(models.Model):
 
  ## 2.1 Contact
 class Contact(models.Model):
+    CONTACT_OPTIONS = (
+    ('Primary','Primary'),
+    ('Secondary','Secondary'),
+    ('Archived','Archived')
+    )
+    type = models.CharField(max_length=20,choices=CONTACT_OPTIONS,default="")
+    job_title = models.CharField(max_length=50, default="")
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50,blank=True)
     phone = models.CharField(max_length=20)
@@ -114,6 +129,11 @@ class Contact(models.Model):
 
  ## 2.2 Bank
 class Bank(models.Model):
+    BANK_TYPE_OPTIONS = (
+    ('Active','Active'),
+    ('Archived','Archived')
+    )
+    type = models.CharField(max_length=20,choices=BANK_TYPE_OPTIONS,default="")
     name = models.CharField(max_length=100)
     address1 = models.CharField(max_length=200)
     address2 = models.CharField(max_length=200,blank=True)
@@ -123,7 +143,6 @@ class Bank(models.Model):
     country = models.CharField(max_length=200)
     benificary = models.CharField(max_length=100)
     account_number = models.CharField(max_length=50)
-    swift_number = models.CharField(max_length=50)
     swift_code = models.CharField(max_length=50)
     currency = models.ManyToManyField(Currency,verbose_name="Select Currency")
     supplier = models.ForeignKey(Supplier,on_delete=models.CASCADE,verbose_name="Select Supplier")
@@ -161,9 +180,15 @@ def generate_filename(instance, filename):
     return 'suppliers/{0}/contracts/contract-{1}-{2}{3}'.format(instance.supplier.id, slugify(instance.supplier.name), timezone.now().strftime("%Y%m%d") ,extension)
 
 class Contract(models.Model):
+    CONTRACT_OPTIONS = (
+    ('Active','Active'),
+    ('Archived','Archived')
+    )
+    type = models.CharField(max_length=20,choices=CONTRACT_OPTIONS,default="")
     title = models.CharField(max_length=100)
     supplier = models.ForeignKey(Supplier,on_delete=models.CASCADE,verbose_name="Select Supplier")
     file_url = models.FileField(upload_to=generate_filename)
+    note = models.TextField(blank=True)
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -175,12 +200,15 @@ class Contract(models.Model):
 
  ## 2.4 ProductPrice
 class ProductPrice(models.Model):
+    PRICE_OPTIONS = (
+    ('Active','Active'),
+    ('Archived','Archived')
+    )
+    type = models.CharField(max_length=20,choices=PRICE_OPTIONS,default="Active")
     supplier = models.ForeignKey(Supplier,on_delete=models.CASCADE,verbose_name="Select Supplier")
     product = models.ForeignKey(Product,on_delete=models.PROTECT,verbose_name="Select Product")
     price = models.DecimalField(max_digits=7, decimal_places=3)
     currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Currency")
-    version = models.CharField(max_length=50)
-    status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -193,21 +221,15 @@ class ProductPrice(models.Model):
  ## 2.5 Mold
   ### 2.5.1 Mold
 class Mold(models.Model):
-    PAID_BY_OPTIONS = (
-    ('Supplier','Supplier'),
-    ('Us','Us')
-    )
-
     title = models.CharField(max_length=100)
     supplier = models.ForeignKey(Supplier,on_delete=models.PROTECT,verbose_name="Select Supplier")
-    mold_supplier = models.ForeignKey(Supplier,on_delete=models.PROTECT,verbose_name="Select Mold Supplier",related_name="mold_supplier")
     x_units = models.IntegerField()
     price = models.DecimalField(max_digits=7, decimal_places=3)
     currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Currency")
     no_of_layers = models.IntegerField()
-    paid_by = models.CharField(max_length=20,choices=PAID_BY_OPTIONS,default="")
+    paid_by = models.CharField(max_length=20)
     production_date = models.DateField()
-    product = models.ManyToManyField(Product,verbose_name="Select Products")
+    category = models.ManyToManyField(Category,verbose_name="Select Categories")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -220,11 +242,15 @@ class Mold(models.Model):
   ### 2.5.2 MoldFile
 def generate_moldfilename(instance, filename):
     name, extension = os.path.splitext(filename)
-    return 'suppliers/{0}/Molds/{1}/mold-{2}-{3}-{4}{5}'.format(instance.mold.supplier.id, instance.mold.id, slugify(instance.mold.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
+    return 'suppliers/{0}/Molds/{1}/mold-{2}-{3}{4}'.format(instance.mold.supplier.id, instance.mold.id, slugify(instance.mold.supplier.name), timezone.now().strftime("%Y%m%d") ,extension)
 
 
 class MoldFile(models.Model):
-    title = models.CharField(max_length=100)
+    MOLDHOST_OPTIONS = (
+    ('Active','Active'),
+    ('Archived','Archived')
+    )
+    type = models.CharField(max_length=20,choices=MOLDHOST_OPTIONS,default="")
     note = models.TextField(blank=True)
     file_url = models.FileField(upload_to=generate_moldfilename)
     mold = models.ForeignKey(Mold,on_delete=models.PROTECT,verbose_name="Select Mold")
@@ -235,43 +261,66 @@ class MoldFile(models.Model):
         return reverse('suppliers:moldfile_list', kwargs={'pk':self.mold_id})
 
     def __str__(self):
-        return self.title
+        return self.type
+
+class MoldHost(models.Model):
+    MOLDHOST_OPTIONS = (
+    ('Active','Active'),
+    ('Archived','Archived')
+    )
+    type = models.CharField(max_length=20,choices=MOLDHOST_OPTIONS,default="")
+    supplier = models.ForeignKey(Supplier,on_delete=models.PROTECT,verbose_name="Select Mold Host")
+    mold = models.ForeignKey(Mold,on_delete=models.PROTECT,verbose_name="Select Mold")
+    note = models.TextField(blank=True)
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('suppliers:moldhost_list', kwargs={'pk':self.mold_id})
+
+    def __str__(self):
+        return self.type
 
  ## 2.6 Aql
   ### 2.6.1 Aql
+def generate_aqlfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'me/{0}-{1}/aql-{2}{3}'.format(slugify(instance.category.name), instance.version, timezone.now().strftime("%Y%m%d") ,extension)
+def generate_sopfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'me/{0}-{1}/sop-{2}{3}'.format(slugify(instance.category.name), instance.version, timezone.now().strftime("%Y%m%d") ,extension)
+def generate_mdfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'me/{0}-{1}/md-{2}{3}'.format(slugify(instance.category.name), instance.version, timezone.now().strftime("%Y%m%d") ,extension)
+def generate_bomfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'me/{0}-{1}/bom-{2}{3}'.format(slugify(instance.category.name), instance.version, timezone.now().strftime("%Y%m%d") ,extension)
+def generate_ipqcfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'me/{0}-{1}/ipqc-{2}{3}'.format(slugify(instance.category.name), instance.version, timezone.now().strftime("%Y%m%d") ,extension)
+
 class Aql(models.Model):
-    supplier = models.ForeignKey(Supplier,on_delete=models.PROTECT,verbose_name="Select Supplier",default=1)
-    version = models.CharField(max_length=50)
+    AQL_OPTIONS = (
+    ('Active','Active'),
+    ('Archived','Archived')
+    )
+    type = models.CharField(max_length=20,choices=AQL_OPTIONS,default="")
+    version = models.FloatField()
     detail = models.TextField(blank=True)
-    product = models.ManyToManyField(Product,verbose_name="Select Products")
+    aql_file = models.FileField(upload_to=generate_aqlfilename, default="")
+    sop_file = models.FileField(upload_to=generate_sopfilename, default="")
+    md_file = models.FileField(upload_to=generate_mdfilename, default="")
+    bom_file = models.FileField(upload_to=generate_bomfilename, default="")
+    ipqc_file = models.FileField(upload_to=generate_ipqcfilename, default="")
+    category = models.ForeignKey(Category,on_delete=models.PROTECT,verbose_name="Select Categories")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
     def get_absolute_url(self):
-        return reverse('suppliers:aql_list', kwargs={'pk':self.supplier_id})
+        return reverse('suppliers:aql_list')
 
     def __str__(self):
         return self.version
-
-  ### 2.6.2 AqlFile
-def generate_aqlfilename(instance, filename):
-    name, extension = os.path.splitext(filename)
-    return 'suppliers/{0}/AQL/{1}/aql-{2}-{3}-{4}{5}'.format(instance.aql.supplier.id, instance.aql.id, slugify(instance.aql.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
-
-
-class AqlFile(models.Model):
-    title = models.CharField(max_length=100)
-    file_url = models.FileField(upload_to=generate_aqlfilename)
-    aql = models.ForeignKey(Aql,on_delete=models.PROTECT,verbose_name="Select AQL")
-    create_date = models.DateTimeField(default=timezone.now())
-    update_date = models.DateTimeField(default=timezone.now())
-
-    def get_absolute_url(self):
-        return reverse('suppliers:aqlfile_list', kwargs={'pk':self.aql_id})
-
-    def __str__(self):
-        return self.title
-
 
  ## 2.7 Order
   ### 2.7.1 Order
@@ -368,6 +417,30 @@ class OrderDelivery(models.Model):
 
     def get_absolute_url(self):
         return reverse('suppliers:orderdelivery_list', kwargs={'pk':self.order_id})
+
+    def __str__(self):
+        return self.title
+
+ ## 2.8 Certification
+  ### 2.8.1 Certification
+def generate_certificationfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'certification/certification-{0}-{1}{2}'.format(slugify(instance.title), timezone.now().strftime("%Y%m%d"), extension)
+
+class Certification(models.Model):
+    CERTIFICATION_OPTIONS = (
+    ('Active','Active'),
+    ('Archived','Archived')
+    )
+    type = models.CharField(max_length=20,choices=CERTIFICATION_OPTIONS)
+    title = models.CharField(max_length=100)
+    file_url = models.FileField(upload_to=generate_certificationfilename)
+    note = models.TextField(blank=True)
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('suppliers:certification_list')
 
     def __str__(self):
         return self.title

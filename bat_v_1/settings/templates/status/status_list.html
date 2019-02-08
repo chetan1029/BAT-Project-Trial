@@ -2,24 +2,10 @@
 {% extends "base_menu.html" %}
 {% load staticfiles %}
 {% block content %}
-<ul class="nav nav-tabs separator-tabs ml-0 mb-5" role="tablist">
-  <li class="nav-item">
-    <a class="nav-link {% if active_menu.menu3 == 'basic' %}active{% endif %}" href="{% url 'settings:category_list' %}">PRODUCT</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link {% if active_menu.menu3 == 'amazon' %}active{% endif %}" href="{% url 'settings:amazonmarket_list' %}">ORDER</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link {% if active_menu.menu3 == 'amazon' %}active{% endif %}" href="{% url 'settings:amazonmarket_list' %}">SHIPPING</a>
-  </li>
-</ul>
 <div class="row">
   <div class="col-12">
     <div class="mb-3">
       <h1>Status</h1>
-      <div class="float-sm-right text-zero">
-        <a href="{% url 'settings:create_status' %}" class="btn btn-primary btn-lg mr-1">Add Status</a>
-      </div>
       <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
         <ol class="breadcrumb pt-0">
           <li class="breadcrumb-item">
@@ -36,39 +22,107 @@
 
 <div class="row">
   <div class="col-12 list">
-    <div class="card h-100">
-      <div class="card-body">
-        <table class="data-table responsive nowrap" data-order="[[ 1, &quot;asc&quot; ]]">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Parent</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for status in status_list %}
-            <tr>
-              <td>
-                <p class="list-item-heading">{{ status.title }}</p>
-              </td>
-              <td>
-                <p class="list-item-heading">{{ status.parent.title }}</p>
-              </td>
-              <td>
-                <a href="{% url 'settings:update_status' pk=status.pk %}" class="btn btn-outline-info icon-button ">
-                  <i class="simple-icon-pencil"></i>
-                </a>
-                <a href="{% url 'settings:delete_status' pk=status.pk %}" class="btn btn-outline-danger icon-button ">
-                  <i class="simple-icon-trash"></i>
-                </a>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} rounded" role="alert">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    <input type="hidden" id="ajax_url" load-display-status-url="{% url 'settings:ajax_load_display_status' %}" />
+    <div id="status_block" class="mt-1">
+
+    </div>
+  </div>
+</div>
+<div class="modal fade modal-right" id="addstatus" tabindex="-1" role="dialog" aria-labelledby="addstatus" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Status</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="add-status-form" method="post" action="{% url 'settings:ajax_add_status' %}">
+          {% csrf_token %}
+          <input type="hidden" name="parent_id" value="" id="parent_id" />
+          <input type="hidden" name="status_id" value="" id="status_id" />
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" name="name" class="form-control" placeholder="Status name" required>
+          </div>
+          <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
       </div>
     </div>
   </div>
 </div>
+
+<script type="text/javascript">
+  function load_display_status(status, parent = "", active = "") {
+    var url = $("#ajax_url").attr("load-display-status-url");
+    $.ajax({
+      url: url,
+      data: {
+        'status': status,
+        'active': active
+      },
+      success: function(data) {
+        $("#status_block").html(data);
+          $("#parent_id").val(status);
+      }
+    })
+  }
+  load_display_status("", "", "");
+
+  function add_status() {
+    var url = $("#ajax_url").attr("add-status-url");
+    $.ajax({
+      url: url,
+      data: {
+        'parent_id': 1,
+        'name': "sss"
+      },
+      success: function(data) {
+        if (data.trim() != "") {
+          $("#status_block").html(data);
+        }
+      }
+    })
+  }
+  $("#add-status-form").submit(function(e) {
+    var form = $(this);
+    var url = form.attr('action');
+
+    $.ajax({
+           type: "POST",
+           url: url,
+           data: form.serialize(),
+           success: function(data)
+           {
+               if(data.success){
+                 $('#addstatus').modal('hide');
+                 form[0].reset();
+                 load_display_status(data.parent_id, "", "");
+               }
+           }
+         });
+    e.preventDefault();
+  });
+  function addstatus(){
+    $('#addstatus h5.modal-title').html("Add Status");
+    $('#addstatus').modal('show');
+    $('input[name="name"]').val("");
+    $('input[name="status_id"]').val("");
+  }
+  function editstatus(cat_id,cat_name){
+    $('#addstatus h5.modal-title').html("Edit Status");
+    $('#addstatus').modal('show');
+    $('input[name="name"]').val(cat_name);
+    $('input[name="status_id"]').val(cat_id);
+  }
+</script>
 {% endblock %}

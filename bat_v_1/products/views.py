@@ -6,7 +6,7 @@ from django.views.generic import (TemplateView, ListView, DetailView, CreateView
                                   DeleteView)
 from django.urls import reverse_lazy
 from products.models import (Product, PackageMeasurement, ProductBundle, AmazonProduct)
-from settings.models import (Category, Status, Currency, Color, Size)
+from settings.models import (Category, Status, Currency)
 from products.forms import (ProductForm, PackageMeasurementForm, ProductBundleForm, AmazonProductForm, ProductBundleFormSet)
 from django.db.models import Q
 from django.utils.text import slugify

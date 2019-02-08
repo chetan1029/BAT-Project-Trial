@@ -1,5 +1,5 @@
 from django.test import TestCase
-from settings.models import (Category, Color, Size, Status, Currency, Box, AmazonMarket)
+from settings.models import (Category, Status, Currency, Box, AmazonMarket)
 # Create your tests here.
 
 class SettingsTestCase(TestCase):
@@ -17,12 +17,6 @@ class SettingsTestCase(TestCase):
         planning = Status.objects.create(title="Planning",parent=product)
         in_progress = Status.objects.create(title="In Progress",parent=planning)
 
-        moss_green = Color.objects.create(name="Moss Green")
-        ruby = Color.objects.create(name="Ruby")
-
-        cm_30 = Size.objects.create(name="0.3M")
-        m_1 = Size.objects.create(name="1M")
-
         usd = Currency.objects.create(title="USD")
         eur = Currency.objects.create(title="EUR")
 
@@ -35,12 +29,6 @@ class SettingsTestCase(TestCase):
 
         in_progress = Status.objects.get(title="In Progress")
         self.assertEqual(in_progress.title,"In Progress")
-
-        ruby = Color.objects.get(name="Ruby")
-        self.assertEqual(ruby.name,"Ruby")
-
-        m_1 = Size.objects.get(name="1M")
-        self.assertEqual(m_1.name,"1M")
 
         eur = Currency.objects.get(title="EUR")
         self.assertEqual(eur.title,"EUR")

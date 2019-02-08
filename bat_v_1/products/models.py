@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
-from settings.models import (Category, Status, Currency, Size, Color, AmazonMarket, Box)
+from settings.models import (Category, Status, Currency, AmazonMarket, Box)
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -85,31 +85,24 @@ class ProductBundle(models.Model):
 # 2. AmazonProduct
  ## 2.1 AmazonProduct
 class AmazonProduct(models.Model):
-    STATUS_CLASS = {"Planning":"primary", "In Progress":"secondary", "Final":"success"}
 
-    product = models.ForeignKey(Product,on_delete=models.CASCADE, verbose_name="Select Product")
+    product = models.ForeignKey(Product,on_delete=models.CASCADE, verbose_name="Select Product", blank=True)
     amazonmarket = models.ForeignKey(AmazonMarket,on_delete=models.CASCADE, verbose_name="Select Amazon Marketplace")
     title = models.CharField(verbose_name="Product Title", max_length=500)
     image = models.ImageField(upload_to='products/amazon/images/',blank=True)
+    image_url = models.CharField(verbose_name="Image",max_length=500,blank=True)
     seller_sku = models.CharField(verbose_name="Seller SKU",max_length=200,blank=True)
-    asin = models.CharField(verbose_name="ASIN",max_length=200,blank=True)
-    packagemeasurement = models.ForeignKey(PackageMeasurement,on_delete=models.PROTECT,verbose_name="Select Package")
-    box = models.ForeignKey(Box,on_delete=models.PROTECT,verbose_name="Select Box")
-    units_per_box = models.IntegerField()
-    total_weight = models.DecimalField(max_digits=6, decimal_places=2)
+    asin = models.CharField(verbose_name="ASIN",max_length=50)
+    packagemeasurement = models.ForeignKey(PackageMeasurement,on_delete=models.PROTECT,verbose_name="Select Package",blank=True)
+    box = models.ForeignKey(Box,on_delete=models.PROTECT,verbose_name="Select Box", blank=True)
+    units_per_box = models.IntegerField(blank=True)
+    total_weight = models.DecimalField(max_digits=6, decimal_places=2, blank=True)
     status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
     def get_absolute_url(self):
         return reverse('products:amazonproduct_detail',kwargs={'pk':self.pk})
-
-    def get_status_class(self):
-        status_class_v = "a"
-        for status_k in self.STATUS_CLASS:
-            if status_k == self.status.title:
-                status_class_v = self.STATUS_CLASS[status_k]
-        return status_class_v
 
     def __str__(self):
         return self.title

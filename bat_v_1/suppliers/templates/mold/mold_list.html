@@ -15,7 +15,7 @@
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
           </li>
           <li class="breadcrumb-item">
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
@@ -46,7 +46,6 @@
               <thead>
                 <tr>
                   <th>Title</th>
-                  <th>Manufacturer</th>
                   <th>X Units</th>
                   <th>Price</th>
                   <th>Paid By</th>
@@ -59,9 +58,6 @@
                 <tr>
                   <td>
                     <p class="list-item-heading"><a href="{% url 'suppliers:mold_detail' pk=mold.pk %}">{{ mold.title }}</a></p>
-                  </td>
-                  <td>
-                    <p class="text-muted">{{ mold.mold_supplier }}</p>
                   </td>
                   <td>
                     <p class="text-muted">{{ mold.x_units }}</p>
@@ -78,9 +74,6 @@
                   <td>
                     <a href="{% url 'suppliers:update_mold' pk=mold.pk %}" class="btn btn-outline-info icon-button ">
                       <i class="simple-icon-pencil"></i>
-                    </a>
-                    <a href="{% url 'suppliers:delete_mold' pk=mold.pk %}" class="btn btn-outline-danger icon-button ">
-                      <i class="simple-icon-trash"></i>
                     </a>
                   </td>
                 </tr>

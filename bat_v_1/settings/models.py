@@ -7,11 +7,9 @@ User = get_user_model()
 # Create your models here.
 # 1. Basic
  ## 1.1 Category
- ## 1.2 Color
- ## 1.3 Size
- ## 1.4 Status
- ## 1.5 Currency
- ## 1.6 Box
+ ## 1.2 Status
+ ## 1.3 Currency
+ ## 1.4 Box
 # 2. Amazon
  ## 2.1 AmazonMarket
  ## 2.2 AmazonMwsauth
@@ -28,6 +26,16 @@ class Category(models.Model):
     def get_absolute_url(self):
         return reverse('settings:category_list')
 
+    def category_breadcrumbs(self):
+        full_path = [self.name]
+        k = self.parent
+
+        while k is not None:
+            full_path.append(k.name)
+            k = k.parent
+
+        return ' / '.join(full_path[::-1])
+
     def __str__(self):
         full_path = [self.name]
         k = self.parent
@@ -40,27 +48,7 @@ class Category(models.Model):
     # def __str__(self):
     #     return self.name
 
- ## 1.2 Color
-class Color(models.Model):
-    name = models.CharField(max_length=100,unique=True)
-
-    def get_absolute_url(self):
-        return reverse('settings:color_list')
-
-    def __str__(self):
-        return self.name
-
- ## 1.3 Size
-class Size(models.Model):
-    name = models.CharField(max_length=100,unique=True)
-
-    def get_absolute_url(self):
-        return reverse('settings:size_list')
-
-    def __str__(self):
-        return self.name
-
- ## 1.4 Status
+ ## 1.2 Status
 class Status(models.Model):
     title = models.CharField(max_length=200)
     parent = models.ForeignKey('self',on_delete=models.CASCADE,related_name="children",blank=True,null=True)
@@ -79,10 +67,20 @@ class Status(models.Model):
     #         k = k.parent
     #
     #     return ' -> '.join(full_path[::-1])
+    def status_breadcrumbs(self):
+        full_path = [self.title]
+        k = self.parent
+
+        while k is not None:
+            full_path.append(k.title)
+            k = k.parent
+
+        return ' / '.join(full_path[::-1])
+
     def __str__(self):
         return self.title
 
- ## 1.5 Currency
+ ## 1.3 Currency
 class Currency(models.Model):
     title = models.CharField(max_length=200)
     create_date = models.DateTimeField(default=timezone.now())
@@ -94,7 +92,7 @@ class Currency(models.Model):
     def __str__(self):
         return self.title
 
- ## 1.6 Box
+ ## 1.4 Box
 class Box(models.Model):
     title = models.CharField(max_length=200)
     length = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Length (cm)")

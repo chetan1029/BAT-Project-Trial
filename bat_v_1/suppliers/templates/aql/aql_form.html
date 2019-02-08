@@ -5,10 +5,9 @@
 {% block content %}
 {% include 'suppliers_menu.html' %}
 <div class="row">
-  <div class="col-12 list">
-
+  <div class="col-12">
     <div class="mb-2">
-      <h1>{{ supplier.name }}</h1>
+      <h1>AQL</h1>
 
       <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
         <ol class="breadcrumb pt-0">
@@ -16,13 +15,7 @@
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
-          </li>
-          <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
-          </li>
-          <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:mold_list' pk=supplier.pk %}">AQL</a>
+            <a href="{% url 'suppliers:aql_list' %}">AQL</a>
           </li>
           {% if not form.instance.pk %}
           <li class="breadcrumb-item active" aria-current="page">Add AQL</li>
@@ -32,9 +25,11 @@
         </ol>
       </nav>
     </div>
-
-
-    {% include 'suppliers/menu.html' %}
+    <div class="separator mb-5"></div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-12 list">
     <div class="tab-content">
       <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
         <div class="tab-card h-100">
@@ -48,12 +43,57 @@
                 {% endif %}
               </div>
             </div>
-            <form method="POST"  enctype="multipart/form-data">
+            <input type="hidden" id="ajax_url" load-display-categories-url="{% url 'suppliers:ajax_load_display_category' %}" />
+            <form method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
               {% csrf_token %}
-              {{form|crispy}}
+              <div class="row form-row d-none">
+                <div class="col-md-12">
+                  {{ form.category|as_crispy_field }}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="category_block">Category<span class="asteriskField">*</span></label>
+                <div id="category_block" class="mt-1">
+
+                </div>
+                {% for e in form.category.errors %}
+                <p class="invalid-feedback d-block"><strong>{{e}}</strong></p>
+                {% endfor %}
+              </div>
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.detail|as_crispy_field }}
+                </div>
+              </div>
+
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.sop_file|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.md_file|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.bom_file|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.ipqc_file|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.aql_file|as_crispy_field }}
+                </div>
+              </div>
               <button type="submit" class="btn btn-primary mb-0">Submit</button>
               {% if not form.instance.pk %}
-              <a href="{% url 'suppliers:aql_list' supplier.pk %}" class="btn btn-danger mb-0">Cancel</a>
+              <a href="{% url 'suppliers:aql_list' %}" class="btn btn-danger mb-0">Cancel</a>
               {% else %}
               <a href="{% url 'suppliers:aql_detail' pk=form.instance.pk %}" class="btn btn-danger mb-0">Cancel</a>
               {% endif %}
@@ -64,4 +104,44 @@
     </div>
   </div>
 </div>
+<script type="text/javascript">
+  function load_display_categories(category, parent = "", active = "") {
+    if (category != '') {
+      var url = $("#ajax_url").attr("load-display-categories-url");
+      $.ajax({
+        url: url,
+        data: {
+          'category': category,
+          'active': active
+        },
+        success: function(data) {
+          if (data.trim() != "") {
+            $("#category_block").html(data);
+          } else {
+            $("#id_category").val(category);
+            var category_name = $("#category_" + category).html();
+            $("#category_block").html('<button type="button" class="btn btn-xs btn-outline-dark mb-1" onclick="load_display_categories(' + parent +
+              ')"><i class="simple-icon-arrow-left"></i></button> <button type="button" class="btn btn-xs btn-primary mb-1">' + category_name + '</button>');
+          }
+        }
+      })
+    }
+  } {
+    %
+    if not form.instance.pk %
+  }
+  load_display_categories({
+    {
+      parent_category_id
+    }
+  }, "", ""); {
+    %
+    else %
+  }
+  $("#category_block").html(
+    '<button type="button" class="btn btn-xs btn-outline-dark mb-1" onclick="load_display_categories({{parent_category_id}})"><i class="simple-icon-arrow-left"></i></button> <button type="button" class="btn btn-xs btn-primary mb-1">{{category_name}}</button>'
+  ); {
+    % endif %
+  }
+</script>
 {% endblock %}

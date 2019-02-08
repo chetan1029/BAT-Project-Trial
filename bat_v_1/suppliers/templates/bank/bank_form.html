@@ -16,7 +16,7 @@
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
           </li>
           <li class="breadcrumb-item">
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
@@ -48,7 +48,7 @@
                 {% endif %}
               </div>
             </div>
-            <form method="POST">
+            <form method="POST" class="needs-validation" novalidate>
               {% csrf_token %}
               {{form|crispy}}
               <button type="submit" class="btn btn-primary mb-0">Submit</button>

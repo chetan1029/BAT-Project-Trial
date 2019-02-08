@@ -8,7 +8,7 @@
     <div class="mb-3">
       <h1>Vendors</h1>
       <div class="float-sm-right text-zero">
-        <a href="{% url 'suppliers:create_supplier' %}" class="btn btn-primary btn-lg mr-1">Add Supplier</a>
+        <a href="{% url 'suppliers:create_supplier' %}" class="btn btn-primary btn-lg mr-1">Add Vendor</a>
       </div>
       <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
         <ol class="breadcrumb pt-0">
@@ -108,7 +108,7 @@
 <div class="row">
   {% for supplier in supplier_list %}
   <div class="col-12 col-lg-6 col-xl-4 mb-3">
-    <div class="card flex-row">
+    <div class="card flex-row cursor-pointer" onclick="window.open('{% url 'suppliers:supplier_detail' pk=supplier.pk %}','_self')">
       <div class="w-40">
         <img class="card-img-left" src="{{MEDIA_URL}}{{ supplier.logo }}" alt="{{ supplier.name }}">
         <span class="badge badge-pill badge-primary position-absolute badge-top-left">{{ supplier.category.name }}</span>
@@ -133,7 +133,7 @@
   <div class="col-12 list" data-check-all="checkAll">
 
     {% for supplier in supplier_list %}
-    <div class="card d-flex flex-row mb-3">
+    <div class="card d-flex flex-row mb-3 cursor-pointer" onclick="window.open('{% url 'suppliers:supplier_detail' pk=supplier.pk %}','_self')">
       <a class="d-flex" href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">
         <img src="{{MEDIA_URL}}{{ supplier.logo }}" alt="{{ supplier.title }}" class="list-thumbnail responsive border-0" />
       </a>
