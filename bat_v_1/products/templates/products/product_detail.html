@@ -60,9 +60,9 @@
                 <p class="text-muted text-small mb-2">UPC</p>
                 <p class="mb-3">{{product.upc}}</p>
                 {% endif %}
-                {% if product.model_number is not None %}
-                <p class="text-muted text-small mb-2">Model Number</p>
-                <p class="mb-3">{{product.model_number}}</p>
+                {% if product.manufacturer_part_number is not None %}
+                <p class="text-muted text-small mb-2">Manufacturer Part Number</p>
+                <p class="mb-3">{{product.manufacturer_part_number}}</p>
                 {% endif %}
                 {% if product.size is not None %}
                 <p class="text-muted text-small mb-2">Size</p>

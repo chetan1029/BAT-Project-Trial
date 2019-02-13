@@ -125,8 +125,9 @@
 $('.formset_row').formset({
     addText: 'Add Product',
     deleteText: '<i class="simple-icon-trash"></i>',
-    prefix: 'productbundle_set'
+    prefix: 'product'
 });
+
 function load_display_categories(category, parent = "", active = "") {
   if (category != '') {
     var url = $("#ajax_url").attr("load-display-categories-url");
@@ -148,12 +149,11 @@ function load_display_categories(category, parent = "", active = "") {
     })
   }
 }
-
 {% if not form.instance.pk %}
 load_display_categories({{parent_category_id}}, "", "");
 {% else %}
 $("#category_block").html('<button type="button" class="btn btn-xs btn-outline-dark mb-1" onclick="load_display_categories({{parent_category_id}})"><i class="simple-icon-arrow-left"></i></button> <button type="button" class="btn btn-xs btn-primary mb-1">{{category_name}}</button>');
-$(".formset_row").last().remove();
+$(".formset_row").last().find('input[type="number"]').val("");
 {% endif %}
 </script>
 {% endblock %}

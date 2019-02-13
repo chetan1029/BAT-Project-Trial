@@ -21,7 +21,11 @@
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:order_list' pk=supplier.pk %}">Orders</a>
+            {% if order.status.title == "Pending PO" %}
+            <a href="{% url 'suppliers:pending_po_list' pk=supplier.pk %}">Pending PO</a>
+            {% elif order.status.title == "Awaiting PI" %}
+            <a href="{% url 'suppliers:pending_po_list' pk=supplier.pk %}">Awating PI</a>
+            {% endif %}
           </li>
           <li class="breadcrumb-item active" aria-current="page">{{ order }}</li>
         </ol>
@@ -33,41 +37,146 @@
     <div class="tab-content">
       <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
         <div class="row">
+          <div class="col-8">
+            <h2>{{order}}</h2>
+          </div>
+          <div class="col-4">
+            {% if order.status.title == "Awaiting PI" or order.status.title == "Pending PO" %}
+            <div class="text-right">
+              <a href="{% url 'suppliers:update_order' pk=order.pk %}" class="btn btn-outline-info icon-button ">
+                <i class="simple-icon-pencil"></i>
+              </a>
+              <a href="{% url 'suppliers:delete_order' pk=order.pk %}" class="btn btn-outline-danger icon-button ">
+                <i class="simple-icon-trash"></i>
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="row">
           <div class="col-12 mb-4">
+            {% include 'order/menu.html' %}
+
             <div class="card mb-4">
-              <div class="position-absolute card-top-buttons">
-                <a href="{% url 'suppliers:update_order' pk=order.pk %}" class="btn btn-outline-info icon-button ">
-                  <i class="simple-icon-pencil"></i>
-                </a>
-                <a href="{% url 'suppliers:delete_order' pk=order.pk %}" class="btn btn-outline-danger icon-button ">
-                  <i class="simple-icon-trash"></i>
-                </a>
-              </div>
               <div class="card-body">
-                <h2>{{order}}</h2>
-                {% include 'order/menu.html' %}
-                <p class="text-muted text-small mb-2">AQL Version</p>
-                <p class="mb-3">{{order.aql}}</p>
-                <p class="text-muted text-small mb-2">Vendor Contact Person</p>
-                <p class="mb-1">{{order.contact}}</p>
-                <p class="mb-1">{{order.contact.phone}}</p>
-                <p class="mb-3">{{order.contact.email}}</p>
-                <p class="text-muted text-small mb-2">User Responsible for Order</p>
-                <p class="mb-1">{{order.user}}</p>
-                <p class="mb-1">{{order.user.phone}}</p>
-                <p class="mb-3">{{order.user.email}}</p>
-                <p class="text-muted text-small mb-2">Payment Terms</p>
-                <p class="mb-1">{{order.paymentterms}}</p>
-                <p class="mb-1">{{order.paymentterms.identifier}}</p>
-                <p class="mb-3">PrePay: {{order.paymentterms.prepay}}%, Days: {{order.paymentterms.days}}</p>
+                <h6 class="text-center">Order ID #{{order.pk}}</h6>
+                <p class="text-center"><span class="badge badge-pill badge-theme-1">{{order.status|upper}}</span></p>
+                <div class="row mt-5">
+                  <div class="col-sm-6">
+                    <p class="font-weight-bold mb-2">From</p>
+                    <p class="mb-1">{{order.user}}</p>
+                    <p class="mb-1">{{order.user.phone}}</p>
+                    <p class="mb-3">{{order.user.email}}</p>
+                  </div>
+                  <div class="col-sm-6 text-right">
+                    <p class="font-weight-bold mb-2">To</p>
+                    <p class="mb-1">{{order.contact}}</p>
+                    <p class="mb-1">{{order.contact.phone}}</p>
+                    <p class="mb-3">{{order.contact.email}}</p>
+                  </div>
+                </div>
+                <table class="table mt-3">
+                  <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                  </tr>
+                  {% for orderproduct in order.orderproduct_set.all %}
+                  <tr>
+                    <td>
+                      <p class="mb-3">{{orderproduct.productprice.product.title}}</p>
+                      <p class="mb-1 text-muted text-small">AQL: {{orderproduct.aql.category.name}} {{orderproduct.aql.version}}</p>
+                      <p class="mb-1 text-muted text-small">{{orderproduct.paymentterms}} (Deposit: {{orderproduct.paymentterms.deposit}}%, Days: {{orderproduct.paymentterms.payment_term}} days, Payment on delivery:
+                        {{orderproduct.paymentterms.on_delivery}}%)</p>
+                    </td>
+                    <td>{{orderproduct.productprice.price|floatformat:"2"}} {{orderproduct.productprice.currency}}</td>
+                    <td>{{orderproduct.quantity}}</td>
+                  </tr>
+                  {% endfor %}
+                  <tr>
+                    <td>
+                      <p>Total</p>
+                    </td>
+                    <td>
+                      <p class="mb-2">{{order.amount|floatformat:"2"}} {{order.currency}}</p>
+                    </td>
+                    <td>
+                      <p class="mb-2">{{order.quantity}}</p>
+                    </td>
+                  </tr>
+                </table>
+                {% if order.note %}
                 <p class="text-muted text-small mb-2">Order Note</p>
                 <p class="mb-1">{{order.note}}</p>
-                <hr >
-                <p class="text-muted text-small mb-2">Created at</p>
-                <p class="mb-3">{{order.create_date| date:"d M Y h:i A"}}</p>
-                <p class="text-muted text-small mb-2">Updated at</p>
-                <p class="mb-3">{{order.update_date| date:"d M Y h:i A"}}</p>
+                {% endif %}
+                <hr class="mt-4">
+                <h6 class="mb-4">Order Files</h6>
+                <div class="row">
+                  {% for orderfile in order.orderfile_set.all %}
+                  {% if orderfile.title == "PO" %}
+                  <div class="col-md-6">
+                    <p class="mb-2">1. PO File</p>
+                    <a href="{{MEDIA_URL}}{{ orderfile.file_url }}" target="_blank" class="btn btn-info icon-button ">
+                      <i class="simple-icon-cloud-download"></i>
+                    </a>
+                  </div>
+                  {% elif orderfile.title == "PI" %}
+                  <div class="col-md-6">
+                    <p class="mb-2">2. PI File</p>
+                    <a href="{{MEDIA_URL}}{{ orderfile.file_url }}" target="_blank" class="btn btn-info icon-button ">
+                      <i class="simple-icon-cloud-download"></i>
+                    </a>
+                    <a href="{% url 'suppliers:delete_orderfile' pk=orderfile.pk %}" class="btn btn-outline-danger icon-button">
+                      <i class="simple-icon-trash"></i>
+                    </a>
+                  </div>
+                  {% else %}
+                  {% if order.status.title == "Awaiting PI" %}
+                  <div class="col-md-6">
+                    <p class="mb-2">2. PI File</p>
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <form class="" action="{% url 'suppliers:awaiting_pi' %}" method="post" enctype="multipart/form-data">
+                          {% csrf_token %}
+                          <input type="file" name="file_url" />
+                          <input type="hidden" name="title" value="PI" />
+                          <input type="hidden" name="order" value="{{order.pk}}">
+                          <button type="submit" class="btn btn-primary btn-sm">Upload PI</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  {% endif %}
+                  {% endif %}
+                  {% endfor %}
+                </div>
 
+                <hr class="mt-4">
+                <div class="row">
+                  <div class="col-md-6">
+                    <p class="text-muted text-small mb-2">Created at</p>
+                    <p class="mb-3">{{order.create_date| date:"d M Y h:i A"}}</p>
+                  </div>
+                  <div class="col-md-6 text-right">
+                    <p class="text-muted text-small mb-2">Updated at</p>
+                    <p class="mb-3">{{order.update_date| date:"d M Y h:i A"}}</p>
+                  </div>
+                </div>
+                <div class="text-center mt-3">
+                  {% if order.status.title == "Pending PO" %}
+                  <form class="" action="{% url 'suppliers:confirm_po' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="order_id" value="{{order.pk}}">
+                    <button type="submit" class="btn btn-primary">Confirm PO</button>
+                  </form>
+                  {% elif order.status.title == "Awaiting PI" %}
+                  <form class="" action="{% url 'suppliers:activate_order' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="order_id" value="{{order.pk}}">
+                    <button type="submit" class="btn btn-primary">Activate Order</button>
+                  </form>
+                  {% endif %}
+                </div>
               </div>
             </div>
 

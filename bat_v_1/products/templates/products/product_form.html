@@ -190,6 +190,9 @@ function load_display_categories(category, parent = "", active = "") {
     })
   }
 }
+function delete_variation(id){
+  $("#"+id).remove();
+}
 {% if not form.instance.pk %}
 load_display_categories({{parent_category_id}}, "", "");
 {% else %}

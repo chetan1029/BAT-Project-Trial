@@ -155,36 +155,40 @@ def create_product(request):
             for size in request.POST.getlist('sizes[]'):
                 if size:
                     size_url = slugify(size)
-                    ean = request.POST['ean'+size_url]
-                    manufacturer_part_number = request.POST['manufacturer_part_number'+size_url]
-                    sku = request.POST['sku'+size_url]
-                    new_title = title+" "+size
-                    color = ""
-                    product = Product(title=new_title,category=category_i,ean=ean,manufacturer_part_number=manufacturer_part_number,sku=sku,status=status_i,size=size,color=color)
-                    product.save()
+                    ean = request.POST.get('ean'+size_url,False)
+                    if ean:
+                        manufacturer_part_number = request.POST['manufacturer_part_number'+size_url]
+                        sku = request.POST['sku'+size_url]
+                        new_title = title+" "+size
+                        color = ""
+                        product = Product(title=new_title,category=category_i,ean=ean,manufacturer_part_number=manufacturer_part_number,sku=sku,status=status_i,size=size,color=color)
+                        product.save()
         elif variation == "color":
             for color in request.POST.getlist('colors[]'):
                 if color:
                     color_url = slugify(color)
-                    ean = request.POST['ean'+color_url]
-                    manufacturer_part_number = request.POST['manufacturer_part_number'+color_url]
-                    sku = request.POST['sku'+color_url]
-                    new_title = title+" "+color
-                    size = ""
-                    product = Product(title=new_title,category=category_i,ean=ean,manufacturer_part_number=manufacturer_part_number,sku=sku,status=status_i,size=size,color=color)
-                    product.save()
+                    ean = request.POST.get('ean'+color_url,False)
+                    if ean:
+                        manufacturer_part_number = request.POST['manufacturer_part_number'+color_url]
+                        sku = request.POST['sku'+color_url]
+                        new_title = title+" "+color
+                        size = ""
+                        product = Product(title=new_title,category=category_i,ean=ean,manufacturer_part_number=manufacturer_part_number,sku=sku,status=status_i,size=size,color=color)
+                        product.save()
         elif variation == "color-size":
             for color in request.POST.getlist('colors[]'):
                 for size in request.POST.getlist('sizes[]'):
                     if color and size:
                         color_url = slugify(color)
                         size_url = slugify(size)
-                        ean = request.POST['ean'+color_url+''+size_url]
-                        manufacturer_part_number = request.POST['manufacturer_part_number'+color_url+''+size_url]
-                        sku = request.POST['sku'+color_url+''+size_url]
-                        new_title = title+" "+size+" "+color
-                        product = Product(title=new_title,category=category_i,ean=ean,manufacturer_part_number=manufacturer_part_number,sku=sku,status=status_i,size=size,color=color)
-                        product.save()
+                        ean = request.POST.get('ean'+color_url+''+size_url,False)
+                        logger.warning('ean'+color_url+''+size_url)
+                        if ean:
+                            manufacturer_part_number = request.POST['manufacturer_part_number'+color_url+''+size_url]
+                            sku = request.POST['sku'+color_url+''+size_url]
+                            new_title = title+" "+size+" "+color
+                            product = Product(title=new_title,category=category_i,ean=ean,manufacturer_part_number=manufacturer_part_number,sku=sku,status=status_i,size=size,color=color)
+                            product.save()
 
 
 
@@ -372,13 +376,14 @@ class ProductBundleUpdateView(LoginRequiredMixin,UpdateView):
     def form_valid(self, form):
         context = self.get_context_data()
         productbundles = context['productbundles']
+        logger.warning(productbundles)
         with transaction.atomic():
             self.object = form.save()
 
             if productbundles.is_valid():
                 productbundles.instance = self.object
                 productbundles.save()
-        return super().form_valid(form)
+        return super(ProductBundleUpdateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super(ProductBundleUpdateView, self).get_context_data(**kwargs)

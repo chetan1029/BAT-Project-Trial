@@ -21,7 +21,7 @@
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:order_list' pk=supplier.pk %}">Orders</a>
+            <a href="{% url 'suppliers:active_order_list' pk=supplier.pk %}">Orders</a>
           </li>
           <li class="breadcrumb-item active" aria-current="page">{{ order }}</li>
         </ol>

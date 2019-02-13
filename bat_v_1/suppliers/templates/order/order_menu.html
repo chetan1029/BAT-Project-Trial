@@ -1,0 +1,14 @@
+<ul class="nav nav-tabs separator-tabs ml-0 mb-5" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu5 == 'active' %}active{% endif %}" href="{% url 'suppliers:active_order_list' pk=supplier.pk %}">ACTIVE</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu5 == 'pending' %}active{% endif %}" href="{% url 'suppliers:pending_po_list' pk=supplier.pk %}">PENDING PO</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu5 == 'closed' %}active{% endif %}" href="{% url 'suppliers:closed_order_list' pk=supplier.pk %}">CLOSED</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu5 == 'completed' %}active{% endif %}" href="{% url 'suppliers:completed_order_list' pk=supplier.pk %}">COMPLETED</a>
+  </li>
+</ul>

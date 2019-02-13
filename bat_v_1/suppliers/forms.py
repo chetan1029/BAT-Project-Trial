@@ -109,21 +109,21 @@ class OrderForm(forms.ModelForm):
 
     class Meta:
         model = Order
-        fields = ('aql','user','contact','paymentterms','status','note')
+        fields = ('note',)
 
   ### 2.8.2 OrderProductForm
 class OrderProductForm(forms.ModelForm):
 
     class Meta:
         model = OrderProduct
-        fields = ('product','price','currency','quantity')
+        fields = ('productprice','quantity')
 
   ### 2.8.3 OrderFileForm
 class OrderFileForm(forms.ModelForm):
 
     class Meta:
         model = OrderFile
-        fields = ('title','file_url')
+        fields = ('title','order','file_url')
 
   ### 2.8.4 OrderPaymentForm
 class OrderPaymentForm(forms.ModelForm):

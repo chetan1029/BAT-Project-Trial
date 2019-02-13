@@ -22,46 +22,105 @@
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:order_list' pk=supplier.pk %}">Orders</a>
+            <a href="{% url 'suppliers:active_order_list' pk=supplier.pk %}">Orders</a>
           </li>
-          {% if not form.instance.pk %}
-          <li class="breadcrumb-item active" aria-current="page">Add Order</li>
-          {% else %}
-          <li class="breadcrumb-item active" aria-current="page">Edit Order</li>
-          {% endif %}
+          <li class="breadcrumb-item active" aria-current="page">Generate PO</li>
         </ol>
       </nav>
     </div>
 
 
     {% include 'suppliers/menu.html' %}
-    <div class="tab-content">
-      <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
-        <div class="tab-card h-100">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-6">
-                {% if not form.instance.pk %}
-                <h5 class="card-title">Add Order</h5>
-                {% else %}
-                <h5 class="card-title">Edit Order</h5>
-                {% endif %}
-              </div>
-            </div>
-            <form method="POST"  enctype="multipart/form-data">
-              {% csrf_token %}
-              {{form|crispy}}
-              <button type="submit" class="btn btn-primary mb-0">Submit</button>
-              {% if not form.instance.pk %}
-              <a href="{% url 'suppliers:order_list' supplier.pk %}" class="btn btn-danger mb-0">Cancel</a>
-              {% else %}
-              <a href="{% url 'suppliers:order_detail' pk=form.instance.pk %}" class="btn btn-danger mb-0">Cancel</a>
-              {% endif %}
-            </form>
-          </div>
+  </div>
+</div>
+<h2 class="mb-5">Generate PO</h2>
+<form class="" action="{% url 'suppliers:generate_po' %}" method="post">
+  {% csrf_token %}
+  <input type="hidden" name="supplier_id" value="{{supplier.pk}}">
+  <h5 class="mb-3">Select Supplier Contact</h5>
+  <div class="row mb-4 pokemon-selection" id="contact-selection">
+    {% for contact in contacts %}
+    <div class="col-md-3">
+      <div class="card cursor-pointer" id="contact{{contact.pk}}">
+        <div class="card-body">
+          <input type="hidden" disabled name="contact_id" value="{{contact.pk}}">
+          <h6>{{contact.first_name}} {{contact.last_name}} <span class="badge badge-{{ contact.type|lower }} float-right">{{ contact.type }}</span></h6>
+          <p class="mb-1">{{contact.job_title}}</p>
+          <p class="mb-1">{{contact.email}}</p>
+          <p class="mb-0">{{contact.phone}}</p>
         </div>
       </div>
     </div>
+    {% endfor %}
   </div>
-</div>
+  <h5 class="mb-3">Select Product Quantity</h5>
+  <div class="row pokemon-selection" id="pokemon-selection">
+    {% for productp in productprice %}
+    <div class="col-md-4 col-xl-3 col-lg-4 mb-4">
+      <div class="card cursor-pointer" id="product{{productp.product.pk}}">
+        <div class="position-relative">
+          {% if productp.product.image %}
+          <img class="card-img-top" src="{{MEDIA_URL}}{{ productp.product.image }}" alt="{{ productp.product.title }}">
+          {% else %}
+          <img class="card-img-top" src="{{MEDIA_URL}}products/no-product-image.png" alt="{{ productp.product.title }}">
+          {% endif %}
+          <span class="badge badge-pill badge-dark position-absolute badge-top-left">EAN: {{ productp.product.ean }}</span>
+          <span class="badge badge-pill badge-dark position-absolute badge-top-left-2">{{productp.product.category.name}}</span>
+        </div>
+        <div class="card-body">
+          <p class="list-item-heading mb-4" title="{{productp.product.title}}">{{productp.product.title}}</p>
+          <footer>
+            <input type="hidden" name="product_id" disabled value="{{productp.pk}}">
+            <div class="group-control">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon1">{{productp.price|floatformat:"2"}} {{productp.currency}}</span>
+                </div>
+                <input type="number" class="form-control" name="quantity{{productp.pk}}" placeholder="Quantity" aria-label="quantity" disabled aria-describedby="basic-addon1">
+              </div>
+            </div>
+            <div class="group-control">
+               <select class="form-control" name="paymentterm{{productp.pk}}" disabled>
+                 {% for paymentterm in paymentterms %}
+                 <option value="{{paymentterm.pk}}">{{paymentterm.title}}</option>
+                 {% endfor %}
+               </select>
+            </div>
+          </footer>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+  <div class="row mt-4">
+    <div class="col-12 text-center">
+      <button type="submit" class="btn btn-secondary btn-lg mb-1">SUBMIT</button>
+    </div>
+  </div>
+</form>
+<script>
+  $("#pokemon-selection .card").click(function(e) {
+    if (e.target.nodeName == "INPUT" || e.target.nodeName == "SELECT") {} else {
+      $(this).toggleClass("active");
+      if ($(this).hasClass("active")) {
+        $(this).find("input").prop('disabled', false);
+        $(this).find("select").prop('disabled', false);
+      } else {
+        $(this).find("input").prop('disabled', true);
+        $(this).find("select").prop('disabled', true);
+      }
+    }
+  });
+  $("#contact-selection .card").click(function(e) {
+    $("#contact-selection .card").removeClass("active");
+    $("#contact-selection .card input").prop('disabled', true);
+    $(this).toggleClass("active");
+    if ($(this).hasClass("active")) {
+      $(this).find("input").prop('disabled', false);
+    } else {
+      $(this).find("input").prop('disabled', true);
+    }
+  });
+</script>
 {% endblock %}

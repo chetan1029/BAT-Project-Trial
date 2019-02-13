@@ -20,7 +20,7 @@ class Product(models.Model):
     title = models.CharField(verbose_name="Product Title", max_length=500)
     image = models.ImageField(upload_to='products/images/',blank=True)
     sku = models.CharField(verbose_name="SKU",max_length=200,blank=True)
-    ean = models.CharField(verbose_name="EAN",max_length=200,unique=True)
+    ean = models.CharField(verbose_name="EAN",max_length=200,blank=True)
     model_number = models.CharField(max_length=200,blank=True)
     manufacturer_part_number = models.CharField(max_length=200, default="")
     size = models.CharField(verbose_name="Size",max_length=50,blank=True,default="")

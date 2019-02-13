@@ -3,12 +3,6 @@
     <a class="nav-link {% if active_menu.menu5 == 'detail' %}active{% endif %}" href="{% url 'suppliers:order_detail' pk=order.pk %}">DETAIL</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link {% if active_menu.menu5 == 'product' %}active{% endif %}" href="{% url 'suppliers:orderproduct_list' pk=order.pk %}">PRODUCTS</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link {% if active_menu.menu5 == 'file' %}active{% endif %}" href="{% url 'suppliers:orderfile_list' pk=order.pk %}">FILES</a>
-  </li>
-  <li class="nav-item">
     <a class="nav-link {% if active_menu.menu5 == 'payment' %}active{% endif %}" href="{% url 'suppliers:orderpayment_list' pk=order.pk %}">PAYMENT</a>
   </li>
   <li class="nav-item">

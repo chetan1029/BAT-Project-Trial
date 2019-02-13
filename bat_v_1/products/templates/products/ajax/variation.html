@@ -18,8 +18,12 @@
     <label>SKU</label>
   </div>
   <div class="col">
-    <label>Manufacturer Part Number</label>
+    <label>Manufacturer Part Number*</label>
   </div>
+  {% if colors and sizes %}
+  <div class="col-1">
+  </div>
+  {% endif %}
 </div>
 {% if colors and sizes %}
 {% for size in sizes %}
@@ -27,12 +31,12 @@
 <div class="row" id="variation{{color|slugify}}{{size|slugify}}">
   <div class="col">
     <div class="form-group">
-      <input type="text" class="form-control" name="color{{color|slugify}}{{size|slugify}}" value="{{color}}">
+      <input type="text" class="form-control" name="color{{color|slugify}}{{size|slugify}}" required value="{{color}}">
     </div>
   </div>
   <div class="col">
     <div class="form-group">
-      <input type="text" class="form-control" name="size{{color|slugify}}{{size|slugify}}" value="{{size}}">
+      <input type="text" class="form-control" name="size{{color|slugify}}{{size|slugify}}" required value="{{size}}">
     </div>
   </div>
   <div class="col">
@@ -47,10 +51,14 @@
   </div>
   <div class="col">
     <div class="form-group">
-      <input type="text" class="form-control" name="manufacturer_part_number{{color|slugify}}{{size|slugify}}" value="" placeholder="Manufacturer Part Number">
+      <input type="text" class="form-control" name="manufacturer_part_number{{color|slugify}}{{size|slugify}}" required value="" placeholder="Manufacturer Part Number">
     </div>
   </div>
-
+  <div class="col-1">
+    <div class="text-center mt-2">
+    <a href="javascript:void()" onclick="delete_variation('variation{{color|slugify}}{{size|slugify}}')" class="text-danger mt-2"><i class="simple-icon-trash"></i></a>
+  </div>
+</div>
 </div>
 {% endfor %}
 {% endfor %}
@@ -59,7 +67,7 @@
 <div class="row" id="variation{{color|slugify}}">
   <div class="col">
     <div class="form-group">
-      <input type="text" class="form-control" name="color{{color|slugify}}" value="{{color}}">
+      <input type="text" class="form-control" name="color{{color|slugify}}" required value="{{color}}">
     </div>
   </div>
   <div class="col">
@@ -74,7 +82,7 @@
   </div>
   <div class="col">
     <div class="form-group">
-      <input type="text" class="form-control" name="manufacturer_part_number{{color|slugify}}" value="" placeholder="Manufacturer Part Number">
+      <input type="text" class="form-control" name="manufacturer_part_number{{color|slugify}}" required value="" placeholder="Manufacturer Part Number">
     </div>
   </div>
 
@@ -85,7 +93,7 @@
 <div class="row" id="variation{{color|slugify}}{{size|slugify}}">
   <div class="col">
     <div class="form-group">
-      <input type="text" class="form-control" name="size{{size|slugify}}" value="{{size}}">
+      <input type="text" class="form-control" name="size{{size|slugify}}" required value="{{size}}">
     </div>
   </div>
   <div class="col">
@@ -100,7 +108,7 @@
   </div>
   <div class="col">
     <div class="form-group">
-      <input type="text" class="form-control" name="manufacturer_part_number{{size|slugify}}" value="" placeholder="Manufacturer Part Number">
+      <input type="text" class="form-control" name="manufacturer_part_number{{size|slugify}}" required value="" placeholder="Manufacturer Part Number">
     </div>
   </div>
 

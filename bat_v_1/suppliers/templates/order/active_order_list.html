@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% block content %}
+{% include 'suppliers_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ supplier.name }}</h1>
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Orders</li>
+        </ol>
+      </nav>
+    </div>
+
+
+    {% include 'suppliers/menu.html' %}
+    <div class="row">
+      <div class="col-6">
+        <h5 class="card-title">Orders</h5>
+      </div>
+      <div class="col-6">
+        <div class="float-sm-right text-zero">
+          <a href="{% url 'suppliers:create_order' pk=supplier.pk %}" class="btn btn-primary mr-1">Generate Order</a>
+        </div>
+      </div>
+    </div>
+    {% include 'order/order_menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="active" role="tabpanel" aria-labelledby="active-tab">
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="mb-3">Active Orders</h6>
+            {% for active_order in order_list %}
+            <div class="card dashboard-progress">
+              <div class="position-absolute card-top-buttons">
+                <button class="btn btn-header-light icon-button">
+                  <i class="simple-icon-refresh"></i>
+                </button>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Order #{{active_order.pk}}</h5>
+                <h6 class="mt-2 mb-3">Payment</h6>
+                <div class="mb-4">
+                  <p class="mb-2">Total Payment
+                    <span class="float-right text-muted">12/{{active_order.amount}} {{active_order.currency}}</span>
+                  </p>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100" style="width: 66%;"></div>
+                  </div>
+                </div>
+                <h6 class="mt-2 mb-3">Products</h6>
+                {% for product in active_order.orderproduct_set.all %}
+                <div class="mb-4">
+                  <p class="mb-2">{{product.productprice.product.title}}
+                    <span class="float-right text-muted">12/{{product.quantity}}</span>
+                  </p>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100" style="width: 66%;"></div>
+                  </div>
+                </div>
+                {% endfor %}
+                <div class="text-center mt-5">
+                  <a href="{% url 'suppliers:order_detail' pk=active_order.pk %}" class="btn btn-primary">View Order Detail</a>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="col-md-6">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

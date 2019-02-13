@@ -13,7 +13,7 @@ from suppliers.forms import (SupplierForm, PaymentTermsForm, ContactForm, BankFo
                              ProductPriceForm, MoldForm, MoldFileForm, MoldHostForm, AqlForm,
                              OrderForm, OrderProductForm, OrderFileForm,
                              OrderPaymentForm, OrderDeliveryForm, CertificationForm)
-from products.models import (Product)
+from products.models import (Product, ProductBundle)
 from settings.models import (Status, Category, Currency)
 from django.db.models import Q, ProtectedError
 from django import forms
@@ -21,6 +21,7 @@ from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.contrib import messages
 from django.core import serializers
+from decimal import Decimal
 import logging
 logger = logging.getLogger(__name__)
 
@@ -573,8 +574,8 @@ class ProductPriceListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         supplier_id = self.kwargs['pk']
         self.supplier = Supplier.objects.get(pk=supplier_id)
-        self.productprice_active = ProductPrice.objects.filter(supplier_id = supplier_id,type="Active")
-        self.productprice_archived = ProductPrice.objects.filter(supplier_id = supplier_id,type="Archived")
+        self.productprice_active = ProductPrice.objects.filter(supplier_id = supplier_id, type="Active", product__ean__isnull=False).exclude(product__ean='')
+        self.productprice_archived = ProductPrice.objects.filter(supplier_id = supplier_id, type="Archived", product__ean__isnull=False).exclude(product__ean='')
         return ProductPrice.objects.filter(supplier_id = supplier_id)
 
     def get_context_data(self, **kwargs):
@@ -602,7 +603,7 @@ class CreateProductPriceView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"product"}
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
-        context['products'] = Product.objects.all()
+        context['products'] = Product.objects.filter(ean__isnull=False).exclude(ean='')
         context['currency'] = Currency.objects.all()
         return context
 
@@ -1116,7 +1117,10 @@ class AqlDeleteView(LoginRequiredMixin,DeleteView):
 def change_aql_type(request):
     aql_id = request.GET.get('aql_id')
     type = request.GET.get('type')
+    aql = Aql.objects.get(pk=aql_id)
 
+    if type == "Active":
+        Aql.objects.filter(category=aql.category).update(type="Archived")
     Aql.objects.filter(pk=aql_id).update(type=type)
     data = {
         'success': True
@@ -1127,18 +1131,81 @@ def change_aql_type(request):
    #### 2.8.1.1 OrderListView
 class OrderListView(LoginRequiredMixin,ListView):
     model = Order
-    template_name = 'order/order_list.html'
+    template_name = 'order/active_order_list.html'
 
     def get_queryset(self):
         supplier_id = self.kwargs['pk']
         self.supplier = Supplier.objects.get(pk=supplier_id)
-        return Order.objects.filter(aql_id__in=Aql.objects.filter(supplier_id=supplier_id))
+        return Order.objects.filter(supplier_id=supplier_id, status__title="Active").order_by('-pk')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order"}
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"active"}
         context['supplier_id'] = self.kwargs['pk']
         context['supplier'] = self.supplier
+        return context
+
+   #### 2.8.1.2 PendingPOListView
+class PendingPOListView(LoginRequiredMixin,ListView):
+    model = Order
+    template_name = 'order/pending_po_list.html'
+
+    def get_queryset(self):
+        supplier_id = self.kwargs['pk']
+        self.supplier = Supplier.objects.get(pk=supplier_id)
+        self.pending_pos = Order.objects.filter(supplier_id=supplier_id, status__title="Pending PO").order_by('-pk')
+        self.awaiting_pis = Order.objects.filter(supplier_id=supplier_id, status__title="Awaiting PI").order_by('-pk')
+        return Order.objects.filter(supplier_id=supplier_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"pending"}
+        context['supplier_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        context['pending_pos'] = self.pending_pos
+        context['awaiting_pis'] = self.awaiting_pis
+        return context
+
+   #### 2.8.1.3 ClosedOrderListView
+class ClosedOrderListView(LoginRequiredMixin,ListView):
+    model = Order
+    template_name = 'order/closed_order_list.html'
+
+    def get_queryset(self):
+        supplier_id = self.kwargs['pk']
+        self.supplier = Supplier.objects.get(pk=supplier_id)
+        self.pending_pos = Order.objects.filter(supplier_id=supplier_id, status__title="Pending PO").order_by('-pk')
+        self.awaiting_pis = Order.objects.filter(supplier_id=supplier_id, status__title="Awaiting PI").order_by('-pk')
+        return Order.objects.filter(supplier_id=supplier_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"closed"}
+        context['supplier_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        context['pending_pos'] = self.pending_pos
+        context['awaiting_pis'] = self.awaiting_pis
+        return context
+
+   #### 2.8.1.3 CompletedOrderListView
+class CompletedOrderListView(LoginRequiredMixin,ListView):
+    model = Order
+    template_name = 'order/completed_order_list.html'
+
+    def get_queryset(self):
+        supplier_id = self.kwargs['pk']
+        self.supplier = Supplier.objects.get(pk=supplier_id)
+        self.pending_pos = Order.objects.filter(supplier_id=supplier_id, status__title="Pending PO").order_by('-pk')
+        self.awaiting_pis = Order.objects.filter(supplier_id=supplier_id, status__title="Awaiting PI").order_by('-pk')
+        return Order.objects.filter(supplier_id=supplier_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"completed"}
+        context['supplier_id'] = self.kwargs['pk']
+        context['supplier'] = self.supplier
+        context['pending_pos'] = self.pending_pos
+        context['awaiting_pis'] = self.awaiting_pis
         return context
 
    #### 2.8.1.2 OrderDetailView
@@ -1149,7 +1216,7 @@ class OrderDetailView(LoginRequiredMixin,DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"detail"}
-        context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).aql_id).supplier_id)
+        context['supplier'] = Supplier.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).supplier_id)
         return context
 
    #### 2.8.1.3 CreateOrderView
@@ -1168,9 +1235,9 @@ class CreateOrderView(LoginRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order"}
         context['supplier'] = Supplier.objects.get(pk=self.kwargs['pk'])
-        context['form'].fields['aql'].queryset = Aql.objects.filter(supplier_id=self.kwargs['pk'])
-        context['form'].fields['contact'].queryset = Contact.objects.filter(supplier_id=self.kwargs['pk'])
-        context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Order'))
+        context['paymentterms'] = PaymentTerms.objects.all()
+        context['contacts'] = Contact.objects.filter(supplier_id=self.kwargs['pk']).exclude(type="Archived")
+        context['productprice'] = ProductPrice.objects.filter(supplier_id=self.kwargs['pk'], product__ean__isnull=False, type="Active").exclude(product__ean='')
         return context
 
    #### 2.8.1.4 OrderUpdateView
@@ -1200,14 +1267,77 @@ class OrderDeleteView(LoginRequiredMixin,DeleteView):
     template_name = 'order/order_confirm_delete.html'
 
     def get_success_url(self):
-        return reverse_lazy('suppliers:order_list', kwargs={'pk': Aql.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).aql_id).supplier_id})
+        return reverse_lazy('suppliers:active_order_list', kwargs={'pk': Order.objects.get(pk=self.kwargs['pk']).supplier_id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order"}
-        context['supplier'] = Supplier.objects.get(pk=Aql.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).aql_id).supplier_id)
+        context['supplier'] = Supplier.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).supplier_id)
         return context
 
+   #### 2.8.1.6 View function for Order
+def generate_po(request):
+    if request.method == 'POST':
+        supplier_id = request.POST['supplier_id']
+        supplier = Supplier.objects.get(pk=supplier_id)
+        contact_id = request.POST['contact_id']
+        contact = Contact.objects.get(pk=contact_id)
+        user = request.user
+        order_status = Status.objects.get(title= "Orders", parent__isnull=True)
+        status = Status.objects.get(title="Pending PO", parent=order_status)
+        if contact and user:
+            order = Order(supplier=supplier,user=user,contact=contact,status=status)
+            order.save()
+            total_amount = 0
+            total_quantity = 0
+            currency = ""
+            for product_id in request.POST.getlist('product_id'):
+                if product_id:
+                    productprice = ProductPrice.objects.get(pk=product_id)
+                    quantity = request.POST['quantity'+product_id]
+                    paymentterm_id = request.POST['paymentterm'+product_id]
+                    paymentterm = PaymentTerms.objects.get(pk=paymentterm_id)
+                    aql = Aql.objects.get(category_id=productprice.product.category,type="Active")
+                    if productprice and quantity:
+                        orderproduct = OrderProduct(order=order,productprice=productprice,quantity=quantity,aql=aql,paymentterms=paymentterm)
+                        orderproduct.save()
+                        total_amount = Decimal(total_amount)+(Decimal(quantity)*(productprice.price))
+                        total_quantity = int(total_quantity)+int(quantity)
+                        currency = productprice.currency
+            order.amount = total_amount
+            order.quantity = total_quantity
+            order.currency = currency
+            order.save()
+    return redirect('suppliers:pending_po_list', pk=supplier_id)
+
+def confirm_po(request):
+    if request.method == 'POST':
+        order_id = request.POST['order_id']
+        order_status = Status.objects.get(title= "Orders", parent__isnull=True)
+        status = Status.objects.get(title = "Awaiting PI", parent=order_status)
+        supplier_id = Order.objects.get(pk=order_id).supplier_id
+        Order.objects.filter(pk=order_id).update(status=status)
+    return redirect('suppliers:order_detail', pk=order_id)
+
+def awaiting_pi(request):
+    if request.method == 'POST':
+        order_id = request.POST['order']
+        form = OrderFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('suppliers:order_detail', pk=order_id)
+    else:
+        form = OrderFileForm()
+    return redirect('suppliers:order_detail', pk=order_id)
+
+def activate_order(request):
+    if request.method == 'POST':
+        order_id = request.POST['order_id']
+        order_status = Status.objects.get(title= "Orders", parent__isnull=True)
+        status = Status.objects.get(title = "Active", parent=order_status)
+        supplier_id = Order.objects.get(pk=order_id).supplier_id
+        Order.objects.filter(pk=order_id).update(status=status)
+    return redirect('suppliers:order_detail', pk=order_id)
   ### 2.8.2 OrderProduct
    #### 2.8.2.1 OrderProductListView
 class OrderProductListView(LoginRequiredMixin,ListView):
@@ -1305,7 +1435,7 @@ class OrderFileListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         order_id = self.kwargs['pk']
         self.order = Order.objects.get(pk=order_id)
-        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        self.supplier = Supplier.objects.get(pk=self.order.supplier_id)
         return OrderFile.objects.filter(order_id = order_id)
 
     def get_context_data(self, **kwargs):
@@ -1369,15 +1499,15 @@ class OrderFileDeleteView(LoginRequiredMixin,DeleteView):
     def get_queryset(self):
         orderfile_id = self.kwargs['pk']
         self.order = Order.objects.get(pk=OrderFile.objects.get(id=orderfile_id).order_id)
-        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        self.supplier = Supplier.objects.get(pk=self.order.supplier_id)
         return OrderFile.objects.filter(pk=orderfile_id)
 
     def get_success_url(self):
-        return reverse_lazy('suppliers:orderfile_list', kwargs={'pk': OrderFile.objects.get(id=self.kwargs['pk']).order_id})
+        return reverse_lazy('suppliers:order_detail', kwargs={'pk': OrderFile.objects.get(id=self.kwargs['pk']).order_id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"file"}
+        context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"detail"}
         context['supplier'] = self.supplier
         context['order'] = self.order
         return context
@@ -1391,7 +1521,7 @@ class OrderPaymentListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         order_id = self.kwargs['pk']
         self.order = Order.objects.get(pk=order_id)
-        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        self.supplier = Supplier.objects.get(pk=self.order.supplier_id)
         return OrderPayment.objects.filter(order_id = order_id)
 
     def get_context_data(self, **kwargs):
@@ -1419,7 +1549,7 @@ class CreateOrderPaymentView(LoginRequiredMixin,CreateView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"payment"}
         order_id = self.kwargs['pk']
         self.order = Order.objects.get(pk=order_id)
-        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        self.supplier = Supplier.objects.get(pk=self.order.supplier_id)
         context['supplier'] = self.supplier
         context['order'] = self.order
         context['form'].fields['bank'].queryset = Bank.objects.filter(supplier_id=self.supplier.id)
@@ -1478,7 +1608,7 @@ class OrderDeliveryListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         order_id = self.kwargs['pk']
         self.order = Order.objects.get(pk=order_id)
-        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        self.supplier = Supplier.objects.get(pk=self.order.supplier_id)
         return OrderDelivery.objects.filter(order_id = order_id)
 
     def get_context_data(self, **kwargs):
@@ -1506,10 +1636,9 @@ class CreateOrderDeliveryView(LoginRequiredMixin,CreateView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"delivery"}
         order_id = self.kwargs['pk']
         self.order = Order.objects.get(pk=order_id)
-        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        self.supplier = Supplier.objects.get(pk=self.order.supplier_id)
         context['supplier'] = self.supplier
         context['order'] = self.order
-        context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Delivery'))
         return context
 
    #### 2.8.5.3 OrderDeliveryUpdateView

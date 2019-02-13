@@ -13,6 +13,8 @@ User = get_user_model()
 # 2. Amazon
  ## 2.1 AmazonMarket
  ## 2.2 AmazonMwsauth
+# 3. Company
+ ## 3.1 CompanySetting
 
 # 1. Basic
  ## 1.1 Category
@@ -157,3 +159,19 @@ class AmazonMwsauth(models.Model):
 
     def __str__(self):
         return self.region
+
+# 3. Company
+ ## 3.1 CompanySetting
+class CompanySetting(models.Model):
+    name = models.CharField(max_length=100)
+    address1 = models.CharField(max_length=200,verbose_name="Address Line 1")
+    address2 = models.CharField(max_length=200,verbose_name="Address Line 2", blank=True)
+    city = models.CharField(max_length=100)
+    province = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=50)
+    pincode = models.CharField(max_length=30, verbose_name="Pincode")
+    email = models.CharField(max_length=50)
+    phonenumber = models.CharField(max_length=20, verbose_name="Phone Number")
+
+    def __str__(self):
+        return self.name

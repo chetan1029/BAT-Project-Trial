@@ -18,6 +18,6 @@
     <a class="nav-link {% if active_menu.menu4 == 'mold' %}active{% endif %}" href="{% url 'suppliers:mold_list' pk=supplier.pk %}">MOLD</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link {% if active_menu.menu4 == 'order' %}active{% endif %}" href="{% url 'suppliers:order_list' pk=supplier.pk %}">ORDERS</a>
+    <a class="nav-link {% if active_menu.menu4 == 'order' %}active{% endif %}" href="{% url 'suppliers:active_order_list' pk=supplier.pk %}">ORDERS</a>
   </li>
 </ul>

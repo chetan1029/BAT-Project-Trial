@@ -1,6 +1,6 @@
 from django import forms
 from settings.models import (Category, Status, Currency,
-                             AmazonMarket, AmazonMwsauth, Box)
+                             AmazonMarket, AmazonMwsauth, Box, CompanySetting)
 
 # form details
 # 1. Basic
@@ -11,6 +11,8 @@ from settings.models import (Category, Status, Currency,
 # 2. Amazon
  ## 2.1 AmazonMarketForm
  ## 2.2 AmazonMwsauthForm
+# 3. Company
+ ## 3.1 CompanySettingForm
 
 # 1. Basic
  ## 1.1 CategoryForm
@@ -55,3 +57,11 @@ class AmazonMwsauthForm(forms.ModelForm):
     class Meta:
         model = AmazonMwsauth
         fields = ('region','seller_id','auth_token','access_key','secret_key')
+
+# 3. Company
+ ## 3.1 CompanySettingForm
+class CompanySettingForm(forms.ModelForm):
+
+    class Meta:
+        model = CompanySetting
+        fields = ('name','address1','address2','city','province','country','pincode','email','phonenumber')

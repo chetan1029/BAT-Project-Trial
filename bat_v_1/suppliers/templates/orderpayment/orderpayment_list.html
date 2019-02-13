@@ -21,7 +21,7 @@
             <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:order_list' pk=supplier.pk %}">Orders</a>
+            <a href="{% url 'suppliers:active_order_list' pk=supplier.pk %}">Orders</a>
           </li>
           <li class="breadcrumb-item active" aria-current="page">{{ order }}</li>
         </ol>
@@ -33,15 +33,18 @@
     <div class="tab-content">
       <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
         <div class="row">
+          <div class="col-8">
+            <h2>{{order}}</h2>
+          </div>
+        </div>
+        <div class="row">
           <div class="col-12 mb-4">
+            {% include 'order/menu.html' %}
             <div class="card mb-4">
-
               <div class="card-body">
-                <h2>{{order}}</h2>
-                {% include 'order/menu.html' %}
                 <div class="row">
                   <div class="col-6">
-                    <h5 class="card-title">{{order}} Payments</h5>
+                    <h5 class="card-title">Order Payments</h5>
                   </div>
                   <div class="col-6">
                     <div class="float-sm-right text-zero">

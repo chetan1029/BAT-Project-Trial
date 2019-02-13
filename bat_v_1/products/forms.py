@@ -38,6 +38,9 @@ class ProductBundleForm(forms.ModelForm):
     class Meta:
         model = ProductBundle
         fields = ('bundle_product','quantity')
+        widgets = {
+            'quantity': forms.NumberInput(attrs = {'min': 1}),
+        }
 
 ProductBundleFormSet = forms.inlineformset_factory(Product, ProductBundle, fk_name="product", form=ProductBundleForm, extra=1)
 
