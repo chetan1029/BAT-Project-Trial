@@ -117,7 +117,7 @@
         <div class="card-body">
           <h6><a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a></h6>
           <p class="mb-2">{{ supplier.alternate_name }}</p>
-          <p class="mb-3">{{supplier.get_formatted_address}}</p>
+          <p class="mb-3">{{supplier.get_formatted_address|safe}}</p>
           <footer>
             <p class="text-muted text-small mb-0 font-weight-light">{{ supplier.create_date|date:"d M Y"}}</p>
 

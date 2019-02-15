@@ -8,20 +8,22 @@ from django.urls import reverse, reverse_lazy
 from suppliers.models import (Supplier, PaymentTerms, Contact, Bank, Contract,
                               ProductPrice, Mold, MoldFile, MoldHost, Aql,
                               Order, OrderProduct, OrderFile, OrderPayment,
-                              OrderDelivery, Certification)
+                              OrderDelivery, OrderDeliveryProduct, Certification)
 from suppliers.forms import (SupplierForm, PaymentTermsForm, ContactForm, BankForm, ContractForm,
                              ProductPriceForm, MoldForm, MoldFileForm, MoldHostForm, AqlForm,
                              OrderForm, OrderProductForm, OrderFileForm,
-                             OrderPaymentForm, OrderDeliveryForm, CertificationForm)
+                             OrderPaymentForm, OrderDeliveryForm, OrderDeliveryProductForm, CertificationForm)
 from products.models import (Product, ProductBundle)
-from settings.models import (Status, Category, Currency)
+from settings.models import (Status, Category, Currency, CompanySetting)
 from django.db.models import Q, ProtectedError
 from django import forms
 from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.contrib import messages
 from django.core import serializers
+from django.db.models import Sum
 from decimal import Decimal
+from datetime import datetime, timedelta
 import logging
 logger = logging.getLogger(__name__)
 
@@ -1136,6 +1138,51 @@ class OrderListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         supplier_id = self.kwargs['pk']
         self.supplier = Supplier.objects.get(pk=supplier_id)
+        self.orders = Order.objects.filter(supplier_id=supplier_id, status__title="Active").order_by('-pk')
+        self.active_orders = []
+        for order in self.orders:
+            active_order1 = {}
+            active_order1["pk"] = order.pk
+            active_order1["amount"] = int(order.amount)
+            active_order1["currency"] = order.currency
+            active_order1["quantity"] = order.quantity
+            active_order1["paid_amount"] = OrderPayment.objects.filter(order=order).aggregate(Sum('paid_amount'))
+            active_order1["paid_amount"] = active_order1["paid_amount"]["paid_amount__sum"]
+            if active_order1["paid_amount"]:
+                active_order1["paid_amount"] = int(active_order1["paid_amount"])
+            else:
+                active_order1["paid_amount"] = 0
+            active_order1["amount_percentage"] = (Decimal(active_order1["paid_amount"])*Decimal(100))/Decimal(active_order1["amount"])
+            active_order1["quantity_send"] = OrderDelivery.objects.filter(order=order).aggregate(Sum('quantity'))
+            active_order1["quantity_send"] = active_order1["quantity_send"]["quantity__sum"]
+            if active_order1["quantity_send"]:
+                active_order1["quantity_percentage"] = (int(active_order1["quantity_send"])*int(100))/int(active_order1["quantity"])
+            else:
+                active_order1["quantity_percentage"] = 0
+                active_order1["quantity_send"] = 0
+
+            active_order1["products"] = []
+
+            for orderproduct in order.orderproduct_set.all():
+                order_product = {}
+                order_product["title"] = orderproduct.productprice.product.title
+                order_product["image"] = orderproduct.productprice.product.image
+                order_product["ean"] = orderproduct.productprice.product.ean
+                order_product["price"] = orderproduct.productprice.price
+                order_product["currency"] = orderproduct.productprice.currency
+                order_product["quantity"] = orderproduct.quantity
+                order_product["quantity_send"] = OrderDeliveryProduct.objects.filter(orderdelivery__order=order, orderproduct=orderproduct).aggregate(Sum('quantity'))
+                order_product["quantity_send"] = order_product["quantity_send"]["quantity__sum"]
+                if order_product["quantity_send"]:
+                    order_product["quantity_percentage"] = (int(order_product["quantity_send"])*int(100))/int(order_product["quantity"])
+                else:
+                    order_product["quantity_percentage"] = 0
+                    order_product["quantity_send"] = 0
+
+                active_order1["products"].append(order_product)
+
+            self.active_orders.append(active_order1)
+        logger.warning(self.active_orders)
         return Order.objects.filter(supplier_id=supplier_id, status__title="Active").order_by('-pk')
 
     def get_context_data(self, **kwargs):
@@ -1143,6 +1190,7 @@ class OrderListView(LoginRequiredMixin,ListView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"active"}
         context['supplier_id'] = self.kwargs['pk']
         context['supplier'] = self.supplier
+        context['active_orders'] = self.active_orders
         return context
 
    #### 2.8.1.2 PendingPOListView
@@ -1213,10 +1261,22 @@ class OrderDetailView(LoginRequiredMixin,DetailView):
     model = Order
     template_name = 'order/order_detail.html'
 
+    def get_queryset(self):
+        order_id = self.kwargs['pk']
+        self.orderpayments = OrderPayment.objects.filter(order_id=order_id).order_by('date')
+        self.orderdeliveries = OrderDelivery.objects.filter(order_id=order_id).order_by('date')
+        self.company = CompanySetting.objects.all().first()
+        self.currency = Currency.objects.all()
+        return Order.objects.filter(pk=order_id)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"detail"}
         context['supplier'] = Supplier.objects.get(pk=Order.objects.get(pk=self.kwargs['pk']).supplier_id)
+        context['orderpayments'] = self.orderpayments
+        context['orderdeliveries'] = self.orderdeliveries
+        context['company'] = self.company
+        context['all_currency'] = self.currency
         return context
 
    #### 2.8.1.3 CreateOrderView
@@ -1280,13 +1340,14 @@ def generate_po(request):
     if request.method == 'POST':
         supplier_id = request.POST['supplier_id']
         supplier = Supplier.objects.get(pk=supplier_id)
+        batch_id = supplier.name[:3].upper()+""+timezone.now().strftime("%d%m%Y")
         contact_id = request.POST['contact_id']
         contact = Contact.objects.get(pk=contact_id)
         user = request.user
         order_status = Status.objects.get(title= "Orders", parent__isnull=True)
         status = Status.objects.get(title="Pending PO", parent=order_status)
         if contact and user:
-            order = Order(supplier=supplier,user=user,contact=contact,status=status)
+            order = Order(supplier=supplier,user=user,contact=contact,status=status,batch_id=batch_id)
             order.save()
             total_amount = 0
             total_quantity = 0
@@ -1299,7 +1360,7 @@ def generate_po(request):
                     paymentterm = PaymentTerms.objects.get(pk=paymentterm_id)
                     aql = Aql.objects.get(category_id=productprice.product.category,type="Active")
                     if productprice and quantity:
-                        orderproduct = OrderProduct(order=order,productprice=productprice,quantity=quantity,aql=aql,paymentterms=paymentterm)
+                        orderproduct = OrderProduct(order=order,productprice=productprice,quantity=quantity,aql=aql,paymentterms=paymentterm,remaining_quantity=quantity)
                         orderproduct.save()
                         total_amount = Decimal(total_amount)+(Decimal(quantity)*(productprice.price))
                         total_quantity = int(total_quantity)+int(quantity)
@@ -1307,6 +1368,18 @@ def generate_po(request):
             order.amount = total_amount
             order.quantity = total_quantity
             order.currency = currency
+            orderproducts = OrderProduct.objects.filter(order_id=order.pk)
+            total_deposit_amount = 0
+            for orderproduct in orderproducts:
+                deposit = orderproduct.paymentterms.deposit
+                price = orderproduct.productprice.price
+                quantity = orderproduct.quantity
+                if deposit:
+                    deposit_amount = (Decimal(deposit)*Decimal(price)*Decimal(quantity))/Decimal(100)
+                else:
+                    deposit_amount = 0
+                total_deposit_amount = total_deposit_amount+deposit_amount
+            order.deposit_amount = total_deposit_amount
             order.save()
     return redirect('suppliers:pending_po_list', pk=supplier_id)
 
@@ -1335,9 +1408,112 @@ def activate_order(request):
         order_id = request.POST['order_id']
         order_status = Status.objects.get(title= "Orders", parent__isnull=True)
         status = Status.objects.get(title = "Active", parent=order_status)
-        supplier_id = Order.objects.get(pk=order_id).supplier_id
+        order = Order.objects.get(pk=order_id)
+        supplier_id = order.supplier_id
         Order.objects.filter(pk=order_id).update(status=status)
+
+        orderproducts = OrderProduct.objects.filter(order_id=order_id)
+        total_deposit_amount = 0
+        for orderproduct in orderproducts:
+            deposit = orderproduct.paymentterms.deposit
+            price = orderproduct.productprice.price
+            quantity = orderproduct.quantity
+            if deposit:
+                deposit_amount = (Decimal(deposit)*Decimal(price)*Decimal(quantity))/Decimal(100)
+            else:
+                deposit_amount = 0
+            total_deposit_amount = total_deposit_amount+deposit_amount
+
+        bank = Bank.objects.filter(supplier_id=supplier_id,type="Active").first()
+        payment_status = Status.objects.get(title= "Payments", parent__isnull=True)
+        status = Status.objects.get(title="Pending", parent=payment_status)
+        share_percentage = round((Decimal(total_deposit_amount)*Decimal(100))/Decimal(order.amount))
+        orderpayment = OrderPayment(order=order,bank=bank,paid_amount=total_deposit_amount,invoice_amount=total_deposit_amount,date=timezone.now(),invoice_currency=order.currency,paid_currency=order.currency,status=status,share_percentage=share_percentage)
+        orderpayment.save()
     return redirect('suppliers:order_detail', pk=order_id)
+
+def add_orderdelivery(request):
+    if request.method == 'POST':
+        order_id = request.POST['order_id']
+        order = Order.objects.get(pk=order_id)
+        date = datetime.strptime(request.POST['date'],"%m/%d/%Y").date()
+        delivery_status = Status.objects.get(title= "Partial Delivery", parent__isnull=True)
+        status = Status.objects.get(title = "Schedule", parent=delivery_status)
+        batch_id_count = OrderDelivery.objects.filter(order=order).count()
+        batch_id = order.batch_id+"-"+str(batch_id_count+1)
+        if date:
+            orderdelivery = OrderDelivery(order=order, date=date, status=status, batch_id=batch_id)
+            orderdelivery.save()
+            total_quantity = 0
+            total_amount_ondelivery = 0
+            total_amount_remaining = 0
+            paymentlist = {}
+            for product_id in request.POST.getlist('product_id'):
+                if product_id:
+                    quantity = request.POST['quantity'+product_id]
+                    orderproduct = OrderProduct.objects.get(pk=product_id)
+                    share_percentage = round((Decimal(quantity)*Decimal(100))/Decimal(order.quantity))
+                    orderdeliveryproduct = OrderDeliveryProduct(orderdelivery=orderdelivery,orderproduct=orderproduct,quantity=quantity,share_percentage=share_percentage)
+                    orderdeliveryproduct.save()
+                    orderproduct.remaining_quantity = int(orderproduct.remaining_quantity)-int(quantity)
+                    orderproduct.save()
+                    productprice_price = orderdeliveryproduct.orderproduct.productprice.price
+                    paymentterm_deposit = orderdeliveryproduct.orderproduct.paymentterms.deposit
+                    paymentterm_days = orderdeliveryproduct.orderproduct.paymentterms.payment_term
+                    paymentterm_ondelivery = orderdeliveryproduct.orderproduct.paymentterms.on_delivery
+                    paymentterm_remaining = 100-(paymentterm_ondelivery+paymentterm_deposit)
+                    amount_ondelivery = (Decimal(quantity)*Decimal(productprice_price)*Decimal(paymentterm_ondelivery))/Decimal(100)
+                    amount_remaining = (Decimal(quantity)*Decimal(productprice_price)*Decimal(paymentterm_remaining))/Decimal(100)
+
+                    total_quantity = total_quantity+int(quantity)
+                    if paymentterm_days in paymentlist:
+                        paymentlist[paymentterm_days] += amount_remaining
+                    else:
+                        paymentlist[paymentterm_days] = amount_remaining
+                    total_amount_ondelivery = total_amount_ondelivery+int(amount_ondelivery)
+            share_percentage = round((Decimal(total_quantity)*Decimal(100))/Decimal(order.quantity))
+            orderdelivery.quantity = total_quantity
+            orderdelivery.share_percentage = share_percentage
+            orderdelivery.save()
+        bank = Bank.objects.filter(supplier_id=order.supplier_id,type="Active").first()
+        if total_amount_ondelivery:
+            payment_status = Status.objects.get(title= "Payments", parent__isnull=True)
+            status = Status.objects.get(title="Pending", parent=payment_status)
+            share_percentage = round((Decimal(total_amount_ondelivery)*Decimal(100))/Decimal(order.amount))
+            orderpayment = OrderPayment(order=order,bank=bank,paid_amount=total_amount_ondelivery,invoice_amount=total_amount_ondelivery,date=date,invoice_currency=order.currency,paid_currency=order.currency,status=status,orderdelivery=orderdelivery,share_percentage=share_percentage)
+            orderpayment.save()
+
+        payment_status = Status.objects.get(title= "Payments", parent__isnull=True)
+        status = Status.objects.get(title="Schedule", parent=payment_status)
+
+        for days in paymentlist:
+            if paymentlist[days]:
+                date = date + timedelta(days=days)
+                share_percentage = round((Decimal(paymentlist[days])*Decimal(100))/Decimal(order.amount))
+                orderpayment = OrderPayment(order=order,bank=bank,paid_amount=paymentlist[days],invoice_amount=paymentlist[days],date=date,invoice_currency=order.currency,paid_currency=order.currency,status=status,orderdelivery=orderdelivery,share_percentage=share_percentage)
+                orderpayment.save()
+
+    return redirect('suppliers:order_detail', pk=order_id)
+
+def update_deliverydate(request):
+    if request.method == 'POST':
+        orderdelivery_id = request.POST['orderdelivery_id']
+        orderdelivery = OrderDelivery.objects.get(pk=orderdelivery_id)
+        order_id = orderdelivery.order_id
+        old_date = orderdelivery.date.date()
+        new_date = datetime.strptime(request.POST['date'],"%m/%d/%Y").date()
+        days = (new_date - old_date).days
+
+        orderdelivery.date = new_date
+        orderdelivery.save()
+
+        orderpayments = OrderPayment.objects.filter(orderdelivery=orderdelivery)
+        for orderpayment in orderpayments:
+            orderpayment.date = orderpayment.date + timedelta(days=days)
+            orderpayment.save()
+
+    return redirect('suppliers:order_detail', pk=order_id)
+
   ### 2.8.2 OrderProduct
    #### 2.8.2.1 OrderProductListView
 class OrderProductListView(LoginRequiredMixin,ListView):
@@ -1572,7 +1748,7 @@ class OrderPaymentUpdateView(LoginRequiredMixin,UpdateView):
         context['active_menu'] = {"menu1":"basic","menu2":"suppliers","menu3":"suppliers","menu4":"order","menu5":"payment"}
         orderpayment_id = self.kwargs['pk']
         self.order = Order.objects.get(pk=OrderPayment.objects.get(id=orderpayment_id).order_id)
-        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        self.supplier = Supplier.objects.get(pk=self.order.supplier_id)
         context['supplier'] = self.supplier
         context['order'] = self.order
         context['form'].fields['bank'].queryset = Bank.objects.filter(supplier_id=self.supplier.id)
@@ -1586,7 +1762,7 @@ class OrderPaymentDeleteView(LoginRequiredMixin,DeleteView):
     def get_queryset(self):
         orderpayment_id = self.kwargs['pk']
         self.order = Order.objects.get(pk=OrderPayment.objects.get(id=orderpayment_id).order_id)
-        self.supplier = Supplier.objects.get(pk=(Aql.objects.get(pk=self.order.aql_id).supplier_id))
+        self.supplier = Supplier.objects.get(pk=self.order.supplier_id)
         return OrderPayment.objects.filter(pk=orderpayment_id)
 
     def get_success_url(self):
@@ -1639,6 +1815,7 @@ class CreateOrderDeliveryView(LoginRequiredMixin,CreateView):
         self.supplier = Supplier.objects.get(pk=self.order.supplier_id)
         context['supplier'] = self.supplier
         context['order'] = self.order
+        context['orderproducts'] = OrderProduct.objects.filter(order_id=order_id)
         return context
 
    #### 2.8.5.3 OrderDeliveryUpdateView

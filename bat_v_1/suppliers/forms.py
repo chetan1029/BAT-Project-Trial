@@ -1,7 +1,7 @@
 from django import forms
 from suppliers.models import (Supplier, PaymentTerms, Contact, Bank, Contract,
                               ProductPrice, Mold, MoldFile, MoldHost, Aql, Order, OrderProduct, OrderFile,
-                              OrderPayment, OrderDelivery, Certification)
+                              OrderPayment, OrderDelivery, OrderDeliveryProduct, Certification)
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, Row, Column
 # form details
@@ -140,7 +140,14 @@ class OrderDeliveryForm(forms.ModelForm):
 
     class Meta:
         model = OrderDelivery
-        fields = ('title','orderproduct','quantity','orderpayment','status','file_url')
+        fields = ('quantity','status','pi_file')
+
+  ### 2.8.6 OrderDeliveryProductForm
+class OrderDeliveryProductForm(forms.ModelForm):
+
+    class Meta:
+        model = OrderDeliveryProduct
+        fields = ('orderproduct','quantity','test_file')
 
  ## 2.8 CertificationForm
   ### 2.8.1 CertificationForm

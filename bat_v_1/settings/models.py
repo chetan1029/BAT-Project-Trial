@@ -164,6 +164,7 @@ class AmazonMwsauth(models.Model):
  ## 3.1 CompanySetting
 class CompanySetting(models.Model):
     name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='settings/images/',blank=True)
     address1 = models.CharField(max_length=200,verbose_name="Address Line 1")
     address2 = models.CharField(max_length=200,verbose_name="Address Line 2", blank=True)
     city = models.CharField(max_length=100)
@@ -172,6 +173,27 @@ class CompanySetting(models.Model):
     pincode = models.CharField(max_length=30, verbose_name="Pincode")
     email = models.CharField(max_length=50)
     phonenumber = models.CharField(max_length=20, verbose_name="Phone Number")
+    org_number = models.CharField(max_length=50,default="")
+    vat_number = models.CharField(max_length=50,default="")
+
+    def get_formatted_address(self):
+        address = ""
+        if self.address1 is None and self.address2 is None and self.city is None and self.province is None and self.country is None and self.pincode is None:
+            address = ""
+        else:
+            if self.address1:
+                address += self.address1
+            if self.address2:
+                address += ", "+self.address2
+            if self.city:
+                address += "<br />"+self.city
+            if self.province:
+                address += ", "+self.province
+            if self.country:
+                address += "<br />"+self.country
+            if self.pincode:
+                address += ", "+self.pincode
+        return address.strip(",")
 
     def __str__(self):
         return self.name

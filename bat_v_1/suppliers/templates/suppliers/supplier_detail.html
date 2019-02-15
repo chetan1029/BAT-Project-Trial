@@ -54,7 +54,7 @@
                 <p class="mb-3">{{supplier.alternate_name}}</p>
                 {% endif %}
                 <p class="text-muted text-small mb-2">Address</p>
-                <p class="mb-3">{{supplier.get_formatted_address}}</p>
+                <p class="mb-3">{{supplier.get_formatted_address|safe}}</p>
                 <p class="text-muted text-small mb-2">Detail</p>
                 <p class="mb-3">
                   {{ supplier.detail }}

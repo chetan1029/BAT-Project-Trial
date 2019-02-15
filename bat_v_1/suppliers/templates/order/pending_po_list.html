@@ -68,6 +68,7 @@
                       <th>Product</th>
                       <th>Quantity</th>
                       <th>Price</th>
+                      <th>Total</th>
                     </tr>
                     {% for product in pending_po.orderproduct_set.all %}
                     <tr>
@@ -82,6 +83,9 @@
                       <td>
                         <p class="mb-1 text-muted">{{product.productprice.price|floatformat:"2"}} {{product.productprice.currency}}</p>
                       </td>
+                      <td>
+                        <p class="mb-1 text-muted">{% widthratio product.productprice.price 1 product.quantity %} {{product.productprice.currency}}</p>
+                      </td>
                     </tr>
                     {% endfor %}
                     <tr>
@@ -89,6 +93,7 @@
                       <td>
                         <p class="mb-2 text-muted">{{pending_po.quantity}}</p>
                       </td>
+                      <td></td>
                       <td>
                         <p class="mb-2 text-muted">{{pending_po.amount|floatformat:"2"}} {{pending_po.currency}}</p>
                       </td>

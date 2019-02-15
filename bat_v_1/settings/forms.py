@@ -64,4 +64,4 @@ class CompanySettingForm(forms.ModelForm):
 
     class Meta:
         model = CompanySetting
-        fields = ('name','address1','address2','city','province','country','pincode','email','phonenumber')
+        fields = ('name','image','address1','address2','city','province','country','pincode','email','phonenumber','org_number','vat_number')

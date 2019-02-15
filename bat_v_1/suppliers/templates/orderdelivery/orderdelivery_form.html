@@ -30,43 +30,129 @@
 
 
     {% include 'suppliers/menu.html' %}
-    <div class="tab-content">
-      <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
-        <div class="row">
-          <div class="col-8">
-            <h2>{{order}}</h2>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-12 mb-4">
-            {% include 'order/menu.html' %}
-            <div class="tab-card mb-4">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-6">
-                    {% if not form.instance.pk %}
-                    <h5 class="card-title">Add Order Delivery</h5>
-                    {% else %}
-                    <h5 class="card-title">Edit Order Delivery</h5>
-                    {% endif %}
-                  </div>
-                </div>
-                <form method="POST" enctype="multipart/form-data">
+  </div>
+</div>
+<div class="row">
+  <div class="col-8">
+    <h2>{{order}}</h2>
+  </div>
+</div>
+<div class="row">
+  <div class="col-12 mb-4">
+    {% include 'order/menu.html' %}
+    <!--form method="POST" enctype="multipart/form-data">
                   {% csrf_token %}
                   {{form|crispy}}
                   <button type="submit" class="btn btn-primary mb-0">Submit</button>
                   <a href="{% url 'suppliers:orderdelivery_list' order.pk %}" class="btn btn-danger mb-0">Cancel</a>
-                </form>
-              </div>
+                </form-->
+    <form class="" action="{% url 'suppliers:add_orderdelivery' %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="order_id" value="{{order.pk}}">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="form-group">
+            <label for="">Delivery Date</label>
+            <input type="text" name="date" class="datepicker textinput textInput form-control" placeholder="Date" value="" autocomplete="off" required>
+          </div>
+        </div>
+      </div>
+      <label for="">Products</label>
+      <div class="row pokemon-selection">
+        {% for orderproduct in orderproducts %}
+        {% if orderproduct.remaining_quantity %}
+        <div class="col-md-4 col-xl-3 col-lg-4 mb-4">
+          <div class="card cursor-pointer" id="product{{product.pk}}">
+            <div class="position-relative">
+              {% if orderproduct.productprice.product.image %}
+              <img class="card-img-top" src="{{MEDIA_URL}}{{ orderproduct.productprice.product.image }}" alt="{{ orderproduct.productprice.product.title }}">
+              {% else %}
+              <img class="card-img-top" src="{{MEDIA_URL}}products/no-product-image.png" alt="{{ orderproduct.productprice.product.title }}">
+              {% endif %}
+              <span class="badge badge-pill badge-dark position-absolute badge-top-left">EAN: {{ orderproduct.productprice.product.ean }}</span>
+              <span class="badge badge-pill badge-dark position-absolute badge-top-left-2">{{orderproduct.productprice.product.category.name}}</span>
             </div>
+            <div class="card-body">
+              <p class="list-item-heading mb-4" title="{{product.title}}">{{orderproduct.productprice.product.title}}</p>
+              <footer>
+                <input type="hidden" name="product_id" disabled value="{{orderproduct.pk}}">
+                <div class="form-group mb-3 d-none">
+                  <input type="number" step="1" min="1" class="form-control" name="quantity{{orderproduct.pk}}" placeholder="Quantity" aria-label="quantity" disabled aria-describedby="basic-addon1">
+                </div>
+                <div class="form-group mb-4 slider-box" style="display:none;">
+                  <label>Select Quantity</label>
+                  <div>
+                    <div class="slider" id="slider{{orderproduct.pk}}"></div>
+                  </div>
+                </div>
 
+              </footer>
+            </div>
           </div>
 
         </div>
+        {% endif %}
+        {% endfor %}
       </div>
-
-    </div>
-
+      <div class="row mt-4">
+        <div class="col-12 text-center">
+          <button type="submit" class="btn btn-secondary btn-lg mb-1">SUBMIT</button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
+</div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+  $(".card").click(function(e) {
+    console.log($(e.target).attr('class'));
+    if (e.target.nodeName == "INPUT" || e.target.nodeName == "SELECT" || $(e.target).attr('class') == "noUi-handle noUi-handle-lower" || $(e.target).attr('class') == "noUi-connects" || $(e.target).attr('class') == "noUi-tooltip") {} else {
+      $(this).toggleClass("active");
+      if ($(this).hasClass("active")) {
+        $(this).find("input").prop('disabled', false);
+        $(this).find("select").prop('disabled', false);
+        $(this).find(".slider-box").show();
+      } else {
+        $(this).find("input").prop('disabled', true);
+        $(this).find("select").prop('disabled', true);
+        $(this).find(".slider-box").hide();
+      }
+    }
+  });
+  if (typeof noUiSlider !== "undefined") {
+    function slider(id,quantity) {
+      slider_id = document.getElementById("slider"+id);
+        noUiSlider.create(slider_id, {
+          start: 0,
+          connect: true,
+          tooltips: true,
+          range: {
+            min: 0,
+            max: quantity
+          },
+          step: 10,
+          format: {
+            to: function(value) {
+              return $.fn.addCommas(Math.round(value));
+            },
+            from: function(value) {
+              return value;
+            }
+          }
+        });
+        slider_id.noUiSlider.on('update', function(values, handle) {
+          var value = values[handle];
+          $("input[name='quantity"+id+"']").val(value);
+        });
+      }
+    {% for orderproduct in orderproducts %}
+    {% if orderproduct.remaining_quantity %}
+    slider({{orderproduct.pk}},{{orderproduct.remaining_quantity}});
+    {% endif %}
+    {% endfor %}
+  }
+</script>
 {% endblock %}

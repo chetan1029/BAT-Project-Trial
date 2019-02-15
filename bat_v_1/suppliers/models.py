@@ -86,13 +86,13 @@ class Supplier(models.Model):
             if self.address2:
                 address += ", "+self.address2
             if self.city:
-                address += ", "+self.city
+                address += "<br />"+self.city
             if self.region:
                 address += ", "+self.region
             if self.region_code:
                 address += " ("+self.region_code+")"
             if self.country:
-                address += ", "+self.country
+                address += "<br />"+self.country
             if self.country_code:
                 address += " ("+self.country_code+")"
             if self.zip:
@@ -332,7 +332,9 @@ class Order(models.Model):
     amount = models.FloatField(default="0",blank=True)
     quantity = models.IntegerField(default=0,blank=True)
     currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Currency",default="", blank=True, null=True)
+    deposit_amount = models.FloatField(default="0",blank=True)
     note = models.TextField(blank=True)
+    batch_id = models.CharField(max_length=20,default="")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -347,6 +349,7 @@ class OrderProduct(models.Model):
     order = models.ForeignKey(Order,on_delete=models.CASCADE,verbose_name="Select Order")
     productprice = models.ForeignKey(ProductPrice,on_delete=models.PROTECT,verbose_name="Select Product",default="")
     quantity = models.IntegerField()
+    remaining_quantity = models.IntegerField(blank=True,default=0)
     aql = models.ForeignKey(Aql,on_delete=models.PROTECT,verbose_name="Select AQL",default="")
     paymentterms = models.ForeignKey(PaymentTerms,on_delete=models.PROTECT,verbose_name="Select Payment Terms",default="")
     create_date = models.DateTimeField(default=timezone.now())
@@ -377,7 +380,29 @@ class OrderFile(models.Model):
     def __str__(self):
         return self.title
 
- ## 2.7.4 OrderPayment
+ ## 2.7.4 OrderDelivery
+def generate_orderdeliveryfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'suppliers/{0}/Orders/{1}/delivery/delivery-{2}-{3}-{4}{5}'.format(instance.order.supplier.id, instance.order.id, slugify(instance.order.supplier.name), "pi", timezone.now().strftime("%Y%m%d") ,extension)
+
+class OrderDelivery(models.Model):
+    order = models.ForeignKey(Order,on_delete=models.PROTECT,verbose_name="Select Order")
+    quantity = models.IntegerField(blank=True, null=True)
+    pi_file = models.FileField(upload_to=generate_orderdeliveryfilename,blank=True)
+    date = models.DateTimeField(verbose_name="Select Delivery date",default=timezone.now())
+    status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status")
+    batch_id = models.CharField(max_length=20,default="")
+    share_percentage = models.FloatField(default="0")
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('suppliers:orderdelivery_list', kwargs={'pk':self.order_id})
+
+    def __str__(self):
+        return self.id
+
+ ## 2.7.5 OrderPayment
 def generate_orderpaymentfilename(instance, filename):
     name, extension = os.path.splitext(filename)
     return 'suppliers/{0}/Orders/{1}/payments/invoice-{2}-{3}-{4}{5}'.format(instance.order.supplier.id, instance.order.id, slugify(instance.order.supplier.name), slugify(instance.id), timezone.now().strftime("%Y%m%d") ,extension)
@@ -389,9 +414,12 @@ class OrderPayment(models.Model):
     paid_amount = models.DecimalField(max_digits=10, decimal_places=2)
     invoice_currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Invoice Currecy",related_name="invoice_currency")
     invoice_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    orderdelivery = models.ForeignKey(OrderDelivery,on_delete=models.PROTECT,default="",blank=True,null=True)
     date = models.DateTimeField(verbose_name="Select payment date")
     note = models.TextField(blank=True)
-    file_url = models.FileField(upload_to=generate_orderpaymentfilename)
+    file_url = models.FileField(upload_to=generate_orderpaymentfilename,blank=True)
+    status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status",default="")
+    share_percentage = models.FloatField(default="0")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
@@ -401,27 +429,25 @@ class OrderPayment(models.Model):
     def __str__(self):
         return "Invoice ID: "+str(self.id)
 
- ## 2.7.5 OrderDelivery
-def generate_orderdeliveryfilename(instance, filename):
+ ## 2.7.6 OrderDeliveryProduct
+def generate_orderdeliveryproductfilename(instance, filename):
     name, extension = os.path.splitext(filename)
-    return 'suppliers/{0}/Orders/{1}/delivery/delivery-{2}-{3}-{4}{5}'.format(instance.order.supplier.id, instance.order.id, slugify(instance.order.supplier.name), slugify(instance.title), timezone.now().strftime("%Y%m%d") ,extension)
+    return 'suppliers/{0}/Orders/{1}/delivery/delivery-{2}-{3}-{4}{5}'.format(instance.order.supplier.id, instance.order.id, slugify(instance.order.supplier.name), "test-report", timezone.now().strftime("%Y%m%d") ,extension)
 
-class OrderDelivery(models.Model):
-    order = models.ForeignKey(Order,on_delete=models.CASCADE,verbose_name="Select Order")
-    title = models.CharField(max_length=100)
-    orderproduct = models.ForeignKey(OrderProduct,on_delete=models.CASCADE,verbose_name="Select Order Product", default="")
+class OrderDeliveryProduct(models.Model):
+    orderdelivery = models.ForeignKey(OrderDelivery,on_delete=models.PROTECT,verbose_name="Select Order")
+    orderproduct = models.ForeignKey(OrderProduct,on_delete=models.PROTECT,verbose_name="Select Order Product")
     quantity = models.IntegerField()
-    orderpayment = models.ForeignKey(OrderPayment,on_delete=models.CASCADE,verbose_name="Select Order Payment")
-    status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status")
-    file_url = models.FileField(upload_to=generate_orderdeliveryfilename,blank=True)
+    test_file = models.FileField(upload_to=generate_orderdeliveryproductfilename,blank=True)
+    share_percentage = models.FloatField(default="0")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
     def get_absolute_url(self):
-        return reverse('suppliers:orderdelivery_list', kwargs={'pk':self.order_id})
+        return reverse('suppliers:orderdeliveryproduct_list', kwargs={'pk':self.orderdelivery_id})
 
     def __str__(self):
-        return self.title
+        return self.id
 
  ## 2.8 Certification
   ### 2.8.1 Certification
