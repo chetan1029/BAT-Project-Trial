@@ -388,7 +388,6 @@ def generate_orderdeliveryfilename(instance, filename):
 class OrderDelivery(models.Model):
     order = models.ForeignKey(Order,on_delete=models.PROTECT,verbose_name="Select Order")
     quantity = models.IntegerField(blank=True, null=True)
-    pi_file = models.FileField(upload_to=generate_orderdeliveryfilename,blank=True)
     date = models.DateTimeField(verbose_name="Select Delivery date",default=timezone.now())
     status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status")
     batch_id = models.CharField(max_length=20,default="")
@@ -405,7 +404,15 @@ class OrderDelivery(models.Model):
  ## 2.7.5 OrderPayment
 def generate_orderpaymentfilename(instance, filename):
     name, extension = os.path.splitext(filename)
-    return 'suppliers/{0}/Orders/{1}/payments/invoice-{2}-{3}-{4}{5}'.format(instance.order.supplier.id, instance.order.id, slugify(instance.order.supplier.name), slugify(instance.id), timezone.now().strftime("%Y%m%d") ,extension)
+    return 'suppliers/{0}/Orders/{1}/payments/pi-{2}-{3}-{4}{5}'.format(instance.order.supplier.id, instance.order.id, slugify(instance.order.supplier.name), slugify(instance.id), timezone.now().strftime("%Y%m%d") ,extension)
+
+def generate_orderpaymentpifilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'suppliers/{0}/Orders/{1}/payments/pi-{2}-{3}-{4}{5}'.format(instance.order.supplier.id, instance.order.id, slugify(instance.order.supplier.name), slugify(instance.id), timezone.now().strftime("%Y%m%d") ,extension)
+
+def generate_orderpaymentinvoicefilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'suppliers/{0}/Orders/{1}/payments/receipt-{2}-{3}-{4}{5}'.format(instance.order.supplier.id, instance.order.id, slugify(instance.order.supplier.name), slugify(instance.id), timezone.now().strftime("%Y%m%d") ,extension)
 
 class OrderPayment(models.Model):
     order = models.ForeignKey(Order,on_delete=models.CASCADE,verbose_name="Select Order")
@@ -417,7 +424,8 @@ class OrderPayment(models.Model):
     orderdelivery = models.ForeignKey(OrderDelivery,on_delete=models.PROTECT,default="",blank=True,null=True)
     date = models.DateTimeField(verbose_name="Select payment date")
     note = models.TextField(blank=True)
-    file_url = models.FileField(upload_to=generate_orderpaymentfilename,blank=True)
+    pi_file = models.FileField(upload_to=generate_orderpaymentpifilename,blank=True,default="")
+    receipt_file = models.FileField(upload_to=generate_orderpaymentinvoicefilename,blank=True,default="")
     status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status",default="")
     share_percentage = models.FloatField(default="0")
     create_date = models.DateTimeField(default=timezone.now())

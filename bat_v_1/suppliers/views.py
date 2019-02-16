@@ -24,6 +24,9 @@ from django.core import serializers
 from django.db.models import Sum
 from decimal import Decimal
 from datetime import datetime, timedelta
+from weasyprint import HTML, CSS
+from django.template.loader import render_to_string
+from django.http import HttpResponse
 import logging
 logger = logging.getLogger(__name__)
 
@@ -1505,6 +1508,7 @@ def update_deliverydate(request):
         days = (new_date - old_date).days
 
         orderdelivery.date = new_date
+        orderdelivery.pi_file = request.FILES['pi_file']
         orderdelivery.save()
 
         orderpayments = OrderPayment.objects.filter(orderdelivery=orderdelivery)
@@ -1512,6 +1516,31 @@ def update_deliverydate(request):
             orderpayment.date = orderpayment.date + timedelta(days=days)
             orderpayment.save()
 
+    return redirect('suppliers:order_detail', pk=order_id)
+
+def pdf_generation(request):
+    html_template = render_to_string('order/pdf_file.html')
+    pdf_file = HTML(string=html_template).write_pdf()
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'filename="pdf_file.pdf"'
+    return response
+
+def update_deliverypayment(request):
+    if request.method == 'POST':
+        orderpayment_id = request.POST['orderpayment_id']
+        currency_id = request.POST['currency']
+        price = request.POST['price']
+        orderpayment = OrderPayment.objects.get(pk=orderpayment_id)
+        order_id = orderpayment.order_id
+        orderpayment.paid_currency_id=currency_id
+        orderpayment.paid_amount = price
+
+        payment_status = Status.objects.get(title= "Payments", parent__isnull=True)
+        status = Status.objects.get(title="Paid", parent=payment_status)
+        orderpayment.status = status
+        orderpayment.pi_file = request.FILES['pi_file']
+        orderpayment.receipt_file = request.FILES['receipt_file']
+        orderpayment.save()
     return redirect('suppliers:order_detail', pk=order_id)
 
   ### 2.8.2 OrderProduct

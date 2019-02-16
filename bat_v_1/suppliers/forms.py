@@ -130,7 +130,7 @@ class OrderPaymentForm(forms.ModelForm):
 
     class Meta:
         model = OrderPayment
-        fields = ('bank','paid_currency','paid_amount','invoice_currency','invoice_amount','date','note','file_url')
+        fields = ('bank','paid_currency','paid_amount','invoice_currency','invoice_amount','date','note','pi_file','receipt_file')
         widgets = {
             'date': forms.TextInput(attrs={'class': 'datepicker'})
         }
@@ -140,7 +140,7 @@ class OrderDeliveryForm(forms.ModelForm):
 
     class Meta:
         model = OrderDelivery
-        fields = ('quantity','status','pi_file')
+        fields = ('quantity','status')
 
   ### 2.8.6 OrderDeliveryProductForm
 class OrderDeliveryProductForm(forms.ModelForm):
