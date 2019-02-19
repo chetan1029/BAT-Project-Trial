@@ -67,15 +67,13 @@
                 </div>
               </div>
               <footer style="display:none;">
-                {% for productbundle in productprice.product.product.all %}
+                {% for bundleprice in productprice.children.all %}
                 <div class="row">
                   <div class="col-9">
-                    <p class="list-item-heading text-small mb-1 truncate">{{ productbundle.bundle_product.title }}</p>
+                    <p class="list-item-heading text-small mb-1 truncate">{{ bundleprice.product.title }}</p>
                   </div>
                   <div class="col-2">
-                    {% for pp in productbundle.bundle_product.productprice_product.all %}
-                    <p class="text-muted text-small mb-0 mt-1">{{ pp.price|floatformat:"2" }} {{ pp.currency }}</p>
-                    {% endfor %}
+                    <p class="text-muted text-small mb-0 mt-1">{{ bundleprice.price|floatformat:"2" }} {{ bundleprice.currency }}</p>
                   </div>
                 </div>
                 {% endfor %}
@@ -87,7 +85,7 @@
         {% endfor %}
         <h6 class="mt-4 mb-4 font-weight-bold">Archived Price List</h6>
         {% for productprice in productprice_archived %}
-        <div class="card d-flex flex-row mb-3 cursor-pointer">
+        <div class="card d-flex flex-row mb-3 cursor-pointer" id="productprice{{productprice.pk}}" onclick="show_bundle({{productprice.pk}})">
           <a class="d-flex" href="">
             {% if productprice.product.image %}
             <img src="{{MEDIA_URL}}{{ productprice.product.image }}" alt="{{ productprice.product.title }}" class="list-thumbnail responsive border-0" />
@@ -105,11 +103,23 @@
                   <p class="text-muted mb-0 mt-1">{{ productprice.price|floatformat:"2" }} {{ productprice.currency }}</p>
                 </div>
                 <div class="col-1">
-                  <a href="javascript:void()" onclick="change_type({{ productprice.id }},'Active')" class="btn btn-outline-success icon-button ">
-                    <i class="simple-icon-action-undo"></i>
+                  <a href="javascript:void()" onclick="change_type({{ productprice.id }},'Archived')" class="btn btn-outline-danger icon-button ">
+                    <i class="simple-icon-trash"></i>
                   </a>
                 </div>
               </div>
+              <footer style="display:none;">
+                {% for bundleprice in productprice.children.all %}
+                <div class="row">
+                  <div class="col-9">
+                    <p class="list-item-heading text-small mb-1 truncate">{{ bundleprice.product.title }}</p>
+                  </div>
+                  <div class="col-2">
+                    <p class="text-muted text-small mb-0 mt-1">{{ bundleprice.price|floatformat:"2" }} {{ bundleprice.currency }}</p>
+                  </div>
+                </div>
+                {% endfor %}
+              </footer>
             </div>
 
           </div>

@@ -126,22 +126,13 @@
         }
       })
     }
-  } {
-    %
-    if not form.instance.pk %
   }
-  load_display_categories({
-    {
-      parent_category_id
-    }
-  }, "", ""); {
-    %
-    else %
-  }
+  {% if not form.instance.pk %}
+  load_display_categories({{parent_category_id}}, "", "");
+  {% else %}
   $("#category_block").html(
     '<button type="button" class="btn btn-xs btn-outline-dark mb-1" onclick="load_display_categories({{parent_category_id}})"><i class="simple-icon-arrow-left"></i></button> <button type="button" class="btn btn-xs btn-primary mb-1">{{category_name}}</button>'
-  ); {
-    % endif %
-  }
+  );
+  {% endif %}
 </script>
 {% endblock %}

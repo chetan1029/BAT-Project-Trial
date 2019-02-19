@@ -45,7 +45,7 @@
             <h6 class="mb-3">Pending PO's</h6>
             {% for pending_po in pending_pos %}
             <form class="" action="{% url 'suppliers:confirm_po' %}" method="post">
-              <div class="card mb-3">
+              <div class="card mb-3 cursor-pointer" onclick="window.open('{% url 'suppliers:order_detail' pk=pending_po.pk %}','_self')">
                 <div class="card-body">
                   {% csrf_token %}
                   <input type="hidden" name="order_id" value="{{pending_po.pk}}">
@@ -114,9 +114,6 @@
                       </div>
                     </div>
                   </div>
-                  <div class="text-center mt-3">
-                    <a href="{% url 'suppliers:order_detail' pk=pending_po.pk %}" class="btn btn-primary">View Order Detail</a>
-                  </div>
                 </div>
               </div>
             </form>
@@ -125,7 +122,7 @@
           <div class="col-md-6">
             <h6 class="mb-3">Awaiting PI's</h6>
             {% for awaiting_pi in awaiting_pis %}
-            <div class="card mb-3">
+            <div class="card mb-3 cursor-pointer" onclick="window.open('{% url 'suppliers:order_detail' pk=awaiting_pi.pk %}','_self')">
               <div class="card-body">
                 {% csrf_token %}
                 <input type="hidden" name="order_id" value="{{pending_po.pk}}">
@@ -187,9 +184,6 @@
                       </a>
                     </div>
                   </div>
-                </div>
-                <div class="text-center mt-3">
-                  <a href="{% url 'suppliers:order_detail' pk=awaiting_pi.pk %}" class="btn btn-primary">View Order Detail</a>
                 </div>
               </div>
             </div>

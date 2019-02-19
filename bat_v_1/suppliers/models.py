@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 import random
-from products.models import (Product)
+from products.models import (Product, ProductBundle)
 from settings.models import (Category, Status, Currency)
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
@@ -209,8 +209,13 @@ class ProductPrice(models.Model):
     product = models.ForeignKey(Product,on_delete=models.PROTECT,verbose_name="Select Product", related_name="productprice_product")
     price = models.DecimalField(max_digits=7, decimal_places=3)
     currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Currency")
+    parent = models.ForeignKey('self',on_delete=models.CASCADE,related_name="children",blank=True,null=True)
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
+
+    def get_quantity(self):
+        quantity = ProductBundle.objects.get(product_id=self.parent.product_id,bundle_product_id=self.product_id).quantity
+        return quantity
 
     def get_absolute_url(self):
         return reverse('suppliers:productprice_list', kwargs={'pk':self.supplier_id})
@@ -338,6 +343,15 @@ class Order(models.Model):
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 
+    def get_total_quantity(self):
+        total_quantity = 0
+        for orderproduct in self.orderproduct_set.all():
+            if orderproduct.productprice.children.count():
+                total_quantity += orderproduct.get_bundle_quantity()
+            else:
+                total_quantity += int(orderproduct.quantity)
+        return total_quantity
+
     def get_absolute_url(self):
         return reverse('suppliers:order_list', kwargs={'pk':self.aql.supplier_id})
 
@@ -354,6 +368,16 @@ class OrderProduct(models.Model):
     paymentterms = models.ForeignKey(PaymentTerms,on_delete=models.PROTECT,verbose_name="Select Payment Terms",default="")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
+
+    def get_bundle_quantity(self):
+        b_quantity = 0
+        for bundleprice in self.productprice.children.all():
+            b_quantity += int(bundleprice.get_quantity())*int(self.quantity)
+        return b_quantity
+
+    def get_productprice(self):
+        productprice = Decimal(self.productprice.price)*Decimal(self.quantity)
+        return productprice
 
     def get_absolute_url(self):
         return reverse('suppliers:orderproduct_list', kwargs={'pk':self.order_id})
@@ -446,7 +470,7 @@ class OrderDeliveryProduct(models.Model):
     orderdelivery = models.ForeignKey(OrderDelivery,on_delete=models.PROTECT,verbose_name="Select Order")
     orderproduct = models.ForeignKey(OrderProduct,on_delete=models.PROTECT,verbose_name="Select Order Product")
     quantity = models.IntegerField()
-    test_file = models.FileField(upload_to=generate_orderdeliveryproductfilename,blank=True)
+    status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status",default="",blank=True,null=True)
     share_percentage = models.FloatField(default="0")
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
@@ -457,6 +481,24 @@ class OrderDeliveryProduct(models.Model):
     def __str__(self):
         return self.id
 
+ ## 2.7.6 OrderDeliveryProduct
+def generate_orderdeliverytestfilename(instance, filename):
+    name, extension = os.path.splitext(filename)
+    return 'suppliers/{0}/Orders/{1}/delivery/{2}/test-report-{3}-{4}-{5}{6}'.format(instance.orderdeliveryproduct.orderdelivery.order.supplier.id, instance.orderdeliveryproduct.orderdelivery.order.id, instance.orderdeliveryproduct.orderdelivery.batch_id, instance.orderdeliveryproduct.orderproduct.productprice.product.ean, slugify(instance.status.title),timezone.now().strftime("%Y%m%d") ,extension)
+
+class OrderDeliveryTestReport(models.Model):
+    orderdeliveryproduct = models.ForeignKey(OrderDeliveryProduct,on_delete=models.PROTECT,verbose_name="Select Order product")
+    test_report = models.FileField(upload_to=generate_orderdeliverytestfilename)
+    status = models.ForeignKey(Status,on_delete=models.PROTECT,verbose_name="Select Status",default="")
+    note = models.TextField(default="")
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('suppliers:orderdeliverytestreport_list', kwargs={'pk':self.orderdeliveryproduct_id})
+
+    def __str__(self):
+        return self.id
  ## 2.8 Certification
   ### 2.8.1 Certification
 def generate_certificationfilename(instance, filename):

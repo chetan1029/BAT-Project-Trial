@@ -147,7 +147,7 @@ class OrderDeliveryProductForm(forms.ModelForm):
 
     class Meta:
         model = OrderDeliveryProduct
-        fields = ('orderproduct','quantity','test_file')
+        fields = ('orderproduct','quantity','status')
 
  ## 2.8 CertificationForm
   ### 2.8.1 CertificationForm

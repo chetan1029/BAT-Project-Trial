@@ -88,11 +88,10 @@
           <div class="card-body">
             {% for productbundle in product.product.all %}
             <div class="form-group">
-              <input type="hidden" name="product_id" disabled value="{{productbundle.bundle_product.pk}}">
               <p class="mb-1">{{productbundle.bundle_product.title}}</p>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
-                  <select class="form-control" name="currency{{productbundle.bundle_product.pk}}" disabled>
+                  <select class="form-control" name="bcurrency{{productbundle.bundle_product.pk}}" disabled>
                     {% for c in currency %}
                     {% if c.title == "RMB" %}
                     <option value="{{c.id}}" selected>{{c.title}}</option>
@@ -102,7 +101,7 @@
                     {% endfor %}
                   </select>
                 </div>
-                <input type="number" step="0.01" min="0.01" max="10000" class="form-control" name="price{{productbundle.bundle_product.pk}}" onchange="bundle_action({{productbundle.bundle_product.pk}},{{product.pk}})" placeholder="Price" aria-label="price" disabled aria-describedby="basic-addon1">
+                <input type="number" step="0.01" min="0.01" max="10000" class="form-control" name="bprice{{productbundle.bundle_product.pk}}" onchange="bundle_action({{productbundle.bundle_product.pk}},{{product.pk}})" placeholder="Price" aria-label="price" disabled aria-describedby="basic-addon1">
               </div>
             </div>
             {% endfor %}
@@ -141,7 +140,7 @@
     }else{
       original_price = 0;
     }
-    child_price = $("input[name=price"+product_id+"]").val();
+    child_price = $("input[name=bprice"+product_id+"]").val();
     if(child_price){
       child_price = parseFloat(child_price);
     }else{
