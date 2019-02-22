@@ -1621,6 +1621,12 @@ def submit_test_report(request):
             deliveryproduct = OrderDeliveryProduct.objects.get(pk=deliveryproduct_id)
             deliveryproduct.status_id = status
             deliveryproduct.save()
+            if Status.objects.get(pk=status).title == "Accept":
+                delivery = OrderDelivery.objects.get(pk=deliveryproduct.orderdelivery_id)
+                delivery_status = Status.objects.get(title= "Partial Delivery", parent__isnull=True)
+                d_status = Status.objects.get(title="Ready To Ship", parent=delivery_status)
+                delivery.status = d_status
+                delivery.save()
     return redirect('suppliers:order_detail', pk=order_id)
 
   ### 2.8.2 OrderProduct

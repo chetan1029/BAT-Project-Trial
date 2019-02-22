@@ -57,8 +57,8 @@ class Supplier(models.Model):
     ('Archived','Archived')
     )
     type = models.CharField(max_length=20,choices=SUPPLIER_OPTIONS,default="Active")
-    name = models.CharField(verbose_name="Supplier Name", max_length=200)
-    alternate_name = models.CharField(verbose_name="Supplier Alternative Name", max_length=200,blank=True)
+    name = models.CharField(verbose_name="Name", max_length=200)
+    alternate_name = models.CharField(verbose_name="Alternative Name", max_length=200,blank=True)
     logo = models.ImageField(upload_to=generate_logofilename,blank=True)
     address1 = models.CharField(max_length=200,blank=True)
     address2 = models.CharField(max_length=200,blank=True)
@@ -422,8 +422,17 @@ class OrderDelivery(models.Model):
     def get_absolute_url(self):
         return reverse('suppliers:orderdelivery_list', kwargs={'pk':self.order_id})
 
+    def get_shiped_quantity(self):
+        from shipping.models import ShipmentProductOrderDelivery
+        return sum([obj.quantity for obj in
+                    ShipmentProductOrderDelivery.objects.filter(orderdelivery_id=self.id)])
+
+    def ready_to_ship(self):
+        return sum([obj.quantity for obj in
+                    OrderDeliveryProduct.objects.filter(orderdelivery_id=self.id, status__title="Accept")])
+
     def __str__(self):
-        return self.id
+        return self.batch_id
 
  ## 2.7.5 OrderPayment
 def generate_orderpaymentfilename(instance, filename):
@@ -478,8 +487,13 @@ class OrderDeliveryProduct(models.Model):
     def get_absolute_url(self):
         return reverse('suppliers:orderdeliveryproduct_list', kwargs={'pk':self.orderdelivery_id})
 
+    def get_shiped_quantity(self):
+        from shipping.models import ShipmentProductOrderDelivery
+        return sum([obj.quantity for obj in
+                    ShipmentProductOrderDelivery.objects.filter(orderdelivery_id=self.orderdelivery.id,orderdeliveryproduct_id=self.id)])
+
     def __str__(self):
-        return self.id
+        return self.orderdelivery.batch_id
 
  ## 2.7.6 OrderDeliveryProduct
 def generate_orderdeliverytestfilename(instance, filename):
@@ -498,7 +512,7 @@ class OrderDeliveryTestReport(models.Model):
         return reverse('suppliers:orderdeliverytestreport_list', kwargs={'pk':self.orderdeliveryproduct_id})
 
     def __str__(self):
-        return self.id
+        return self.orderdeliveryproduct.orderdelivery.batch_id
  ## 2.8 Certification
   ### 2.8.1 Certification
 def generate_certificationfilename(instance, filename):

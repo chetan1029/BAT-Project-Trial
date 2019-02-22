@@ -5,11 +5,16 @@ from django.utils import timezone
 from django.views.generic import (TemplateView, ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
 from django.urls import reverse_lazy
-from shipping.models import (Shipment, ShipmentProduct, ShipmentFullfillment, ShipmentFiles)
+from products.models import (AmazonProduct)
+from shipping.models import (Shipment, ShipmentProduct, ShipmentFullfillment, ShipmentFiles, ShipmentProductOrderDelivery)
 from shipping.forms import (ShipmentForm, ShipmentProductForm)
-from settings.models import (Status, AmazonMwsauth)
-from suppliers.models import (Order,OrderProduct,Aql,Supplier)
+from settings.models import (Status, AmazonMwsauth, AmazonMarket)
+from suppliers.models import (Supplier, PaymentTerms, Contact, Bank, Contract,
+                              ProductPrice, Mold, MoldFile, MoldHost, Aql,
+                              Order, OrderProduct, OrderFile, OrderPayment,
+                              OrderDelivery, OrderDeliveryProduct, Certification, OrderDeliveryTestReport)
 from django.db.models import Q
+from django.contrib import messages
 import requests
 import logging
 import tempfile
@@ -38,10 +43,127 @@ class ShipmentListView(LoginRequiredMixin,ListView):
     model = Shipment
     template_name = 'shipment/shipment_list.html'
 
+    def get_queryset(self):
+        return Shipment.objects.filter(status__title="Pending")
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment"}
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"pending"}
         return context
+
+  ### 1.1.1 ReadytoshipView
+class ReadytoshipView(LoginRequiredMixin,ListView):
+    model = Shipment
+    template_name = 'shipment/ready_to_ship.html'
+
+    def get_queryset(self):
+        self.orderdelivery = OrderDelivery.objects.filter(status__title="Ready To Ship")
+        return Shipment.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"ready_to_ship"}
+        context['orderdeliveries'] = self.orderdelivery
+        return context
+
+def create_shipment(request):
+    if request.method == 'POST':
+        shipment_type = request.POST.get('shipment_type',False)
+        orderdelivery_ids = request.POST.getlist('orderdelivery_id')
+        active = {"menu1":"basic","menu2":"shipping","menu3":"ready_to_ship"}
+        shipment_plan = []
+        if shipment_type and orderdelivery_ids:
+            shipment_plan1 = {}
+            shipment_products = []
+            for orderdelivery_id in orderdelivery_ids:
+                orderdelivery = OrderDelivery.objects.get(pk=orderdelivery_id)
+                orderbatch_id = orderdelivery.batch_id
+                orderdeliveryproduct_ids = request.POST.getlist('orderdeliveryproduct'+str(orderdelivery_id))
+                if orderdeliveryproduct_ids:
+                    for orderdeliveryproduct_id in orderdeliveryproduct_ids:
+                        orderdeliveryproduct = OrderDeliveryProduct.objects.get(pk=orderdeliveryproduct_id)
+                        orderproduct_id = orderdeliveryproduct.orderproduct_id
+                        quantity = request.POST.get('quantity'+str(orderdeliveryproduct_id),False)
+                        shipment_plan_product = {}
+                        shipment_plan_product["orderproduct_id"] = orderproduct_id
+                        shipment_plan_product["orderproduct_quantity"] = quantity
+                        shipment_plan_product["orderdelivery_id"] = orderdelivery_id
+                        shipment_plan_product["orderbatch_id"] = orderbatch_id
+                        shipment_plan_product["orderdeliveryproduct_id"] = orderdeliveryproduct_id
+                        shipment_products.append(shipment_plan_product)
+                shipment_products.sort(key=lambda e: e['orderproduct_id'], reverse=True)
+                new_shipment_plan = {}
+                for p in shipment_products:
+                    id = p['orderproduct_id']
+                    if id not in new_shipment_plan:
+                        new_shipment_plan[id] = []
+                    d = { 'orderproduct_quantity': p['orderproduct_quantity'],
+                          'orderbatch_id': p['orderbatch_id'],
+                          'orderdeliveryproduct_id': p['orderdeliveryproduct_id'],
+                          'orderdelivery_id': p['orderdelivery_id'] }
+                    new_shipment_plan[id].append(d)
+                #logger.warning(new_shipment_plan)
+                shipment_plan = []
+                for k, v in new_shipment_plan.items():
+                    orderproduct = OrderProduct.objects.get(pk=k)
+                    product_id = orderproduct.productprice.product.pk
+                    product_title = orderproduct.productprice.product.title
+                    product_image = orderproduct.productprice.product.image
+                    shipment_plan.append({ 'orderproduct_id': k , 'product_id':product_id, 'product_title':product_title, 'product_image':product_image, 'batches': v })
+
+            #logger.warning(shipment_plan)
+            markets = AmazonMarket.objects.all()
+            return render(request, 'shipment/create-shipment.html' ,{'shipment_type': shipment_type,'shipment_plan': shipment_plan, 'active_menu':active, 'markets':markets})
+        else:
+            if not shipment_type:
+                error = "Please select shipment type"
+                messages.error(request, error)
+            if not orderdelivery_ids:
+                error = "Please select order partial delivery"
+                messages.error(request, error)
+            return redirect('shipping:ready_to_ship')
+
+def submit_shipment_data(request):
+    if request.method == 'POST':
+        shipment_status = Status.objects.get(title= "Shipping", parent__isnull=True)
+        planning_status = Status.objects.get(title="Planning", parent=shipment_status)
+        pending_status = Status.objects.get(title="Pending", parent=shipment_status)
+
+        packing_type = "Individual"
+        shipment_type = request.POST.get('shipment_type',False)
+        product_ids = request.POST.getlist('product_id')
+        if shipment_type and product_ids:
+            for product_id in product_ids:
+                market_ids = request.POST.getlist('market'+str(product_id))
+                if market_ids:
+                    for market_id in market_ids:
+                        amazonmarket = AmazonMarket.objects.get(pk=market_id)
+                        if Shipment.objects.filter(amazonmarket_id=market_id, status__title="Planning").exists():
+                            shipment = Shipment.objects.get(amazonmarket_id=market_id, status__title="Planning")
+                        else:
+                            shipment = Shipment(amazonmarket_id=market_id,name="Shipment",packing_type=packing_type,type=shipment_type,status=planning_status)
+                            shipment.save()
+                            shipment.name = amazonmarket.country_code+"-"+str(shipment.pk)
+                            shipment.save()
+                        amazonproduct = AmazonProduct.objects.get(product_id=product_id)
+                        shipmentproduct = ShipmentProduct(shipment_id=shipment.pk,product_id=product_id,amazonproduct_id=amazonproduct.pk,quantity_send=0)
+                        shipmentproduct.save()
+                        orderdelivery_ids = request.POST.getlist('orderdelivery'+str(product_id)+''+str(market_id),False)
+                        total_quantity = 0
+                        if orderdelivery_ids:
+                            for orderdelivery_id in orderdelivery_ids:
+                                orderdeliveryproduct_id = request.POST.get('orderdeliveryproduct'+str(product_id)+''+str(market_id)+''+str(orderdelivery_id),False)
+                                quantity = request.POST.get('quantity'+str(product_id)+''+str(market_id)+''+str(orderdelivery_id),False)
+                                if quantity:
+                                    shipmentproductorderdelivery = ShipmentProductOrderDelivery(shipmentproduct=shipmentproduct, orderdelivery_id=orderdelivery_id, quantity=quantity, orderdeliveryproduct_id=orderdeliveryproduct_id)
+                                    shipmentproductorderdelivery.save()
+                                    total_quantity += int(quantity)
+                                    logger.warning("shipment_type: "+shipment_type+", "+str(product_id)+", "+str(market_id)+", "+orderdelivery_id+", "+quantity)
+                        shipmentproduct.quantity_send=total_quantity
+                        shipmentproduct.save()
+        Shipment.objects.filter(status__title="Planning").update(status=pending_status)
+
+    return redirect('shipping:shipment_list')
 
   ### 1.1.2 ShipmentDetailView
 class ShipmentDetailView(LoginRequiredMixin,DetailView):
@@ -50,7 +172,7 @@ class ShipmentDetailView(LoginRequiredMixin,DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"detail"}
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"detail"}
         return context
 
   ### 1.1.3 CreateShipmentView
@@ -68,8 +190,7 @@ class CreateShipmentView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment"}
-        context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Shipping'))
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment"}
         return context
 
   ### 1.1.4 ShipmentUpdateView
@@ -80,14 +201,20 @@ class ShipmentUpdateView(LoginRequiredMixin,UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        status = Shipment.objects.get(pk=self.object.pk).status.title
+        if status == "Pending":
+            if self.object.kg_cbm_price and self.object.currency and self.object.invoice_agent and self.object.invoice_value and self.object.invoice_currency and self.object.pickup_date and self.object.eta and self.object.etd and self.object.bol_number:
+                shipment_status = Status.objects.get(title= "Shipping", parent__isnull=True)
+                ready_for_amazon_status = Status.objects.get(title="Ready for Amazon", parent=shipment_status)
+                self.object.status = ready_for_amazon_status
         self.object.update_date = timezone.now()
         self.object.save()
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment"}
-        context['form'].fields['status'].queryset = Status.objects.filter(parent_id=Status.objects.get(title__exact='Shipping'))
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment"}
+        context['form'].fields['invoice_agent'].queryset = Supplier.objects.filter(category__name="Agent")
         return context
 
   ### 1.1.5 ShipmentDeleteView
@@ -98,7 +225,7 @@ class ShipmentDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment"}
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment"}
         return context
 
  ## 1.2 ShipmentProduct
@@ -114,7 +241,7 @@ class ShipmentProductListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"product"}
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"product"}
         context['shipment_id'] = self.kwargs['pk']
         context['shipment'] = self.shipment
         return context
@@ -133,7 +260,7 @@ class CreateShipmentProductView(LoginRequiredMixin,CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"product"}
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"product"}
         shipment_id = self.kwargs['pk']
         self.shipment = Shipment.objects.get(pk=shipment_id)
         context['shipment'] = self.shipment
@@ -154,7 +281,7 @@ class ShipmentProductUpdateView(LoginRequiredMixin,UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"product"}
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"product"}
         shipmentproduct_id = self.kwargs['pk']
         self.shipment = Shipment.objects.get(pk=(ShipmentProduct.objects.get(pk=shipmentproduct_id).shipment_id))
         context['shipment'] = self.shipment
@@ -176,7 +303,7 @@ class ShipmentProductDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"product"}
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"product"}
         context['shipment'] = self.shipment
         return context
 
@@ -193,7 +320,7 @@ class ShipmentFilesListView(LoginRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"files"}
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"files"}
         context['shipment_id'] = self.kwargs['pk']
         context['shipment'] = self.shipment
         return context
@@ -213,7 +340,7 @@ class ShipmentFilesDeleteView(LoginRequiredMixin,DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_menu'] = {"menu1":"inventorize","menu2":"shipping","menu3":"shipment","menu4":"files"}
+        context['active_menu'] = {"menu1":"basic","menu2":"shipping","menu3":"shipment","menu4":"files"}
         context['shipment'] = self.shipment
         return context
 

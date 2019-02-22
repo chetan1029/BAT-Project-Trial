@@ -1,6 +1,6 @@
 from django import forms
 from settings.models import (Category, Status, Currency,
-                             AmazonMarket, AmazonMwsauth, Box, CompanySetting)
+                             AmazonMarket, AmazonMwsauth, CompanySetting)
 
 # form details
 # 1. Basic
@@ -36,20 +36,13 @@ class CurrencyForm(forms.ModelForm):
         model = Currency
         fields = ('title',)
 
- ## 1.4 BoxForm
-class BoxForm(forms.ModelForm):
-
-    class Meta:
-        model = Box
-        fields = ('length','width','depth')
-
 # 2. Amazon
  ## 2.1 AmazonMarketForm
 class AmazonMarketForm(forms.ModelForm):
 
     class Meta:
         model = AmazonMarket
-        fields = ('region','name','country_code','domain','amazon_id','marketplace_id')
+        fields = ('region','name','country_code','domain','amazon_id','marketplace_id','marketplace_image')
 
  ## 2.2 AmazonMwsauthForm
 class AmazonMwsauthForm(forms.ModelForm):

@@ -1,5 +1,5 @@
 from django import forms
-from products.models import (Product, PackageMeasurement, ProductBundle, AmazonProduct)
+from products.models import (Product, PackageMeasurement, ProductBundle, AmazonProduct, Box)
 from settings.models import (Status)
 # form details
 # 1. ProductForm
@@ -44,6 +44,14 @@ class ProductBundleForm(forms.ModelForm):
 
 ProductBundleFormSet = forms.inlineformset_factory(Product, ProductBundle, fk_name="product", form=ProductBundleForm, extra=1)
 
+
+ ## 1.4 BoxForm
+class BoxForm(forms.ModelForm):
+
+    class Meta:
+        model = Box
+        fields = ('length','width','depth','units_per_box','total_weight')
+        
 # 2. AmazonProductForm
  ## 2.1 AmazonProductForm
 class AmazonProductForm(forms.ModelForm):

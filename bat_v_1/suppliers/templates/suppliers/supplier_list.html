@@ -108,7 +108,7 @@
 <div class="row">
   {% for supplier in supplier_list %}
   <div class="col-12 col-lg-6 col-xl-4 mb-3">
-    <div class="card flex-row cursor-pointer" onclick="window.open('{% url 'suppliers:supplier_detail' pk=supplier.pk %}','_self')">
+    <div class="card flex-row cursor-pointer h-100" onclick="window.open('{% url 'suppliers:supplier_detail' pk=supplier.pk %}','_self')">
       <div class="w-40">
         <img class="card-img-left" src="{{MEDIA_URL}}{{ supplier.logo }}" alt="{{ supplier.name }}">
         <span class="badge badge-pill badge-primary position-absolute badge-top-left">{{ supplier.category.name }}</span>

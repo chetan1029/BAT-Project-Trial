@@ -5,9 +5,9 @@ from django.utils import timezone
 from django.views.generic import (TemplateView, ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
 from django.urls import reverse_lazy
-from products.models import (Product, PackageMeasurement, ProductBundle, AmazonProduct)
+from products.models import (Product, PackageMeasurement, ProductBundle, AmazonProduct, Box)
 from settings.models import (Category, Status, Currency)
-from products.forms import (ProductForm, PackageMeasurementForm, ProductBundleForm, AmazonProductForm, ProductBundleFormSet)
+from products.forms import (ProductForm, PackageMeasurementForm, ProductBundleForm, AmazonProductForm, ProductBundleFormSet, BoxForm)
 from django.db.models import Q
 from django.utils.text import slugify
 from django.db import IntegrityError, transaction
@@ -59,14 +59,13 @@ class ProductListView(LoginRequiredMixin,ListView):
         self.category_q = self.request.GET.get('category_q', self.queryset)
 
         if self.search_q is None and not self.category_q:
-            queryset = Product.objects.all().order_by(self.order_by)
+            queryset = Product.objects.exclude(ean="").order_by(self.order_by)
         elif self.search_q is not None and not self.category_q:
-            queryset = Product.objects.filter(Q(title__icontains=self.search_q) | Q(sku__icontains=self.search_q)).order_by(self.order_by)
+            queryset = Product.objects.filter(Q(title__icontains=self.search_q) | Q(sku__icontains=self.search_q)).exclude(ean="").order_by(self.order_by)
         elif self.search_q is None and self.category_q:
-            queryset = Product.objects.filter(category__id=self.category_q)
+            queryset = Product.objects.filter(category__id=self.category_q).exclude(ean="")
         else:
-            queryset = Product.objects.filter(Q(title__icontains=self.search_q) | Q(sku__icontains=self.search_q), category__id=self.category_q).order_by(self.order_by)
-
+            queryset = Product.objects.filter(Q(title__icontains=self.search_q) | Q(sku__icontains=self.search_q), category__id=self.category_q).exclude(ean="").order_by(self.order_by)
         return queryset
 
     def get_paginate_by(self, queryset):
@@ -410,6 +409,77 @@ class ProductBundleDeleteView(LoginRequiredMixin,DeleteView):
         context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"productbundle"}
         context['product'] = Product.objects.get(pk=ProductBundle.objects.get(id=self.kwargs['pk']).product_id)
         return context
+
+## 1.4 Box
+ ### 1.4.1 BoxListView
+class BoxListView(LoginRequiredMixin,ListView):
+   model = Box
+   template_name = 'box/box_list.html'
+   def get_queryset(self):
+       product_id = self.kwargs['pk']
+       self.product = Product.objects.get(pk=product_id)
+       return Box.objects.filter(product_id = product_id)
+
+   def get_context_data(self, **kwargs):
+       context = super().get_context_data(**kwargs)
+       context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"box"}
+       context['product_id'] = self.kwargs['pk']
+       context['product'] = self.product
+       return context
+
+ ### 1.4.2 CreateBoxView
+class CreateBoxView(LoginRequiredMixin,CreateView):
+   form_class = BoxForm
+   model = Box
+   template_name = 'box/box_form.html'
+
+   def form_valid(self, form):
+       self.object = form.save(commit=False)
+       self.object.product = Product.objects.get(id=self.kwargs['pk'])
+       self.object.title = str(self.object.length)+"x"+str(self.object.width)+"x"+str(self.object.depth);
+       self.object.cbm = round(((self.object.length/100)*(self.object.width/100)*(self.object.depth/100)),3)
+       self.object.save()
+       return super().form_valid(form)
+
+   def get_context_data(self, **kwargs):
+       context = super().get_context_data(**kwargs)
+       context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"box"}
+       context['product'] = Product.objects.get(pk=self.kwargs['pk'])
+       return context
+
+ ### 1.4.3 BoxUpdateView
+class BoxUpdateView(LoginRequiredMixin,UpdateView):
+   form_class = BoxForm
+   model = Box
+   template_name = 'box/box_form.html'
+
+   def form_valid(self, form):
+       self.object = form.save(commit=False)
+       self.object.update_date = timezone.now()
+       self.object.title = str(self.object.length)+"x"+str(self.object.width)+"x"+str(self.object.depth);
+       self.object.cbm = round(((self.object.length/100)*(self.object.width/100)*(self.object.depth/100)),3)
+       self.object.save()
+       return super().form_valid(form)
+
+   def get_context_data(self, **kwargs):
+       context = super().get_context_data(**kwargs)
+       context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"box"}
+       context['product'] = Product.objects.get(pk=Box.objects.get(id=self.kwargs['pk']).product_id)
+       return context
+
+ ### 1.4.4 BoxDeleteView
+class BoxDeleteView(LoginRequiredMixin,DeleteView):
+   model = Box
+   template_name = 'box/box_confirm_delete.html'
+
+   def get_success_url(self):
+       return reverse_lazy('products:box_list', kwargs={'pk': Box.objects.get(id=self.kwargs['pk']).product_id})
+
+   def get_context_data(self, **kwargs):
+       context = super().get_context_data(**kwargs)
+       context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"box"}
+       context['product'] = Product.objects.get(pk=Box.objects.get(id=self.kwargs['pk']).product_id)
+       return context
 
 # 2. AmazonProduct
  ## 2.1 AmazonProduct

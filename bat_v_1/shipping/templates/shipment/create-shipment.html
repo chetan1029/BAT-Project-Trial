@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% block content %}
+{% include 'shipping_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>Create Shipment</h1>
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Ready to ship</li>
+        </ol>
+      </nav>
+    </div>
+</div>
+</div>
+    <div class="tab-content">
+      <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
+        <form class="" action="{% url 'shipping:submit_shipment_data' %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="shipment_type" value="{{shipment_type}}">
+          {% if shipment_type == "Sea" %}
+          <h5><i class="iconsmind-Ship-2"></i> Sea Shipment</h5>
+          {% else %}
+          <h5><i class="iconsmind-Plane-2"></i> Air Shipment</h5>
+          {% endif %}
+          <div class="row pokemon-selection">
+          {% for shipment_product in shipment_plan %}
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-2">
+                      {% if shipment_product.product_image %}
+                      <img class="card-img-top" src="{{MEDIA_URL}}{{ shipment_product.product_image }}" alt="{{ shipment_product.product_title }}">
+                      {% else %}
+                      <img class="card-img-top" src="{{MEDIA_URL}}products/no-product-image.png" alt="{{ shipment_product.product_title }}">
+                      {% endif %}
+                    </div>
+                    <div class="col-md-10">
+                      <h5 class="mb-3">{{shipment_product.product_title}}</h5>
+                      {% for shipment_batch in shipment_product.batches %}
+                      <p class="mb-1 text-right"><strong>RTS -</strong> {{shipment_batch.orderbatch_id}}: {{shipment_batch.orderproduct_quantity}}</p>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <div class="row mt-4">
+                    <input type="hidden" name="product_id" value="{{shipment_product.product_id}}">
+                    {% for market in markets %}
+                    <div class="col-md-3 col-sm-4 col-xs-6">
+                      <div class="card mb-3 product-card cursor-pointer">
+                        <div class="position-relative">
+                          {% if market.marketplace_image %}
+                          <img class="card-img-top" src="{{MEDIA_URL}}{{ market.marketplace_image }}" alt="{{ market.name }}" style="height: 100px;">
+                          {% else %}
+                          <img class="card-img-top" src="{{MEDIA_URL}}products/no-product-image.png" alt="{{ market.name }}">
+                          {% endif %}
+                          <span class="badge badge-pill badge-dark position-absolute badge-top-left">{{ market.country_code }}</span>
+                        </div>
+                        <div class="card-body">
+                          <p class="mb-4" title="{{ market.name }}">{{market.name}}</p>
+                          <input type="hidden" name="market{{shipment_product.product_id}}" disabled value="{{market.pk}}">
+                          <footer>
+                            {% for shipment_batch in shipment_product.batches %}
+                            <div class="form-group mb-3">
+                              <label for="">{{shipment_batch.orderbatch_id}}</label>
+                              <input type="hidden" name="orderdelivery{{shipment_product.product_id}}{{market.pk}}" value="{{shipment_batch.orderdelivery_id}}">
+                              <input type="hidden" name="orderdeliveryproduct{{shipment_product.product_id}}{{market.pk}}{{shipment_batch.orderdelivery_id}}" value="{{shipment_batch.orderdeliveryproduct_id}}">
+                              <input type="number" class="form-control" name="quantity{{shipment_product.product_id}}{{market.pk}}{{shipment_batch.orderdelivery_id}}" placeholder="Quantity" aria-label="quantity" disabled aria-describedby="basic-addon1">
+                            </div>
+                            {% endfor %}
+                          </footer>
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+          </div>
+          <div class="row mt-4">
+            <div class="col-12 text-center">
+              <button type="submit" class="btn btn-secondary btn-lg mb-1">SUBMIT</button>
+            </div>
+          </div>
+      </form>
+      </div>
+    </div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+$(".product-card").click(function(e) {
+  if (e.target.nodeName == "INPUT" || e.target.nodeName == "SELECT"){}else{
+  $(this).toggleClass("active");
+    if ($(this).hasClass("active")) {
+      $(this).find("input").prop('disabled', false);
+    } else {
+      $(this).find("input").prop('disabled', true);
+    }
+  }
+});
+</script>
+{% endblock %}

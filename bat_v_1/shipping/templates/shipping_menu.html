@@ -1,5 +1,11 @@
 <ul class="nav nav-tabs separator-tabs ml-0 mb-5" role="tablist">
   <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu3 == 'dashboard' %}active{% endif %}" href="#">DASHBOARD</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu3 == 'ready_to_ship' %}active{% endif %}" href="{% url 'shipping:ready_to_ship' %}">READY TO SHIP</a>
+  </li>
+  <li class="nav-item">
     <a class="nav-link {% if active_menu.menu3 == 'shipment' %}active{% endif %}" href="{% url 'shipping:shipment_list' %}">SHIPMENT</a>
   </li>
 </ul>

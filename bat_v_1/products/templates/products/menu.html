@@ -5,4 +5,7 @@
   <li class="nav-item">
     <a class="nav-link {% if active_menu.menu3 == 'packagemeasurement' %}active{% endif %}" href="{% url 'products:packagemeasurement_list' pk=product.pk %}">PACKAGE MEASUREMENT</a>
   </li>
+  <li class="nav-item">
+    <a class="nav-link {% if active_menu.menu3 == 'box' %}active{% endif %}" href="{% url 'products:box_list' pk=product.pk %}">BOX MEASUREMENT</a>
+  </li>
 </ul>

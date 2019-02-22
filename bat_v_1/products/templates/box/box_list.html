@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% block content %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ product.title }}</h1>
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'products:product_list' %}">Products</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
+        </ol>
+      </nav>
+    </div>
+
+   {% include 'products/menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                <h5 class="card-title">Box Measurement</h5>
+              </div>
+              <div class="col-6">
+                <div class="float-sm-right text-zero">
+                  <a href="{% url 'products:create_box' pk=product.pk %}" class="btn btn-primary mr-1">Add Box Measurement</a>
+                </div>
+              </div>
+            </div>
+            <table class="data-table responsive nowrap" data-order="[[ 0, &quot;asc&quot; ]]">
+              <thead>
+                <tr>
+                  <th>Length</th>
+                  <th>Width</th>
+                  <th>Depth</th>
+                  <th>CBM</th>
+                  <th>Weight</th>
+                  <th>Units/Box</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for box in box_list %}
+                <tr>
+                  <td>
+                    <p class="list-item-heading">{{ box.length }} cm</p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ box.width }} cm</p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ box.depth }} cm</p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ box.cbm }}</p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ box.total_weight }} Kg</p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ box.units_per_box }}</p>
+                  </td>
+                  <td>
+                    <a href="{% url 'products:update_box' pk=box.pk %}" class="btn btn-outline-info icon-button ">
+                      <i class="simple-icon-pencil"></i>
+                    </a>
+                    <a href="{% url 'products:delete_box' pk=box.pk %}" class="btn btn-outline-danger icon-button ">
+                      <i class="simple-icon-trash"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

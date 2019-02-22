@@ -30,11 +30,6 @@ urlpatterns = [
     path('amazon-market/<int:pk>/edit/',views.AmazonMarketUpdateView.as_view(),name='update_amazonmarket'),
     path('amazon-market/<int:pk>/delete/',views.AmazonMarketDeleteView.as_view(),name='delete_amazonmarket'),
     path('amazon-market/<int:pk>/sync/',views.sync_amazonmarket,name='sync_amazonmarket'),
-    # Box
-    path('box',views.BoxListView.as_view(),name='box_list'),
-    path('box/add',views.CreateBoxView.as_view(),name='create_box'),
-    path('box/<int:pk>/edit/',views.BoxUpdateView.as_view(),name='update_box'),
-    path('box/<int:pk>/delete/',views.BoxDeleteView.as_view(),name='delete_box'),
     # AmazonMwsauth
     path('amazon-mwsauth',views.AmazonMwsauthListView.as_view(),name='amazonmwsauth_list'),
     path('amazon-mwsauth/add',views.CreateAmazonMwsauthView.as_view(),name='create_amazonmwsauth'),

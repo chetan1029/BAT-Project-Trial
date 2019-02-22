@@ -116,6 +116,11 @@
                             <i class="iconsmind-Factory"></i> Vendors
                         </a>
                     </li>
+                    <li {% if active_menu.menu2 == 'shipping' %}class="active"{% endif %}>
+                          <a href="{% url 'shipping:shipment_list' %}">
+                              <i class="simple-icon-plane"></i> Shipping
+                          </a>
+                    </li>
                 </ul>
                 <ul class="list-unstyled" data-link="setting">
                   <li {% if active_menu.menu2 == 'category' %}class="active"{% endif %}>

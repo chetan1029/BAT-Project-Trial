@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
-from settings.models import (Category, Status, Currency, AmazonMarket, Box)
+from settings.models import (Category, Status, Currency, AmazonMarket)
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -81,6 +81,25 @@ class ProductBundle(models.Model):
 
     def __str__(self):
         return self.product.title
+
+ ## 1.4 Box
+class Box(models.Model):
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name="box_product")
+    title = models.CharField(max_length=200)
+    length = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Length (cm)")
+    width = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Width (cm)")
+    depth = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Depth (cm)")
+    cbm = models.DecimalField(max_digits=7, decimal_places=3, verbose_name="CBM")
+    units_per_box = models.IntegerField()
+    total_weight = models.DecimalField(max_digits=6, decimal_places=2)
+    create_date = models.DateTimeField(default=timezone.now())
+    update_date = models.DateTimeField(default=timezone.now())
+
+    def get_absolute_url(self):
+        return reverse('products:box_list', kwargs={'pk':self.product_id})
+
+    def __str__(self):
+        return self.title
 
 # 2. AmazonProduct
  ## 2.1 AmazonProduct

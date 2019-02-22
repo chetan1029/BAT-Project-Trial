@@ -94,22 +94,6 @@ class Currency(models.Model):
     def __str__(self):
         return self.title
 
- ## 1.4 Box
-class Box(models.Model):
-    title = models.CharField(max_length=200)
-    length = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Length (cm)")
-    width = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Width (cm)")
-    depth = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Depth (cm)")
-    cbm = models.DecimalField(max_digits=7, decimal_places=3, verbose_name="CBM")
-    create_date = models.DateTimeField(default=timezone.now())
-    update_date = models.DateTimeField(default=timezone.now())
-
-    def get_absolute_url(self):
-        return reverse('settings:box_list')
-
-    def __str__(self):
-        return self.title
-
 # 2. Amazon
  ## 2.1 AmazonMarket
 class AmazonMarket(models.Model):
@@ -127,6 +111,7 @@ class AmazonMarket(models.Model):
     domain = models.CharField(max_length=50)
     amazon_id = models.CharField(max_length=10)
     marketplace_id = models.CharField(max_length=50,default="")
+    marketplace_image = models.ImageField(upload_to='settings/images/market/',blank=True)
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
 

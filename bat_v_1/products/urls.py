@@ -18,6 +18,11 @@ urlpatterns = [
     path('<int:pk>/package-measurement/add',views.CreatePackageMeasurementView.as_view(),name='create_packagemeasurement'),
     path('package-measurement/<int:pk>/edit',views.PackageMeasurementUpdateView.as_view(),name='update_packagemeasurement'),
     path('package-measurement/<int:pk>/delete',views.PackageMeasurementDeleteView.as_view(),name='delete_packagemeasurement'),
+    # Box
+    path('<int:pk>/box',views.BoxListView.as_view(),name='box_list'),
+    path('<int:pk>/box/add',views.CreateBoxView.as_view(),name='create_box'),
+    path('box/<int:pk>/edit/',views.BoxUpdateView.as_view(),name='update_box'),
+    path('box/<int:pk>/delete/',views.BoxDeleteView.as_view(),name='delete_box'),
     # ProductBundle
     path('<int:pk>/product-bundle',views.ProductBundleListView.as_view(),name='productbundle_list'),
     #path('<int:pk>/product-bundle/add',views.CreateProductBundleView.as_view(),name='create_productbundle'),

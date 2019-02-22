@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% extends "amazon_menu.html" %}
+{% extends "base_menu.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
 {% include 'shipping_menu.html' %}
@@ -37,9 +37,50 @@
                 <h5 class="card-title">Shipment</h5>
               </div>
             </div>
-            <form method="POST">
+            <form method="POST" autocomplete="off">
               {% csrf_token %}
-              {{form|crispy}}
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.invoice_agent|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="col-md-3">
+                  {{ form.invoice_value|as_crispy_field }}
+                </div>
+                <div class="col-md-3">
+                  {{ form.invoice_currency|as_crispy_field }}
+                </div>
+                <div class="col-md-3">
+                  {{ form.kg_cbm_price|as_crispy_field }}
+                </div>
+                <div class="col-md-3">
+                  {{ form.currency|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="col-md-3">
+                  {{ form.pickup_date|as_crispy_field }}
+                </div>
+                <div class="col-md-3">
+                  {{ form.eta|as_crispy_field }}
+                </div>
+                <div class="col-md-3">
+                  {{ form.etd|as_crispy_field }}
+                </div>
+                <div class="col-md-3">
+                  {{ form.bol_number|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="col-md-3">
+                  {{ form.is_prepaid_vat|as_crispy_field }}
+                </div>
+                <div class="col-md-3">
+                  {{ form.prepaid_vat|as_crispy_field }}
+                </div>
+              </div>
+              
               <button type="submit" class="btn btn-primary mb-0">Submit</button>
               {% if not form.instance.pk %}
               <a href="{% url 'shipping:shipment_list' %}" class="btn btn-danger mb-0">Cancel</a>
@@ -54,4 +95,21 @@
   </div>
 </div>
 
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+  function change_prepaid_vat(val){
+    if(val == "Yes"){
+      $("#id_prepaid_vat").show();
+      $("#id_prepaid_vat").val("");
+    }else{
+      $("#id_prepaid_vat").hide();
+      $("#id_prepaid_vat").val(0);
+    }
+  }
+  {% if form.instance.prepaid_vat == 0.00 %}
+  $("select[name='is_prepaid_vat']").val("No");
+  $("#id_prepaid_vat").hide();
+  {% endif %}
+</script>
 {% endblock %}
