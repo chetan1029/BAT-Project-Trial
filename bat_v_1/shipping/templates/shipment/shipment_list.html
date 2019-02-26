@@ -26,15 +26,25 @@
       {% for shipment in shipment_list %}
       <div class="col-md-6 mb-4">
         <div class="card h-100 cursor-pointer" onclick="window.open('{% url 'shipping:shipment_detail' pk=shipment.pk %}','_self')">
-          <h4 class="position-absolute card-top-buttons text-danger display-4">
-            {% if shipment.type == "Sea" %}
-            <i class="iconsmind-Ship"></i>
-            {% else %}
-            <i class="iconsmind-Plane-2"></i>
-            {% endif %}
-          </h4>
           <div class="card-body">
-            <h5 class="card-title text-center"><img src="{{MEDIA_URL}}{{ shipment.amazonmarket.marketplace_image }}" height="15" /> {{ shipment.name }}</h5>
+            <div class="row">
+              <div class="col-md-4">
+                <img src="{{MEDIA_URL}}{{ shipment.amazonmarket.marketplace_image }}" class="img-fluid" style="width: 70px;" />
+              </div>
+              <div class="col-md-4 text-center">
+                <h2>{{ shipment.name }}</h2>
+                <p class="badge badge-pill badge-secondary mb-1">{{ shipment.status.title }}</p>
+              </div>
+              <div class="col-md-4 text-right">
+                <h2 class="mb-1 text-danger display-4">
+                  {% if shipment.type == "Sea" %}
+                  <i class="iconsmind-Ship"></i>
+                  {% else %}
+                  <i class="iconsmind-Plane-2"></i>
+                  {% endif %}
+                </h2>
+              </div>
+            </div>
             <h6 class="mt-2 mb-3">Products</h6>
             {% for shipmentproduct in shipment.shipmentproduct_set.all %}
             <div class="mb-4">

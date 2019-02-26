@@ -79,8 +79,11 @@
                 <div class="col-md-3">
                   {{ form.prepaid_vat|as_crispy_field }}
                 </div>
+                <div class="col-md-3">
+                  {{ form.vat_currency|as_crispy_field }}
+                </div>
               </div>
-              
+
               <button type="submit" class="btn btn-primary mb-0">Submit</button>
               {% if not form.instance.pk %}
               <a href="{% url 'shipping:shipment_list' %}" class="btn btn-danger mb-0">Cancel</a>
@@ -100,16 +103,25 @@
 <script type="text/javascript">
   function change_prepaid_vat(val){
     if(val == "Yes"){
-      $("#id_prepaid_vat").show();
-      $("#id_prepaid_vat").val("");
+      $("#div_id_prepaid_vat").show();
+      $("#div_id_vat_currency").show();
+      $("#div_id_prepaid_vat").val("");
     }else{
-      $("#id_prepaid_vat").hide();
-      $("#id_prepaid_vat").val(0);
+      $("#div_id_prepaid_vat").hide();
+      $("#div_id_vat_currency").hide();
+      $("#div_id_prepaid_vat").val(0);
     }
   }
-  {% if form.instance.prepaid_vat == 0.00 %}
+  $(function(){
+    $('#id_is_prepaid_vat').on('change', function() {
+      var val = this.value;
+      change_prepaid_vat(val);
+    });
+  });
+  {% if form.instance.is_prepaid_vat == "No" %}
   $("select[name='is_prepaid_vat']").val("No");
-  $("#id_prepaid_vat").hide();
+  $("#div_id_prepaid_vat").hide();
+  $("#div_id_vat_currency").hide();
   {% endif %}
 </script>
 {% endblock %}

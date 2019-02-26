@@ -6,6 +6,8 @@ from settings.models import (Currency, Status, AmazonMarket)
 from products.models import (Product, AmazonProduct)
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
+from decimal import Decimal
+from django.core.validators import MinValueValidator, MaxValueValidator
 import os, datetime
 User = get_user_model()
 
@@ -28,6 +30,23 @@ class ShipmentFullfillment(models.Model):
     country_code = models.CharField(max_length=30)
     create_date = models.DateTimeField(default=timezone.now())
     update_date = models.DateTimeField(default=timezone.now())
+
+    def get_formatted_address(self):
+        address = ""
+        if self.address_line1 is None and self.city is None and self.state is None and self.country_code is None and self.postal_code is None:
+            address = ""
+        else:
+            if self.address_line1:
+                address += self.address_line1
+            if self.city:
+                address += "<br />"+self.city
+            if self.state:
+                address += ", "+self.state
+            if self.country_code:
+                address += " <br />"+self.country_code+""
+            if self.postal_code:
+                address += ", "+self.postal_code
+        return address.strip(",")
 
     def __str__(self):
         return self.center_id+": "+self.name
@@ -54,10 +73,10 @@ class Shipment(models.Model):
     kg_cbm_price = models.DecimalField(max_digits=6, decimal_places=2,verbose_name="Kg/CBM Price", blank=True,null=True)
     currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Currency", blank=True,null=True)
     invoice_agent = models.ForeignKey(Supplier,on_delete=models.PROTECT,verbose_name="Select Invoice Agent",related_name="invoice_agent", blank=True,null=True)
-    invoice_value = models.DecimalField(max_digits=8, decimal_places=2, blank=True,null=True)
+    invoice_value = models.DecimalField(max_digits=8, decimal_places=2, blank=True,null=True, validators=[MinValueValidator(Decimal('0.01'))])
     invoice_currency = models.ForeignKey(Currency,on_delete=models.PROTECT,verbose_name="Select Invoice Currency",related_name="currency_invoice", blank=True,null=True)
     carrier = models.ForeignKey(Supplier,on_delete=models.PROTECT,verbose_name="Select Carrier", related_name="carrier", blank=True,null=True)
-    is_prepaid_vat = models.CharField(max_length=50,choices=PREPAID_VAT_VALUE)
+    is_prepaid_vat = models.CharField(max_length=50,choices=PREPAID_VAT_VALUE, default="")
     prepaid_vat = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="Prepaid VAT", blank=True,null=True)
     actual_vat = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="Actual VAT", blank=True,null=True)
     vat_claimed = models.DecimalField(max_digits=8, decimal_places=2, verbose_name="VAT Claimed", blank=True,null=True)

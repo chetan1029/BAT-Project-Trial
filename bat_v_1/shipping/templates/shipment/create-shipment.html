@@ -24,12 +24,26 @@
         <form class="" action="{% url 'shipping:submit_shipment_data' %}" method="post">
           {% csrf_token %}
           <input type="hidden" name="shipment_type" value="{{shipment_type}}">
-          {% if shipment_type == "Sea" %}
-          <h5><i class="iconsmind-Ship-2"></i> Sea Shipment</h5>
-          {% else %}
-          <h5><i class="iconsmind-Plane-2"></i> Air Shipment</h5>
-          {% endif %}
-          <div class="row pokemon-selection">
+
+          <div class="row">
+            <div class="col-xs-6 text-right">
+              {% if shipment.type == "Sea" %}
+              <span class="text-danger display-4"><i class="iconsmind-Ship"></i></span>
+              {% else %}
+              <span class="text-danger display-4"><i class="iconsmind-Plane-2"></i></span>
+              {% endif %}
+            </div>
+            <div class="col-xs-6">
+              <h2 class="mt-3">
+              {% if shipment.type == "Sea" %}
+              Sea Shipment
+              {% else %}
+              Air Shipment
+              {% endif %}
+            </h2>
+            </div>
+          </div>
+          <div class="row pokemon-selection mt-3">
           {% for shipment_product in shipment_plan %}
             <div class="col-md-6">
               <div class="card">

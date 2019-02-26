@@ -29,11 +29,21 @@
         {% endif %}
         <form class="" action="{% url 'shipping:create_shipment' %}" method="post">
           {% csrf_token %}
-        <div class="row form-row mb-4 shipment_type">
-          <div class="col-md-12">
-            <label class="col-form-label">Shipment Type<span class="asteriskField">*</span></label><br />
-            <button type="button" id="Sea" onclick="change_shipment_type('Sea','Sea')" class="btn btn-outline-dark btn-sm mb-1">Sea Shipment</button>
-            <button type="button" id="Air" onclick="change_shipment_type('Air','Air')" class="btn btn-outline-dark btn-sm mb-1">Air Shipment</button>
+        <div class="row form-row mb-4 shipment_type pokemon-selection">
+          <label class="col-form-label col-12">Shipment Type<span class="asteriskField">*</span></label><br />
+          <div class="col-md-1">
+            <div class="card cursor-pointer text-center shadow-none" onclick="change_shipment_type('Sea','Sea')">
+              <div class="card-body">
+                <span class="text-danger display-4"><i class="iconsmind-Ship"></i></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-1">
+            <div class="card cursor-pointer text-center shadow-none" onclick="change_shipment_type('Air','Air')">
+              <div class="card-body">
+                <span class="text-danger display-4"><i class="iconsmind-Plane-2"></i></span>
+              </div>
+            </div>
           </div>
           <input type="hidden" name="shipment_type" value="">
         </div>
@@ -91,8 +101,8 @@
 {% block script %}
 <script type="text/javascript">
 function change_shipment_type(value,id){
-  $(".shipment_type button").removeClass("btn-dark").addClass("btn-outline-dark");
-  $("#"+id).removeClass("btn-outline-dark").addClass("btn-dark");
+  $(".shipment_type .card").removeClass("active");
+  $("#"+id).addClass("active");
   $("input[name='shipment_type']").val(value);
 }
 $(".card").click(function(e) {

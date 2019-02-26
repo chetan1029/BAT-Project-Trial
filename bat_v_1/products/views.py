@@ -11,6 +11,7 @@ from products.forms import (ProductForm, PackageMeasurementForm, ProductBundleFo
 from django.db.models import Q
 from django.utils.text import slugify
 from django.db import IntegrityError, transaction
+from django.http import JsonResponse
 import logging
 logger = logging.getLogger(__name__)
 # Create your views here.
@@ -417,14 +418,18 @@ class BoxListView(LoginRequiredMixin,ListView):
    template_name = 'box/box_list.html'
    def get_queryset(self):
        product_id = self.kwargs['pk']
+       self.box_active = Box.objects.filter(product_id=product_id, type="Active")
+       self.box_archived = Box.objects.filter(product_id=product_id, type="Archived")
        self.product = Product.objects.get(pk=product_id)
-       return Box.objects.filter(product_id = product_id)
+       return Box.objects.filter(product_id=product_id)
 
    def get_context_data(self, **kwargs):
        context = super().get_context_data(**kwargs)
        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"box"}
        context['product_id'] = self.kwargs['pk']
        context['product'] = self.product
+       context['box_active'] = self.box_active
+       context['box_archived'] = self.box_archived
        return context
 
  ### 1.4.2 CreateBoxView
@@ -435,9 +440,11 @@ class CreateBoxView(LoginRequiredMixin,CreateView):
 
    def form_valid(self, form):
        self.object = form.save(commit=False)
+       Box.objects.filter(product_id=self.kwargs['pk']).update(type="Archived")
        self.object.product = Product.objects.get(id=self.kwargs['pk'])
        self.object.title = str(self.object.length)+"x"+str(self.object.width)+"x"+str(self.object.depth);
        self.object.cbm = round(((self.object.length/100)*(self.object.width/100)*(self.object.depth/100)),3)
+       self.object.type = "Active"
        self.object.save()
        return super().form_valid(form)
 
@@ -480,6 +487,20 @@ class BoxDeleteView(LoginRequiredMixin,DeleteView):
        context['active_menu'] = {"menu1":"basic","menu2":"products","menu3":"box"}
        context['product'] = Product.objects.get(pk=Box.objects.get(id=self.kwargs['pk']).product_id)
        return context
+
+    #### 2.7.1.6 Function for Box
+def change_box_type(request):
+    box_id = request.GET.get('box_id')
+    type = request.GET.get('type')
+    box = Box.objects.get(pk=box_id)
+
+    if type == "Active":
+        Box.objects.filter(product=box.product).update(type="Archived")
+    Box.objects.filter(pk=box_id).update(type=type)
+    data = {
+        'success': True
+    }
+    return JsonResponse(data)
 
 # 2. AmazonProduct
  ## 2.1 AmazonProduct

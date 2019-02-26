@@ -39,10 +39,11 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-4">
-                <img src="{{MEDIA_URL}}{{ shipment.amazonmarket.marketplace_image }}" class="img-fluid" style="width: 40px;" />
+                <img src="{{MEDIA_URL}}{{ shipment.amazonmarket.marketplace_image }}" class="img-fluid" style="width: 70px;" />
               </div>
               <div class="col-md-4 text-center">
                 <h2>{{ shipment.name }}</h2>
+                <p class="badge badge-pill badge-secondary mb-1">{{ shipment.status.title }}</p>
               </div>
               <div class="col-md-4 text-right">
                 <h2 class="mb-1 text-danger display-4">
@@ -56,7 +57,7 @@
             </div>
             <div class="row mt-5">
               <div class="col-sm-6">
-                <h5 class="mb-2">Ship From</h5>
+                <h5 class="mb-3">Ship From</h5>
                 {% if shipment.invoice_agent %}
                 <h6 class="mb-2">{{shipment.invoice_agent.name}}</h6>
                 <p class="mb-2">{{shipment.invoice_agent.get_formatted_address|safe}}</p>
@@ -65,9 +66,10 @@
                 {% endif %}
               </div>
               <div class="col-sm-6 text-right">
-                <h5 class="mb-2">Ship To</h5>
+                <h5 class="mb-3">Ship To</h5>
                 {% if shipment.shipmentfullfillment %}
-                <p class="mb-2"></p>
+                <h6 class="mb-2">{{shipment.shipmentfullfillment.name}} <span class="font-weight-bold">({{shipment.shipmentfullfillment.center_id}})</span></h6>
+                <p class="mb-2">{{shipment.shipmentfullfillment.get_formatted_address|safe}}</p>
                 {% else %}
                 <p class="text-warning">Info provided by Amazon</p>
                 {% endif %}
@@ -120,7 +122,7 @@
             <hr>
             <h6>VAT Detail</h6>
             <div class="row">
-            {% if shipment.prepaid_vat != 0.00 %}
+            {% if shipment.is_prepaid_vat == "Yes" %}
             <div class="col-md-3">
               <p class="text-muted text-small mb-2">Prepaid VAT</p>
               {% if not shipment.prepaid_vat is None %}
@@ -178,6 +180,18 @@
             </div>
             </div>
             <hr>
+            <h6>Shipping Documentations</h6>
+            <div class="row">
+            {% for shipmentdoc in shipment.shipmentfiles_set.all %}
+            <div class="col-md-3">
+              <p class="text-muted text-small mb-2">{{shipmentdoc.title}}</p>
+              <a href="{{MEDIA_URL}}{{ shipmentdoc.file_url }}" target="_blank" class="btn btn-info icon-button ">
+                <i class="simple-icon-cloud-download"></i>
+              </a>
+            </div>
+            {% endfor %}
+            </div>
+            <hr>
             <div class="row">
               <div class="col-6">
                 <p class="text-muted text-small mb-2">Created at</p>
@@ -194,18 +208,11 @@
                 <div class="alert alert-warning rounded" role="alert">
                   Please enter all the required info to activate this shipment for Amazon <a href="{% url 'shipping:update_shipment' pk=shipment.pk %}">Click here to enter</a>
                 </div>
+                {% elif shipment.status.title == "Ready for Amazon" %}
+                <a href="{% url 'shipping:create_amazon_shipment' pk=shipment.pk %}" class="btn btn-danger mb-1">Create Amazon Shipment</a>
                 {% endif %}
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-
-      <div class="col-12 col-lg-6">
-        <div class="card mb-4">
-          <div class="card-body">
-            <a href="{% url 'shipping:create_amazon_shipment' pk=shipment.pk %}" class="btn btn-danger mb-1">Create Amazon Shipment</a>
           </div>
         </div>
       </div>

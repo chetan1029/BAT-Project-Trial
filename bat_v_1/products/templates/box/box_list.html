@@ -35,6 +35,8 @@
                 </div>
               </div>
             </div>
+            <input type="hidden" id="ajax_url" box-type-url="{% url 'products:change_box_type' %}" />
+            <h6 class="mt-4 mb-3 font-weight-bold">Active Box</h6>
             <table class="data-table responsive nowrap" data-order="[[ 0, &quot;asc&quot; ]]">
               <thead>
                 <tr>
@@ -48,7 +50,7 @@
                 </tr>
               </thead>
               <tbody>
-                {% for box in box_list %}
+                {% for box in box_active %}
                 <tr>
                   <td>
                     <p class="list-item-heading">{{ box.length }} cm</p>
@@ -69,10 +71,7 @@
                     <p class="list-item-heading">{{ box.units_per_box }}</p>
                   </td>
                   <td>
-                    <a href="{% url 'products:update_box' pk=box.pk %}" class="btn btn-outline-info icon-button ">
-                      <i class="simple-icon-pencil"></i>
-                    </a>
-                    <a href="{% url 'products:delete_box' pk=box.pk %}" class="btn btn-outline-danger icon-button ">
+                    <a href="javascript:void()" onclick="change_type({{ box.id }},'Archived')" class="btn btn-outline-danger icon-button ">
                       <i class="simple-icon-trash"></i>
                     </a>
                   </td>
@@ -80,11 +79,70 @@
                 {% endfor %}
               </tbody>
             </table>
-
+            <h6 class="mt-4 mb-3 font-weight-bold">Archived Box</h6>
+            <table class="data-table responsive nowrap" data-order="[[ 0, &quot;asc&quot; ]]">
+              <thead>
+                <tr>
+                  <th>Length</th>
+                  <th>Width</th>
+                  <th>Depth</th>
+                  <th>CBM</th>
+                  <th>Weight</th>
+                  <th>Units/Box</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for box in box_archived %}
+                <tr>
+                  <td>
+                    <p class="list-item-heading">{{ box.length }} cm</p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ box.width }} cm</p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ box.depth }} cm</p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ box.cbm }}</p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ box.total_weight }} Kg</p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ box.units_per_box }}</p>
+                  </td>
+                  <td>
+                    <a href="javascript:void()" onclick="change_type({{ box.id }},'Active')" class="btn btn-outline-success icon-button ">
+                      <i class="simple-icon-action-undo"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+<script type="text/javascript">
+  function change_type(box_id,type){
+    var url = $("#ajax_url").attr("box-type-url");
+    $.ajax({
+      url: url,
+      data: {
+        'box_id': box_id,
+        'type': type
+      },
+      success: function(data) {
+        if(data.success){
+          location.reload();
+        }
+      }
+    })
+  }
+</script>
 {% endblock %}

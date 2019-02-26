@@ -84,6 +84,11 @@ class ProductBundle(models.Model):
 
  ## 1.4 Box
 class Box(models.Model):
+    BOX_OPTIONS = (
+    ('Active','Active'),
+    ('Archived','Archived')
+    )
+    type = models.CharField(max_length=20,choices=BOX_OPTIONS,default="Active")
     product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name="box_product")
     title = models.CharField(max_length=200)
     length = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="Length (cm)")
