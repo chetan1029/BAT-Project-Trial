@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+{% extends "amazon_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'shipping_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+    <div class="mb-2">
+      <h1>{{ shipment.title }}</h1>
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'shipping:shipment_list' %}">Shipments</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ shipment.title }}</li>
+        </ol>
+      </nav>
+    </div>
+
+    {% include 'shipment/menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
+        <div class="tab-card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                <h5 class="card-title">Shipment Product</h5>
+              </div>
+            </div>
+            <form method="POST">
+              {% csrf_token %}
+              {{form|crispy}}
+              <button type="submit" class="btn btn-primary mb-0">Submit</button>
+              <a href="{% url 'shipping:shipmentproduct_list' shipment.pk %}" class="btn btn-danger mb-0">Cancel</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

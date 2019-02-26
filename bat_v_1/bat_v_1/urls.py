@@ -23,10 +23,13 @@ urlpatterns = [
     path('', views.HomePage.as_view(), name="home"),
     path('admin/', admin.site.urls),
     path('accounts/',include('user_management.urls', namespace="accounts")),
+    path('settings/',include('settings.urls', namespace="settings")),
     path('products/',include('products.urls', namespace="products")),
     path('suppliers/',include('suppliers.urls', namespace="suppliers")),
+    path('shipping/',include('shipping.urls', namespace="shipping")),
     path('accounts/',include('django.contrib.auth.urls')),
     path('test/',views.TestPage.as_view(),name="test"),
     path('dashboard/',views.DashboardPage.as_view(),name="dashboard"),
+    path('amazon-dashboard/',views.AmazonDashboardPage.as_view(),name="amazondashboard"),
     path('logout/',views.LogoutPage.as_view(),name="logout"),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

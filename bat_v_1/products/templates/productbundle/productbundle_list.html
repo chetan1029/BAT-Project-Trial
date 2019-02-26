@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% block content %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ product.title }}</h1>
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'products:product_list' %}">Products</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
+        </ol>
+      </nav>
+    </div>
+    {% include 'products/menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                <h5 class="card-title">Product Bundle</h5>
+              </div>
+              <div class="col-6">
+                <div class="float-sm-right text-zero">
+                  <a href="{% url 'products:create_productbundle' pk=product.pk %}" class="btn btn-primary mr-1">Add Product Bundle</a>
+                </div>
+              </div>
+            </div>
+
+            <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
+              <thead>
+                <tr>
+                  <th>Size</th>
+                  <th>Color</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for productbundle in productbundle_list %}
+                <tr>
+                  <td>
+                    <p class="list-item-heading">{{ productbundle.size }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ productbundle.color }}</p>
+                  </td>
+                  <td>
+                    <a href="{% url 'products:update_productbundle' pk=productbundle.pk %}" class="btn btn-outline-info icon-button ">
+                      <i class="simple-icon-pencil"></i>
+                    </a>
+                    <a href="{% url 'products:delete_productbundle' pk=productbundle.pk %}" class="btn btn-outline-danger icon-button ">
+                      <i class="simple-icon-trash"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

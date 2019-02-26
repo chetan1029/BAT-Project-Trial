@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% extends "amazon_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    {% if not form.instance.pk %}
+    <h1>Add MarketPlaces</h1>
+    {% else %}
+    <h1>Edit MarketPlaces</h1>
+    {% endif %}
+    <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+      <ol class="breadcrumb pt-0">
+        <li class="breadcrumb-item">
+          <a href="{% url 'dashboard' %}">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{% url 'settings:amazonmarket_list' %}">MarketPlaces</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Add MarketPlaces</li>
+      </ol>
+    </nav>
+    <div class="separator mb-5"></div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-12">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="mb-4">Basic</h5>
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{form|crispy}}
+          <button type="submit" class="btn btn-primary mb-0">Submit</button>
+          <a href="{% url 'settings:amazonmarket_list' %}" class="btn btn-danger mb-0">Cancel</a>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

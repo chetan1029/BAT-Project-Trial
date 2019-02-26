@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block body %}
+<body id="app-container" class="menu-default">
+    <nav class="navbar fixed-top">
+        <div class="d-flex align-items-center navbar-left">
+            <a href="#" class="menu-button d-none d-md-block">
+                <svg class="main" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 17">
+                    <rect x="0.48" y="0.5" width="7" height="1" />
+                    <rect x="0.48" y="7.5" width="7" height="1" />
+                    <rect x="0.48" y="15.5" width="7" height="1" />
+                </svg>
+                <svg class="sub" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 17">
+                    <rect x="1.56" y="0.5" width="16" height="1" />
+                    <rect x="1.56" y="7.5" width="16" height="1" />
+                    <rect x="1.56" y="15.5" width="16" height="1" />
+                </svg>
+            </a>
+
+            <a href="#" class="menu-button-mobile d-xs-block d-sm-block d-md-none">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 17">
+                    <rect x="0.5" y="0.5" width="25" height="1" />
+                    <rect x="0.5" y="7.5" width="25" height="1" />
+                    <rect x="0.5" y="15.5" width="25" height="1" />
+                </svg>
+            </a>
+
+            <div class="search" data-search-path="Layouts.Search.html?q=">
+                <input placeholder="Search...">
+                <span class="search-icon">
+                    <i class="simple-icon-magnifier"></i>
+                </span>
+            </div>
+        </div>
+
+
+        <a class="navbar-logo" href="{% url 'dashboard' %}">
+            <span class="logo d-none d-xs-block"></span>
+            <span class="logo-mobile d-block d-xs-none"></span>
+        </a>
+
+      <div class="navbar-right">
+  <div class="header-icons d-inline-block align-middle">
+    <div class="dropdown d-inline-block">
+      <button class="btn btn-sm btn-outline-primary dropdown-toggle mb-1" type="button" id="dropdown1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Amazon
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdown1">
+        <a class="dropdown-item" href="{% url 'dashboard' %}">Global</a>
+        <a class="dropdown-item" href="{% url 'amazondashboard' %}">Amazon</a>
+      </div>
+    </div>
+    <div class="dropdown d-inline-block">
+      <button class="btn btn-sm btn-outline-primary dropdown-toggle mb-1" type="button" id="dropdown2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        All Markets
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdown2">
+        {% for market in marketplace %}
+        <a class="dropdown-item" href="#">{{market.country_code}}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <button class="header-icon btn btn-empty d-none d-sm-inline-block" type="button" id="fullScreenButton">
+      <i class="simple-icon-size-fullscreen"></i>
+      <i class="simple-icon-size-actual"></i>
+    </button>
+
+  </div>
+
+  <div class="user d-inline-block">
+    <button class="btn btn-empty p-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="name">{{ user.username }}</span>
+      <span>
+        <img alt="Profile Picture" src="{% static 'app/images/profile-pic-l-9.jpg'%}" />
+      </span>
+    </button>
+
+    <div class="dropdown-menu dropdown-menu-right mt-3">
+      <a class="dropdown-item" href="#">Account</a>
+      <a class="dropdown-item" href="#">Features</a>
+      <a class="dropdown-item" href="#">History</a>
+      <a class="dropdown-item" href="#">Support</a>
+      <a class="dropdown-item" href="{% url 'accounts:logout' %}">Sign out</a>
+    </div>
+  </div>
+</div>
+    </nav>
+    <div class="sidebar">
+        <div class="main-menu">
+            <div class="scroll">
+                <ul class="list-unstyled">
+                    <li {% if active_menu.menu1 == 'dashboard' %}class="active"{% endif %}>
+                        <a href="{% url 'amazondashboard' %}">
+                            <i class="iconsmind-Shop-4"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li {% if active_menu.menu1 == 'sales-channels' %}class="active"{% endif %}>
+                        <a href="#sales-channels">
+                            <i class="iconsmind-Globe-2"></i>
+                            <span>Sales Channels</span>
+                        </a>
+                    </li>
+                    <li {% if active_menu.menu1 == 'inventorize' %}class="active"{% endif %}>
+                        <a href="#inventorize">
+                            <i class="iconsmind-Ship"></i>
+                            <span>InventoriZe</span>
+                        </a>
+                    </li>
+                    <li {% if active_menu.menu1 == 'setting' %}class="active"{% endif %}>
+                        <a href="#setting">
+                            <i class="iconsmind-Gear"></i>
+                            <span>Setting</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="sub-menu">
+            <div class="scroll">
+
+                <ul class="list-unstyled" data-link="sales-channels">
+                  <li {% if active_menu.menu2 == 'market' %}class="active"{% endif %}>
+                      <a href="{% url 'settings:amazonmarket_list' %}">
+                          <i class="simple-icon-globe-alt"></i> Amazon Markets
+                      </a>
+                  </li>
+                  <li {% if active_menu.menu2 == 'mwsauth' %}class="active"{% endif %}>
+                      <a href="{% url 'settings:amazonmwsauth_list' %}">
+                          <i class="simple-icon-lock"></i> MWS Auth
+                      </a>
+                  </li>
+                </ul>
+                <ul class="list-unstyled" data-link="inventorize">
+                  <li {% if active_menu.menu2 == 'amazon-products' %}class="active"{% endif %}>
+                       <a href="{% url 'products:amazonproduct_list' %}">
+                           <i class="iconsmind-Add-Bag"></i> Product Catalog
+                       </a>
+                  </li>
+                  
+                </ul>
+                <ul class="list-unstyled" data-link="setting">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <div class="container-fluid">
+          {% block content %}
+          {% endblock %}
+        </div>
+    </main>
+
+</body>
+
+{% endblock %}

@@ -8,6 +8,7 @@
       <h1>Products</h1>
       <div class="float-sm-right text-zero">
         <a href="{% url 'products:create_product' %}" class="btn btn-primary btn-lg mr-1">Add Product</a>
+        <a href="{% url 'products:create_productbundle' %}" class="btn btn-primary btn-lg mr-1">Add Bundle Product</a>
       </div>
       <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
         <ol class="breadcrumb pt-0">
@@ -26,6 +27,26 @@
         <i class="simple-icon-arrow-down align-middle"></i>
       </a>
       <div class="collapse d-md-block" id="displayOptions">
+        <span class="mr-3 mb-2 d-inline-block float-md-left">
+          <a href="javascript:void()" onclick="itemview_formsubmit('list_view')" class="mr-2 view-icon {% if item_view == 'list_view' %}active{% endif %}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19 19">
+              <path class="view-icon-svg" d="M17.5,3H6.5a.5.5,0,0,1,0-1h11a.5.5,0,0,1,0,1Z"></path>
+              <path class="view-icon-svg" d="M3,2V3H1V2H3m.12-1H.88A.87.87,0,0,0,0,1.88V3.12A.87.87,0,0,0,.88,4H3.12A.87.87,0,0,0,4,3.12V1.88A.87.87,0,0,0,3.12,1Z"></path>
+              <path class="view-icon-svg" d="M3,9v1H1V9H3m.12-1H.88A.87.87,0,0,0,0,8.88v1.24A.87.87,0,0,0,.88,11H3.12A.87.87,0,0,0,4,10.12V8.88A.87.87,0,0,0,3.12,8Z"></path>
+              <path class="view-icon-svg" d="M3,16v1H1V16H3m.12-1H.88a.87.87,0,0,0-.88.88v1.24A.87.87,0,0,0,.88,18H3.12A.87.87,0,0,0,4,17.12V15.88A.87.87,0,0,0,3.12,15Z"></path>
+              <path class="view-icon-svg" d="M17.5,10H6.5a.5.5,0,0,1,0-1h11a.5.5,0,0,1,0,1Z"></path>
+              <path class="view-icon-svg" d="M17.5,17H6.5a.5.5,0,0,1,0-1h11a.5.5,0,0,1,0,1Z"></path>
+            </svg>
+          </a>
+          <a href="javascript:void()" onclick="itemview_formsubmit('thumb_view')" class="mr-2 view-icon {% if item_view == 'thumb_view' %}active{% endif %}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19 19">
+              <path class="view-icon-svg" d="M7,2V8H1V2H7m.12-1H.88A.87.87,0,0,0,0,1.88V8.12A.87.87,0,0,0,.88,9H7.12A.87.87,0,0,0,8,8.12V1.88A.87.87,0,0,0,7.12,1Z"></path>
+              <path class="view-icon-svg" d="M17,2V8H11V2h6m.12-1H10.88a.87.87,0,0,0-.88.88V8.12a.87.87,0,0,0,.88.88h6.24A.87.87,0,0,0,18,8.12V1.88A.87.87,0,0,0,17.12,1Z"></path>
+              <path class="view-icon-svg" d="M7,12v6H1V12H7m.12-1H.88a.87.87,0,0,0-.88.88v6.24A.87.87,0,0,0,.88,19H7.12A.87.87,0,0,0,8,18.12V11.88A.87.87,0,0,0,7.12,11Z"></path>
+              <path class="view-icon-svg" d="M17,12v6H11V12h6m.12-1H10.88a.87.87,0,0,0-.88.88v6.24a.87.87,0,0,0,.88.88h6.24a.87.87,0,0,0,.88-.88V11.88a.87.87,0,0,0-.88-.88Z"></path>
+            </svg>
+          </a>
+        </span>
         <div class="d-block d-md-inline-block">
 
           <div class="btn-group float-md-left mr-1 mb-1">
@@ -42,12 +63,21 @@
               {% endfor %}
             </div>
           </div>
-          <div class="search-sm d-inline-block float-md-left mr-1 mb-1 align-top" >
+          <div class="search-sm d-inline-block float-md-left mr-2 mb-1 align-top">
             <form action="." method="get" name="data_control">
               <input type="hidden" name="order_by" value="{{order_by}}" />
               <input type="hidden" name="paginate_by" value="{{paginator.per_page}}" />
+              <input type="hidden" name="item_view" value="{{item_view}}" />
+              <input type="hidden" name="category_q" value="{{category_q}}" />
               <input type="text" name="search_q" value="{{search_q}}" placeholder="Search...">
             </form>
+          </div>
+          <input type="hidden" id="ajax_url" load-display-categories-url="{% url 'products:ajax_load_display_category' %}" />
+          <div class="d-inline-block float-md-left mr-1 mb-1 align-top">
+              <a href="{% url 'products:product_list' %}" class="btn btn-xs btn-outline-primary mb-1">View All</a>
+          </div>
+          <div class="d-inline-block float-md-left mr-1 mb-1 align-top" id="category_block">
+
           </div>
         </div>
         <div class="float-md-right">
@@ -75,31 +105,74 @@
   </div>
 </div>
 
+{% if item_view == "thumb_view" %}
+<div class="row">
+  {% for product in product_list %}
+  <div class="col-12 col-lg-6 col-xl-4 mb-3">
+    <div class="card flex-row cursor-pointer" onclick="window.open('{% url 'products:product_detail' pk=product.pk %}','_self')">
+      <div class="w-40">
+        {% if product.image %}
+        <img class="card-img-left" src="{{MEDIA_URL}}{{ product.image }}" alt="{{ product.title }}">
+        {% else %}
+        <img class="card-img-left" src="{{MEDIA_URL}}products/no-product-image.png" alt="{{ product.title }}">
+        {% endif %}
+        <span class="badge badge-pill badge-dark position-absolute badge-top-left">{{ product.status.title }}</span>
+        <span class="badge badge-pill badge-primary position-absolute badge-top-left-2">{{ product.category.name }}</span>
+      </div>
+      <div class="w-60">
+        <div class="card-body">
+          <h6 class="mb-4"><a href="{% url 'products:product_detail' pk=product.pk %}">{{ product.title }}</a></h6>
+          <ul class="list-unstyled">
+            <li>EAN: {{product.ean}}</li>
+            <li>SKU: {{product.sku}}</li>
+            <li>Manufacturer Part Number: {{product.manufacturer_part_number}}</li>
+          </ul>
+          <footer>
+            <p class="text-muted text-small mb-0 font-weight-light">{{ product.create_date|date:"d M Y"}}</p>
+
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
 <div class="row">
   <div class="col-12 list" data-check-all="checkAll">
 
     {% for product in product_list %}
-    <div class="card d-flex flex-row mb-3">
+    <div class="card d-flex flex-row mb-3 cursor-pointer" onclick="window.open('{% url 'products:product_detail' pk=product.pk %}','_self')">
       <a class="d-flex" href="{% url 'products:product_detail' pk=product.pk %}">
-        <img src="{{MEDIA_URL}}{{ product.image }}" alt="{{ product.title }}" class="list-thumbnail responsive border-0" />
+        {% if product.image %}
+        <img class="list-thumbnail responsive border-0" src="{{MEDIA_URL}}{{ product.image }}" alt="{{ product.title }}">
+        {% else %}
+        <img class="list-thumbnail responsive border-0" src="{{MEDIA_URL}}products/no-product-image.png" alt="{{ product.title }}">
+        {% endif %}
       </a>
       <div class="pl-2 d-flex flex-grow-1 min-width-zero">
         <div class="card-body align-self-center d-flex flex-column flex-lg-row justify-content-between min-width-zero align-items-lg-center">
           <a href="{% url 'products:product_detail' pk=product.pk %}" class="w-40 w-sm-100">
             <p class="list-item-heading mb-1 truncate">{{ product.title }}</p>
+            <p class="mb-1 text-muted">{% if product.ean %}EAN: {{product.ean}}{% endif %}</p>
           </a>
           <p class="mb-1 text-muted text-small w-15 w-sm-100">{{ product.category.name }}</p>
           <p class="mb-1 text-muted text-small w-15 w-sm-100">{{ product.create_date|date:"d M Y"}}</p>
           <div class="w-15 w-sm-100">
-            <span class="badge badge-pill badge-{{product.get_status_class}}">{{ product.status }}</span>
+            <span class="badge badge-pill badge-{{product.get_status_class}}">{{ product.status.title }}</span>
           </div>
         </div>
 
       </div>
     </div>
     {% endfor %}
-    <!-- Pagination start -->
-    {% if is_paginated %}
+  </div>
+</div>
+{% endif %}
+<!-- Pagination start -->
+{% if is_paginated %}
+<div class="row">
+  <div class="col-12">
     <nav class="mt-4 mb-3">
       <ul class="pagination justify-content-center mb-0">
 
@@ -156,8 +229,39 @@
     document.data_control.submit();
   }
 
+  function itemview_formsubmit(item_view) {
+    document.getElementsByName('item_view')[0].setAttribute("value", item_view);
+    document.data_control.submit();
+  }
+
   function search_formsubmit() {
     document.data_control.submit();
   }
+
+  function load_display_categories(category, parent = "", active="") {
+    if (category != '') {
+      var url = $("#ajax_url").attr("load-display-categories-url");
+      $.ajax({
+        url: url,
+        data: {
+          'category': category,
+          'active': active
+        },
+        success: function(data) {
+          if (data.trim() != "") {
+            $("#category_block").html(data);
+          }else{
+            document.getElementsByName('category_q')[0].setAttribute("value", category);
+            document.data_control.submit();
+          }
+        }
+      })
+    }
+  }
+  $(document).ready(function () {
+  {% if category_q_parent %}
+  load_display_categories({{category_q_parent}},"",{{category_q}});
+  {% endif %}
+  });
 </script>
 {% endblock %}

@@ -7,15 +7,6 @@
 
     <div class="mb-2">
       <h1>{{ product.title }}</h1>
-      <div class="float-sm-right">
-        <button type="button" class="btn btn-lg btn-outline-primary dropdown-toggle dropdown-toggle-split top-right-button top-right-button-single" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          ACTIONS
-        </button>
-        <div class="dropdown-menu dropdown-menu-right">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-        </div>
-      </div>
       <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
         <ol class="breadcrumb pt-0">
           <li class="breadcrumb-item">
@@ -29,16 +20,7 @@
       </nav>
     </div>
 
-
-    <ul class="nav nav-tabs separator-tabs ml-0 mb-5" role="tablist">
-      <li class="nav-item">
-        <a class="nav-link" id="first-tab" href="{% url 'products:product_detail' pk=product.id %}">DETAILS</a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link active" id="second-tab" data-toggle="tab" href="#second" role="tab" aria-controls="first" aria-selected="true">PACKAGE MEASUREMENT</a>
-      </li>
-    </ul>
+   {% include 'products/menu.html' %}
     <div class="tab-content">
       <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
         <div class="card h-100">
@@ -49,7 +31,7 @@
               </div>
               <div class="col-6">
                 <div class="float-sm-right text-zero">
-                  <a href="{% url 'products:create_packagemeasurement' pk=product.id %}" class="btn btn-primary mr-1">Add Package Measurement</a>
+                  <a href="{% url 'products:create_packagemeasurement' pk=product.pk %}" class="btn btn-primary mr-1">Add Package Measurement</a>
                 </div>
               </div>
             </div>

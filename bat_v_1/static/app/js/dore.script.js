@@ -59,8 +59,7 @@ $.fn.addCommas = function(nStr) {
 /* 02. Shift Select Plugin */
 $.shiftSelectable = function(element, config) {
   var plugin = this;
-  config = $.extend(
-    {
+  config = $.extend({
       items: ".card"
     },
     config
@@ -128,8 +127,8 @@ $.shiftSelectable = function(element, config) {
     if (
       $(e.target).is("a") ||
       $(e.target)
-        .parent()
-        .is("a")
+      .parent()
+      .is("a")
     ) {
       return;
     }
@@ -347,8 +346,8 @@ $.dore = function(element, options) {
     $(document).on("click", function(event) {
       if (
         !$(event.target)
-          .parents()
-          .hasClass("search")
+        .parents()
+        .hasClass("search")
       ) {
         hideSearchArea();
       }
@@ -360,6 +359,7 @@ $.dore = function(element, options) {
     /* 03.05. Menu */
     var menuClickCount = 0;
     var allMenuClassNames = "menu-default menu-hidden sub-hidden main-hidden menu-sub-hidden main-show-temporary sub-show-temporary menu-mobile";
+
     function setMenuClassNames(clickIndex, calledFromResize, link) {
       menuClickCount = clickIndex;
       var container = $("#app-container");
@@ -576,12 +576,12 @@ $.dore = function(element, options) {
       if (
         !(
           $(event.target)
-            .parents()
-            .hasClass("menu-button") ||
+          .parents()
+          .hasClass("menu-button") ||
           $(event.target).hasClass("menu-button") ||
           $(event.target)
-            .parents()
-            .hasClass("sidebar") ||
+          .parents()
+          .hasClass("sidebar") ||
           $(event.target).hasClass("sidebar")
         )
       ) {
@@ -620,6 +620,7 @@ $.dore = function(element, options) {
     }
 
     var lastActiveSubmenu = "";
+
     function showSubMenu(dataLink) {
       if ($(".main-menu").length == 0) {
         return;
@@ -688,11 +689,11 @@ $.dore = function(element, options) {
       if (
         !(
           $(event.target)
-            .parents()
-            .hasClass("app-menu") ||
+          .parents()
+          .hasClass("app-menu") ||
           $(event.target)
-            .parents()
-            .hasClass("app-menu-button") ||
+          .parents()
+          .hasClass("app-menu-button") ||
           $(event.target).hasClass("app-menu-button") ||
           $(event.target).hasClass("app-menu")
         )
@@ -890,27 +891,25 @@ $.dore = function(element, options) {
           type: "LineWithShadow",
           data: {
             labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-              {
-                label: "Data",
-                borderColor: themeColor1,
-                pointBorderColor: themeColor1,
-                pointBackgroundColor: themeColor1,
-                pointHoverBackgroundColor: themeColor1,
-                pointHoverBorderColor: themeColor1,
-                pointRadius: 3,
-                pointBorderWidth: 3,
-                pointHoverRadius: 3,
-                fill: true,
-                backgroundColor: themeColor1_10,
-                borderWidth: 2,
-                data: [180, 140, 150, 120, 180, 110, 160],
-                datalabels: {
-                  align: "end",
-                  anchor: "end"
-                }
+            datasets: [{
+              label: "Data",
+              borderColor: themeColor1,
+              pointBorderColor: themeColor1,
+              pointBackgroundColor: themeColor1,
+              pointHoverBackgroundColor: themeColor1,
+              pointHoverBorderColor: themeColor1,
+              pointRadius: 3,
+              pointBorderWidth: 3,
+              pointHoverRadius: 3,
+              fill: true,
+              backgroundColor: themeColor1_10,
+              borderWidth: 2,
+              data: [180, 140, 150, 120, 180, 110, 160],
+              datalabels: {
+                align: "end",
+                anchor: "end"
               }
-            ]
+            }]
           },
           options: {
             layout: {
@@ -947,22 +946,18 @@ $.dore = function(element, options) {
             },
             tooltips: chartTooltip,
             scales: {
-              yAxes: [
-                {
-                  ticks: {
-                    min: 0
-                  },
-                  display: false
-                }
-              ],
-              xAxes: [
-                {
-                  ticks: {
-                    min: 0
-                  },
-                  display: false
-                }
-              ]
+              yAxes: [{
+                ticks: {
+                  min: 0
+                },
+                display: false
+              }],
+              xAxes: [{
+                ticks: {
+                  min: 0
+                },
+                display: false
+              }]
             }
           }
         });
@@ -981,30 +976,26 @@ $.dore = function(element, options) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              yAxes: [
-                {
-                  gridLines: {
-                    display: true,
-                    lineWidth: 1,
-                    color: "rgba(0,0,0,0.1)",
-                    drawBorder: false
-                  },
-                  ticks: {
-                    beginAtZero: true,
-                    stepSize: 5,
-                    min: 50,
-                    max: 70,
-                    padding: 0
-                  }
+              yAxes: [{
+                gridLines: {
+                  display: true,
+                  lineWidth: 1,
+                  color: "rgba(0,0,0,0.1)",
+                  drawBorder: false
+                },
+                ticks: {
+                  beginAtZero: true,
+                  stepSize: 5,
+                  min: 50,
+                  max: 70,
+                  padding: 0
                 }
-              ],
-              xAxes: [
-                {
-                  gridLines: {
-                    display: false
-                  }
+              }],
+              xAxes: [{
+                gridLines: {
+                  display: false
                 }
-              ]
+              }]
             },
             legend: {
               display: false
@@ -1013,23 +1004,21 @@ $.dore = function(element, options) {
           },
           data: {
             labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-              {
-                label: "",
-                data: [54, 63, 60, 65, 60, 68, 60],
-                borderColor: themeColor1,
-                pointBackgroundColor: foregroundColor,
-                pointBorderColor: themeColor1,
-                pointHoverBackgroundColor: themeColor1,
-                pointHoverBorderColor: foregroundColor,
-                pointRadius: 4,
-                pointBorderWidth: 2,
-                pointHoverRadius: 5,
-                fill: true,
-                borderWidth: 2,
-                backgroundColor: themeColor1_10
-              }
-            ]
+            datasets: [{
+              label: "",
+              data: [54, 63, 60, 65, 60, 68, 60],
+              borderColor: themeColor1,
+              pointBackgroundColor: foregroundColor,
+              pointBorderColor: themeColor1,
+              pointHoverBackgroundColor: themeColor1,
+              pointHoverBorderColor: foregroundColor,
+              pointRadius: 4,
+              pointBorderWidth: 2,
+              pointHoverRadius: 5,
+              fill: true,
+              borderWidth: 2,
+              backgroundColor: themeColor1_10
+            }]
           }
         });
       }
@@ -1049,30 +1038,26 @@ $.dore = function(element, options) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              yAxes: [
-                {
-                  gridLines: {
-                    display: true,
-                    lineWidth: 1,
-                    color: "rgba(0,0,0,0.1)",
-                    drawBorder: false
-                  },
-                  ticks: {
-                    beginAtZero: true,
-                    stepSize: 5,
-                    min: 50,
-                    max: 70,
-                    padding: 0
-                  }
+              yAxes: [{
+                gridLines: {
+                  display: true,
+                  lineWidth: 1,
+                  color: "rgba(0,0,0,0.1)",
+                  drawBorder: false
+                },
+                ticks: {
+                  beginAtZero: true,
+                  stepSize: 5,
+                  min: 50,
+                  max: 70,
+                  padding: 0
                 }
-              ],
-              xAxes: [
-                {
-                  gridLines: {
-                    display: false
-                  }
+              }],
+              xAxes: [{
+                gridLines: {
+                  display: false
                 }
-              ]
+              }]
             },
             legend: {
               display: false
@@ -1081,23 +1066,21 @@ $.dore = function(element, options) {
           },
           data: {
             labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-              {
-                label: "",
-                data: [65, 60, 68, 54, 63, 60, 60],
-                borderColor: themeColor2,
-                pointBackgroundColor: foregroundColor,
-                pointBorderColor: themeColor2,
-                pointHoverBackgroundColor: themeColor2,
-                pointHoverBorderColor: foregroundColor,
-                pointRadius: 4,
-                pointBorderWidth: 2,
-                pointHoverRadius: 5,
-                fill: true,
-                borderWidth: 2,
-                backgroundColor: themeColor2_10
-              }
-            ]
+            datasets: [{
+              label: "",
+              data: [65, 60, 68, 54, 63, 60, 60],
+              borderColor: themeColor2,
+              pointBackgroundColor: foregroundColor,
+              pointBorderColor: themeColor2,
+              pointHoverBackgroundColor: themeColor2,
+              pointHoverBorderColor: foregroundColor,
+              pointRadius: 4,
+              pointBorderWidth: 2,
+              pointHoverRadius: 5,
+              fill: true,
+              borderWidth: 2,
+              backgroundColor: themeColor2_10
+            }]
           }
         });
       }
@@ -1136,19 +1119,15 @@ $.dore = function(element, options) {
           }
         },
         scales: {
-          yAxes: [
-            {
-              ticks: {
-                beginAtZero: true
-              },
-              display: false
-            }
-          ],
-          xAxes: [
-            {
-              display: false
-            }
-          ]
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            },
+            display: false
+          }],
+          xAxes: [{
+            display: false
+          }]
         }
       };
 
@@ -1172,25 +1151,23 @@ $.dore = function(element, options) {
           plugins: [smallChartInit],
           data: {
             labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-              {
-                label: "Total Orders",
-                borderColor: themeColor1,
-                pointBorderColor: themeColor1,
-                pointHoverBackgroundColor: themeColor1,
-                pointHoverBorderColor: themeColor1,
-                pointRadius: 2,
-                pointBorderWidth: 3,
-                pointHoverRadius: 2,
-                fill: false,
-                borderWidth: 2,
-                data: [1250, 1300, 1550, 921, 1810, 1106, 1610],
-                datalabels: {
-                  align: "end",
-                  anchor: "end"
-                }
+            datasets: [{
+              label: "Total Orders",
+              borderColor: themeColor1,
+              pointBorderColor: themeColor1,
+              pointHoverBackgroundColor: themeColor1,
+              pointHoverBorderColor: themeColor1,
+              pointRadius: 2,
+              pointBorderWidth: 3,
+              pointHoverRadius: 2,
+              fill: false,
+              borderWidth: 2,
+              data: [1250, 1300, 1550, 921, 1810, 1106, 1610],
+              datalabels: {
+                align: "end",
+                anchor: "end"
               }
-            ]
+            }]
           },
           options: smallChartOptions
         });
@@ -1205,25 +1182,23 @@ $.dore = function(element, options) {
           plugins: [smallChartInit],
           data: {
             labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-              {
-                label: "Pending Orders",
-                borderColor: themeColor1,
-                pointBorderColor: themeColor1,
-                pointHoverBackgroundColor: themeColor1,
-                pointHoverBorderColor: themeColor1,
-                pointRadius: 2,
-                pointBorderWidth: 3,
-                pointHoverRadius: 2,
-                fill: false,
-                borderWidth: 2,
-                data: [115, 120, 300, 222, 105, 85, 36],
-                datalabels: {
-                  align: "end",
-                  anchor: "end"
-                }
+            datasets: [{
+              label: "Pending Orders",
+              borderColor: themeColor1,
+              pointBorderColor: themeColor1,
+              pointHoverBackgroundColor: themeColor1,
+              pointHoverBorderColor: themeColor1,
+              pointRadius: 2,
+              pointBorderWidth: 3,
+              pointHoverRadius: 2,
+              fill: false,
+              borderWidth: 2,
+              data: [115, 120, 300, 222, 105, 85, 36],
+              datalabels: {
+                align: "end",
+                anchor: "end"
               }
-            ]
+            }]
           },
           options: smallChartOptions
         });
@@ -1238,25 +1213,23 @@ $.dore = function(element, options) {
           plugins: [smallChartInit],
           data: {
             labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-              {
-                label: "Active Orders",
-                borderColor: themeColor1,
-                pointBorderColor: themeColor1,
-                pointHoverBackgroundColor: themeColor1,
-                pointHoverBorderColor: themeColor1,
-                pointRadius: 2,
-                pointBorderWidth: 3,
-                pointHoverRadius: 2,
-                fill: false,
-                borderWidth: 2,
-                data: [350, 452, 762, 952, 630, 85, 158],
-                datalabels: {
-                  align: "end",
-                  anchor: "end"
-                }
+            datasets: [{
+              label: "Active Orders",
+              borderColor: themeColor1,
+              pointBorderColor: themeColor1,
+              pointHoverBackgroundColor: themeColor1,
+              pointHoverBorderColor: themeColor1,
+              pointRadius: 2,
+              pointBorderWidth: 3,
+              pointHoverRadius: 2,
+              fill: false,
+              borderWidth: 2,
+              data: [350, 452, 762, 952, 630, 85, 158],
+              datalabels: {
+                align: "end",
+                anchor: "end"
               }
-            ]
+            }]
           },
           options: smallChartOptions
         });
@@ -1271,25 +1244,23 @@ $.dore = function(element, options) {
           plugins: [smallChartInit],
           data: {
             labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-              {
-                label: "Shipped Orders",
-                borderColor: themeColor1,
-                pointBorderColor: themeColor1,
-                pointHoverBackgroundColor: themeColor1,
-                pointHoverBorderColor: themeColor1,
-                pointRadius: 2,
-                pointBorderWidth: 3,
-                pointHoverRadius: 2,
-                fill: false,
-                borderWidth: 2,
-                data: [200, 452, 250, 630, 125, 85, 20],
-                datalabels: {
-                  align: "end",
-                  anchor: "end"
-                }
+            datasets: [{
+              label: "Shipped Orders",
+              borderColor: themeColor1,
+              pointBorderColor: themeColor1,
+              pointHoverBackgroundColor: themeColor1,
+              pointHoverBorderColor: themeColor1,
+              pointRadius: 2,
+              pointBorderWidth: 3,
+              pointHoverRadius: 2,
+              fill: false,
+              borderWidth: 2,
+              data: [200, 452, 250, 630, 125, 85, 20],
+              datalabels: {
+                align: "end",
+                anchor: "end"
               }
-            ]
+            }]
           },
           options: smallChartOptions
         });
@@ -1308,30 +1279,26 @@ $.dore = function(element, options) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              yAxes: [
-                {
-                  gridLines: {
-                    display: true,
-                    lineWidth: 1,
-                    color: "rgba(0,0,0,0.1)",
-                    drawBorder: false
-                  },
-                  ticks: {
-                    beginAtZero: true,
-                    stepSize: 5,
-                    min: 50,
-                    max: 70,
-                    padding: 20
-                  }
+              yAxes: [{
+                gridLines: {
+                  display: true,
+                  lineWidth: 1,
+                  color: "rgba(0,0,0,0.1)",
+                  drawBorder: false
+                },
+                ticks: {
+                  beginAtZero: true,
+                  stepSize: 5,
+                  min: 50,
+                  max: 70,
+                  padding: 20
                 }
-              ],
-              xAxes: [
-                {
-                  gridLines: {
-                    display: false
-                  }
+              }],
+              xAxes: [{
+                gridLines: {
+                  display: false
                 }
-              ]
+              }]
             },
             legend: {
               display: false
@@ -1340,21 +1307,19 @@ $.dore = function(element, options) {
           },
           data: {
             labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-              {
-                label: "",
-                data: [54, 63, 60, 65, 60, 68, 60],
-                borderColor: themeColor1,
-                pointBackgroundColor: foregroundColor,
-                pointBorderColor: themeColor1,
-                pointHoverBackgroundColor: themeColor1,
-                pointHoverBorderColor: foregroundColor,
-                pointRadius: 6,
-                pointBorderWidth: 2,
-                pointHoverRadius: 8,
-                fill: false
-              }
-            ]
+            datasets: [{
+              label: "",
+              data: [54, 63, 60, 65, 60, 68, 60],
+              borderColor: themeColor1,
+              pointBackgroundColor: foregroundColor,
+              pointBorderColor: themeColor1,
+              pointHoverBackgroundColor: themeColor1,
+              pointHoverBorderColor: foregroundColor,
+              pointRadius: 6,
+              pointBorderWidth: 2,
+              pointHoverRadius: 8,
+              fill: false
+            }]
           }
         });
       }
@@ -1372,30 +1337,26 @@ $.dore = function(element, options) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              yAxes: [
-                {
-                  gridLines: {
-                    display: true,
-                    lineWidth: 1,
-                    color: "rgba(0,0,0,0.1)",
-                    drawBorder: false
-                  },
-                  ticks: {
-                    beginAtZero: true,
-                    stepSize: 5,
-                    min: 50,
-                    max: 70,
-                    padding: 0
-                  }
+              yAxes: [{
+                gridLines: {
+                  display: true,
+                  lineWidth: 1,
+                  color: "rgba(0,0,0,0.1)",
+                  drawBorder: false
+                },
+                ticks: {
+                  beginAtZero: true,
+                  stepSize: 5,
+                  min: 50,
+                  max: 70,
+                  padding: 0
                 }
-              ],
-              xAxes: [
-                {
-                  gridLines: {
-                    display: false
-                  }
+              }],
+              xAxes: [{
+                gridLines: {
+                  display: false
                 }
-              ]
+              }]
             },
             legend: {
               display: false
@@ -1404,23 +1365,21 @@ $.dore = function(element, options) {
           },
           data: {
             labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-              {
-                label: "",
-                data: [54, 63, 60, 65, 60, 68, 60],
-                borderColor: themeColor1,
-                pointBackgroundColor: foregroundColor,
-                pointBorderColor: themeColor1,
-                pointHoverBackgroundColor: themeColor1,
-                pointHoverBorderColor: foregroundColor,
-                pointRadius: 4,
-                pointBorderWidth: 2,
-                pointHoverRadius: 5,
-                fill: true,
-                borderWidth: 2,
-                backgroundColor: themeColor1_10
-              }
-            ]
+            datasets: [{
+              label: "",
+              data: [54, 63, 60, 65, 60, 68, 60],
+              borderColor: themeColor1,
+              pointBackgroundColor: foregroundColor,
+              pointBorderColor: themeColor1,
+              pointHoverBackgroundColor: themeColor1,
+              pointHoverBorderColor: foregroundColor,
+              pointRadius: 4,
+              pointBorderWidth: 2,
+              pointHoverRadius: 5,
+              fill: true,
+              borderWidth: 2,
+              backgroundColor: themeColor1_10
+            }]
           }
         });
       }
@@ -1440,30 +1399,26 @@ $.dore = function(element, options) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              yAxes: [
-                {
-                  gridLines: {
-                    display: true,
-                    lineWidth: 1,
-                    color: "rgba(0,0,0,0.1)",
-                    drawBorder: false
-                  },
-                  ticks: {
-                    beginAtZero: true,
-                    stepSize: 5,
-                    min: 50,
-                    max: 70,
-                    padding: 0
-                  }
+              yAxes: [{
+                gridLines: {
+                  display: true,
+                  lineWidth: 1,
+                  color: "rgba(0,0,0,0.1)",
+                  drawBorder: false
+                },
+                ticks: {
+                  beginAtZero: true,
+                  stepSize: 5,
+                  min: 50,
+                  max: 70,
+                  padding: 0
                 }
-              ],
-              xAxes: [
-                {
-                  gridLines: {
-                    display: false
-                  }
+              }],
+              xAxes: [{
+                gridLines: {
+                  display: false
                 }
-              ]
+              }]
             },
             legend: {
               display: false
@@ -1472,23 +1427,21 @@ $.dore = function(element, options) {
           },
           data: {
             labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-              {
-                label: "",
-                data: [54, 63, 60, 65, 60, 68, 60],
-                borderColor: themeColor1,
-                pointBackgroundColor: foregroundColor,
-                pointBorderColor: themeColor1,
-                pointHoverBackgroundColor: themeColor1,
-                pointHoverBorderColor: foregroundColor,
-                pointRadius: 4,
-                pointBorderWidth: 2,
-                pointHoverRadius: 5,
-                fill: true,
-                borderWidth: 2,
-                backgroundColor: themeColor1_10
-              }
-            ]
+            datasets: [{
+              label: "",
+              data: [54, 63, 60, 65, 60, 68, 60],
+              borderColor: themeColor1,
+              pointBackgroundColor: foregroundColor,
+              pointBorderColor: themeColor1,
+              pointHoverBackgroundColor: themeColor1,
+              pointHoverBorderColor: foregroundColor,
+              pointRadius: 4,
+              pointBorderWidth: 2,
+              pointHoverRadius: 5,
+              fill: true,
+              borderWidth: 2,
+              backgroundColor: themeColor1_10
+            }]
           }
         });
       }
@@ -1508,32 +1461,28 @@ $.dore = function(element, options) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              yAxes: [
-                {
-                  gridLines: {
-                    display: true,
-                    lineWidth: 1,
-                    color: "rgba(0,0,0,0.1)",
-                    drawBorder: false
-                  },
-                  ticks: {
-                    beginAtZero: true,
-                    stepSize: 20,
-                    min: -80,
-                    max: 80,
-                    padding: 20
-                  }
+              yAxes: [{
+                gridLines: {
+                  display: true,
+                  lineWidth: 1,
+                  color: "rgba(0,0,0,0.1)",
+                  drawBorder: false
+                },
+                ticks: {
+                  beginAtZero: true,
+                  stepSize: 20,
+                  min: -80,
+                  max: 80,
+                  padding: 20
                 }
-              ],
-              xAxes: [
-                {
-                  gridLines: {
-                    display: true,
-                    lineWidth: 1,
-                    color: "rgba(0,0,0,0.1)"
-                  }
+              }],
+              xAxes: [{
+                gridLines: {
+                  display: true,
+                  lineWidth: 1,
+                  color: "rgba(0,0,0,0.1)"
                 }
-              ]
+              }]
             },
             legend: {
               position: "bottom",
@@ -1546,20 +1495,39 @@ $.dore = function(element, options) {
             tooltips: chartTooltip
           },
           data: {
-            datasets: [
-              {
+            datasets: [{
                 borderWidth: 2,
                 label: "Cakes",
                 borderColor: themeColor1,
                 backgroundColor: themeColor1_10,
-                data: [
-                  { x: 62, y: -78 },
-                  { x: -0, y: 74 },
-                  { x: -67, y: 45 },
-                  { x: -26, y: -43 },
-                  { x: -15, y: -30 },
-                  { x: 65, y: -68 },
-                  { x: -28, y: -61 }
+                data: [{
+                    x: 62,
+                    y: -78
+                  },
+                  {
+                    x: -0,
+                    y: 74
+                  },
+                  {
+                    x: -67,
+                    y: 45
+                  },
+                  {
+                    x: -26,
+                    y: -43
+                  },
+                  {
+                    x: -15,
+                    y: -30
+                  },
+                  {
+                    x: 65,
+                    y: -68
+                  },
+                  {
+                    x: -28,
+                    y: -61
+                  }
                 ]
               },
               {
@@ -1567,14 +1535,34 @@ $.dore = function(element, options) {
                 label: "Desserts",
                 borderColor: themeColor2,
                 backgroundColor: themeColor2_10,
-                data: [
-                  { x: 79, y: 62 },
-                  { x: 62, y: 0 },
-                  { x: -76, y: -81 },
-                  { x: -51, y: 41 },
-                  { x: -9, y: 9 },
-                  { x: 72, y: -37 },
-                  { x: 62, y: -26 }
+                data: [{
+                    x: 79,
+                    y: 62
+                  },
+                  {
+                    x: 62,
+                    y: 0
+                  },
+                  {
+                    x: -76,
+                    y: -81
+                  },
+                  {
+                    x: -51,
+                    y: 41
+                  },
+                  {
+                    x: -9,
+                    y: 9
+                  },
+                  {
+                    x: 72,
+                    y: -37
+                  },
+                  {
+                    x: 62,
+                    y: -26
+                  }
                 ]
               }
             ]
@@ -1597,32 +1585,28 @@ $.dore = function(element, options) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              yAxes: [
-                {
-                  gridLines: {
-                    display: true,
-                    lineWidth: 1,
-                    color: "rgba(0,0,0,0.1)",
-                    drawBorder: false
-                  },
-                  ticks: {
-                    beginAtZero: true,
-                    stepSize: 20,
-                    min: -80,
-                    max: 80,
-                    padding: 20
-                  }
+              yAxes: [{
+                gridLines: {
+                  display: true,
+                  lineWidth: 1,
+                  color: "rgba(0,0,0,0.1)",
+                  drawBorder: false
+                },
+                ticks: {
+                  beginAtZero: true,
+                  stepSize: 20,
+                  min: -80,
+                  max: 80,
+                  padding: 20
                 }
-              ],
-              xAxes: [
-                {
-                  gridLines: {
-                    display: true,
-                    lineWidth: 1,
-                    color: "rgba(0,0,0,0.1)"
-                  }
+              }],
+              xAxes: [{
+                gridLines: {
+                  display: true,
+                  lineWidth: 1,
+                  color: "rgba(0,0,0,0.1)"
                 }
-              ]
+              }]
             },
             legend: {
               position: "bottom",
@@ -1635,20 +1619,39 @@ $.dore = function(element, options) {
             tooltips: chartTooltip
           },
           data: {
-            datasets: [
-              {
+            datasets: [{
                 borderWidth: 2,
                 label: "Cakes",
                 borderColor: themeColor1,
                 backgroundColor: themeColor1_10,
-                data: [
-                  { x: 62, y: -78 },
-                  { x: -0, y: 74 },
-                  { x: -67, y: 45 },
-                  { x: -26, y: -43 },
-                  { x: -15, y: -30 },
-                  { x: 65, y: -68 },
-                  { x: -28, y: -61 }
+                data: [{
+                    x: 62,
+                    y: -78
+                  },
+                  {
+                    x: -0,
+                    y: 74
+                  },
+                  {
+                    x: -67,
+                    y: 45
+                  },
+                  {
+                    x: -26,
+                    y: -43
+                  },
+                  {
+                    x: -15,
+                    y: -30
+                  },
+                  {
+                    x: 65,
+                    y: -68
+                  },
+                  {
+                    x: -28,
+                    y: -61
+                  }
                 ]
               },
               {
@@ -1656,14 +1659,34 @@ $.dore = function(element, options) {
                 label: "Desserts",
                 borderColor: themeColor2,
                 backgroundColor: themeColor2_10,
-                data: [
-                  { x: 79, y: 62 },
-                  { x: 62, y: 0 },
-                  { x: -76, y: -81 },
-                  { x: -51, y: 41 },
-                  { x: -9, y: 9 },
-                  { x: 72, y: -37 },
-                  { x: 62, y: -26 }
+                data: [{
+                    x: 79,
+                    y: 62
+                  },
+                  {
+                    x: 62,
+                    y: 0
+                  },
+                  {
+                    x: -76,
+                    y: -81
+                  },
+                  {
+                    x: -51,
+                    y: 41
+                  },
+                  {
+                    x: -9,
+                    y: 9
+                  },
+                  {
+                    x: 72,
+                    y: -37
+                  },
+                  {
+                    x: 62,
+                    y: -26
+                  }
                 ]
               }
             ]
@@ -1701,8 +1724,7 @@ $.dore = function(element, options) {
             tooltips: chartTooltip
           },
           data: {
-            datasets: [
-              {
+            datasets: [{
                 label: "Stock",
                 borderWidth: 2,
                 pointBackgroundColor: themeColor1,
@@ -1752,8 +1774,7 @@ $.dore = function(element, options) {
             tooltips: chartTooltip
           },
           data: {
-            datasets: [
-              {
+            datasets: [{
                 label: "Stock",
                 borderWidth: 2,
                 pointBackgroundColor: themeColor1,
@@ -1803,20 +1824,18 @@ $.dore = function(element, options) {
             tooltips: chartTooltip
           },
           data: {
-            datasets: [
-              {
-                label: "Stock",
-                borderWidth: 2,
-                pointBackgroundColor: themeColor1,
-                borderColor: [themeColor1, themeColor2, themeColor3],
-                backgroundColor: [
-                  themeColor1_10,
-                  themeColor2_10,
-                  themeColor3_10
-                ],
-                data: [80, 90, 70]
-              }
-            ],
+            datasets: [{
+              label: "Stock",
+              borderWidth: 2,
+              pointBackgroundColor: themeColor1,
+              borderColor: [themeColor1, themeColor2, themeColor3],
+              backgroundColor: [
+                themeColor1_10,
+                themeColor2_10,
+                themeColor3_10
+              ],
+              data: [80, 90, 70]
+            }],
             labels: ["Cakes", "Desserts", "Cupcakes"]
           }
         });
@@ -1852,20 +1871,18 @@ $.dore = function(element, options) {
             tooltips: chartTooltip
           },
           data: {
-            datasets: [
-              {
-                label: "Stock",
-                borderWidth: 2,
-                pointBackgroundColor: themeColor1,
-                borderColor: [themeColor1, themeColor2, themeColor3],
-                backgroundColor: [
-                  themeColor1_10,
-                  themeColor2_10,
-                  themeColor3_10
-                ],
-                data: [80, 90, 70]
-              }
-            ],
+            datasets: [{
+              label: "Stock",
+              borderWidth: 2,
+              pointBackgroundColor: themeColor1,
+              borderColor: [themeColor1, themeColor2, themeColor3],
+              backgroundColor: [
+                themeColor1_10,
+                themeColor2_10,
+                themeColor3_10
+              ],
+              data: [80, 90, 70]
+            }],
             labels: ["Cakes", "Desserts", "Cupcakes"]
           }
         });
@@ -1886,30 +1903,26 @@ $.dore = function(element, options) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              yAxes: [
-                {
-                  gridLines: {
-                    display: true,
-                    lineWidth: 1,
-                    color: "rgba(0,0,0,0.1)",
-                    drawBorder: false
-                  },
-                  ticks: {
-                    beginAtZero: true,
-                    stepSize: 5,
-                    min: 50,
-                    max: 70,
-                    padding: 20
-                  }
+              yAxes: [{
+                gridLines: {
+                  display: true,
+                  lineWidth: 1,
+                  color: "rgba(0,0,0,0.1)",
+                  drawBorder: false
+                },
+                ticks: {
+                  beginAtZero: true,
+                  stepSize: 5,
+                  min: 50,
+                  max: 70,
+                  padding: 20
                 }
-              ],
-              xAxes: [
-                {
-                  gridLines: {
-                    display: false
-                  }
+              }],
+              xAxes: [{
+                gridLines: {
+                  display: false
                 }
-              ]
+              }]
             },
             legend: {
               display: false
@@ -1918,21 +1931,19 @@ $.dore = function(element, options) {
           },
           data: {
             labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-              {
-                label: "",
-                data: [54, 63, 60, 65, 60, 68, 60],
-                borderColor: themeColor1,
-                pointBackgroundColor: foregroundColor,
-                pointBorderColor: themeColor1,
-                pointHoverBackgroundColor: themeColor1,
-                pointHoverBorderColor: foregroundColor,
-                pointRadius: 6,
-                pointBorderWidth: 2,
-                pointHoverRadius: 8,
-                fill: false
-              }
-            ]
+            datasets: [{
+              label: "",
+              data: [54, 63, 60, 65, 60, 68, 60],
+              borderColor: themeColor1,
+              pointBackgroundColor: foregroundColor,
+              pointBorderColor: themeColor1,
+              pointHoverBackgroundColor: themeColor1,
+              pointHoverBorderColor: foregroundColor,
+              pointRadius: 6,
+              pointBorderWidth: 2,
+              pointHoverRadius: 8,
+              fill: false
+            }]
           }
         });
       }
@@ -1952,30 +1963,26 @@ $.dore = function(element, options) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              yAxes: [
-                {
-                  gridLines: {
-                    display: true,
-                    lineWidth: 1,
-                    color: "rgba(0,0,0,0.1)",
-                    drawBorder: false
-                  },
-                  ticks: {
-                    beginAtZero: true,
-                    stepSize: 100,
-                    min: 300,
-                    max: 800,
-                    padding: 20
-                  }
+              yAxes: [{
+                gridLines: {
+                  display: true,
+                  lineWidth: 1,
+                  color: "rgba(0,0,0,0.1)",
+                  drawBorder: false
+                },
+                ticks: {
+                  beginAtZero: true,
+                  stepSize: 100,
+                  min: 300,
+                  max: 800,
+                  padding: 20
                 }
-              ],
-              xAxes: [
-                {
-                  gridLines: {
-                    display: false
-                  }
+              }],
+              xAxes: [{
+                gridLines: {
+                  display: false
                 }
-              ]
+              }]
             },
             legend: {
               position: "bottom",
@@ -1989,8 +1996,7 @@ $.dore = function(element, options) {
           },
           data: {
             labels: ["January", "February", "March", "April", "May", "June"],
-            datasets: [
-              {
+            datasets: [{
                 label: "Cakes",
                 borderColor: themeColor1,
                 backgroundColor: themeColor1_10,
@@ -2024,30 +2030,26 @@ $.dore = function(element, options) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              yAxes: [
-                {
-                  gridLines: {
-                    display: true,
-                    lineWidth: 1,
-                    color: "rgba(0,0,0,0.1)",
-                    drawBorder: false
-                  },
-                  ticks: {
-                    beginAtZero: true,
-                    stepSize: 100,
-                    min: 300,
-                    max: 800,
-                    padding: 20
-                  }
+              yAxes: [{
+                gridLines: {
+                  display: true,
+                  lineWidth: 1,
+                  color: "rgba(0,0,0,0.1)",
+                  drawBorder: false
+                },
+                ticks: {
+                  beginAtZero: true,
+                  stepSize: 100,
+                  min: 300,
+                  max: 800,
+                  padding: 20
                 }
-              ],
-              xAxes: [
-                {
-                  gridLines: {
-                    display: false
-                  }
+              }],
+              xAxes: [{
+                gridLines: {
+                  display: false
                 }
-              ]
+              }]
             },
             legend: {
               position: "bottom",
@@ -2061,8 +2063,7 @@ $.dore = function(element, options) {
           },
           data: {
             labels: ["January", "February", "March", "April", "May", "June"],
-            datasets: [
-              {
+            datasets: [{
                 label: "Cakes",
                 borderColor: themeColor1,
                 backgroundColor: themeColor1_10,
@@ -2092,30 +2093,26 @@ $.dore = function(element, options) {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            yAxes: [
-              {
-                gridLines: {
-                  display: true,
-                  lineWidth: 1,
-                  color: "rgba(0,0,0,0.1)",
-                  drawBorder: false
-                },
-                ticks: {
-                  beginAtZero: true,
-                  stepSize: 5,
-                  min: 50,
-                  max: 70,
-                  padding: 20
-                }
+            yAxes: [{
+              gridLines: {
+                display: true,
+                lineWidth: 1,
+                color: "rgba(0,0,0,0.1)",
+                drawBorder: false
+              },
+              ticks: {
+                beginAtZero: true,
+                stepSize: 5,
+                min: 50,
+                max: 70,
+                padding: 20
               }
-            ],
-            xAxes: [
-              {
-                gridLines: {
-                  display: false
-                }
+            }],
+            xAxes: [{
+              gridLines: {
+                display: false
               }
-            ]
+            }]
           },
           legend: {
             display: false
@@ -2137,22 +2134,20 @@ $.dore = function(element, options) {
             "Nov",
             "Dec"
           ],
-          datasets: [
-            {
-              borderWidth: 2,
-              label: "",
-              data: [54, 63, 60, 65, 60, 68, 60, 63, 60, 65, 60, 68],
-              borderColor: themeColor1,
-              pointBackgroundColor: foregroundColor,
-              pointBorderColor: themeColor1,
-              pointHoverBackgroundColor: themeColor1,
-              pointHoverBorderColor: foregroundColor,
-              pointRadius: 4,
-              pointBorderWidth: 2,
-              pointHoverRadius: 5,
-              fill: false
-            }
-          ]
+          datasets: [{
+            borderWidth: 2,
+            label: "",
+            data: [54, 63, 60, 65, 60, 68, 60, 63, 60, 65, 60, 68],
+            borderColor: themeColor1,
+            pointBackgroundColor: foregroundColor,
+            pointBorderColor: themeColor1,
+            pointHoverBackgroundColor: themeColor1,
+            pointHoverBorderColor: foregroundColor,
+            pointRadius: 4,
+            pointBorderWidth: 2,
+            pointHoverRadius: 5,
+            fill: false
+          }]
         }
       };
 
@@ -2194,9 +2189,9 @@ $.dore = function(element, options) {
           var activePercentage = parseFloat(
             ((activeValue / total) * 100).toFixed(1)
           );
-          activePercentage = chart.legend.legendItems[0].hidden
-            ? 0
-            : activePercentage;
+          activePercentage = chart.legend.legendItems[0].hidden ?
+            0 :
+            activePercentage;
 
           if (chart.pointAvailable) {
             activeLabel = chart.data.labels[chart.pointIndex];
@@ -2209,9 +2204,9 @@ $.dore = function(element, options) {
             activePercentage = parseFloat(
               ((activeValue / total) * 100).toFixed(1)
             );
-            activePercentage = chart.legend.legendItems[chart.pointIndex].hidden
-              ? 0
-              : activePercentage;
+            activePercentage = chart.legend.legendItems[chart.pointIndex].hidden ?
+              0 :
+              activePercentage;
           }
 
           ctx.font = "36px" + " Nunito, sans-serif";
@@ -2251,19 +2246,17 @@ $.dore = function(element, options) {
           type: "DoughnutWithShadow",
           data: {
             labels: ["Cakes", "Cupcakes", "Desserts"],
-            datasets: [
-              {
-                label: "",
-                borderColor: [themeColor3, themeColor2, themeColor1],
-                backgroundColor: [
-                  themeColor3_10,
-                  themeColor2_10,
-                  themeColor1_10
-                ],
-                borderWidth: 2,
-                data: [15, 25, 20]
-              }
-            ]
+            datasets: [{
+              label: "",
+              borderColor: [themeColor3, themeColor2, themeColor1],
+              backgroundColor: [
+                themeColor3_10,
+                themeColor2_10,
+                themeColor1_10
+              ],
+              borderWidth: 2,
+              data: [15, 25, 20]
+            }]
           },
           draw: function() {},
           options: {
@@ -2305,19 +2298,17 @@ $.dore = function(element, options) {
           type: "doughnut",
           data: {
             labels: ["Cakes", "Cupcakes", "Desserts"],
-            datasets: [
-              {
-                label: "",
-                borderColor: [themeColor3, themeColor2, themeColor1],
-                backgroundColor: [
-                  themeColor3_10,
-                  themeColor2_10,
-                  themeColor1_10
-                ],
-                borderWidth: 2,
-                data: [15, 25, 20]
-              }
-            ]
+            datasets: [{
+              label: "",
+              borderColor: [themeColor3, themeColor2, themeColor1],
+              backgroundColor: [
+                themeColor3_10,
+                themeColor2_10,
+                themeColor1_10
+              ],
+              borderWidth: 2,
+              data: [15, 25, 20]
+            }]
           },
           draw: function() {},
           options: {
@@ -2356,19 +2347,17 @@ $.dore = function(element, options) {
           type: "pie",
           data: {
             labels: ["Cakes", "Cupcakes", "Desserts"],
-            datasets: [
-              {
-                label: "",
-                borderColor: [themeColor1, themeColor2, themeColor3],
-                backgroundColor: [
-                  themeColor1_10,
-                  themeColor2_10,
-                  themeColor3_10
-                ],
-                borderWidth: 2,
-                data: [15, 25, 20]
-              }
-            ]
+            datasets: [{
+              label: "",
+              borderColor: [themeColor1, themeColor2, themeColor3],
+              backgroundColor: [
+                themeColor1_10,
+                themeColor2_10,
+                themeColor3_10
+              ],
+              borderWidth: 2,
+              data: [15, 25, 20]
+            }]
           },
           draw: function() {},
           options: {
@@ -2406,19 +2395,17 @@ $.dore = function(element, options) {
           type: "PieWithShadow",
           data: {
             labels: ["Cakes", "Cupcakes", "Desserts"],
-            datasets: [
-              {
-                label: "",
-                borderColor: [themeColor1, themeColor2, themeColor3],
-                backgroundColor: [
-                  themeColor1_10,
-                  themeColor2_10,
-                  themeColor3_10
-                ],
-                borderWidth: 2,
-                data: [15, 25, 20]
-              }
-            ]
+            datasets: [{
+              label: "",
+              borderColor: [themeColor1, themeColor2, themeColor3],
+              backgroundColor: [
+                themeColor1_10,
+                themeColor2_10,
+                themeColor3_10
+              ],
+              borderWidth: 2,
+              data: [15, 25, 20]
+            }]
           },
           draw: function() {},
           options: {
@@ -2457,19 +2444,17 @@ $.dore = function(element, options) {
           type: "DoughnutWithShadow",
           data: {
             labels: ["Adding", "Editing", "Deleting"],
-            datasets: [
-              {
-                label: "",
-                borderColor: [themeColor1, themeColor2, themeColor3],
-                backgroundColor: [
-                  themeColor1_10,
-                  themeColor2_10,
-                  themeColor3_10
-                ],
-                borderWidth: 2,
-                data: [15, 25, 20]
-              }
-            ]
+            datasets: [{
+              label: "",
+              borderColor: [themeColor1, themeColor2, themeColor3],
+              backgroundColor: [
+                themeColor1_10,
+                themeColor2_10,
+                themeColor3_10
+              ],
+              borderWidth: 2,
+              data: [15, 25, 20]
+            }]
           },
           draw: function() {},
           options: {
@@ -2509,27 +2494,25 @@ $.dore = function(element, options) {
           type: "DoughnutWithShadow",
           data: {
             labels: ["12-24", "24-30", "30-40", "40-50", "50-60"],
-            datasets: [
-              {
-                label: "",
-                borderColor: [
-                  themeColor1,
-                  themeColor2,
-                  themeColor3,
-                  themeColor4,
-                  themeColor5
-                ],
-                backgroundColor: [
-                  themeColor1_10,
-                  themeColor2_10,
-                  themeColor3_10,
-                  themeColor4_10,
-                  themeColor5_10
-                ],
-                borderWidth: 2,
-                data: [15, 25, 20, 30, 14]
-              }
-            ]
+            datasets: [{
+              label: "",
+              borderColor: [
+                themeColor1,
+                themeColor2,
+                themeColor3,
+                themeColor4,
+                themeColor5
+              ],
+              backgroundColor: [
+                themeColor1_10,
+                themeColor2_10,
+                themeColor3_10,
+                themeColor4_10,
+                themeColor5_10
+              ],
+              borderWidth: 2,
+              data: [15, 25, 20, 30, 14]
+            }]
           },
           draw: function() {},
           options: {
@@ -2569,19 +2552,17 @@ $.dore = function(element, options) {
           type: "DoughnutWithShadow",
           data: {
             labels: ["Male", "Female", "Other"],
-            datasets: [
-              {
-                label: "",
-                borderColor: [themeColor1, themeColor2, themeColor3],
-                backgroundColor: [
-                  themeColor1_10,
-                  themeColor2_10,
-                  themeColor3_10
-                ],
-                borderWidth: 2,
-                data: [85, 45, 20]
-              }
-            ]
+            datasets: [{
+              label: "",
+              borderColor: [themeColor1, themeColor2, themeColor3],
+              backgroundColor: [
+                themeColor1_10,
+                themeColor2_10,
+                themeColor3_10
+              ],
+              borderWidth: 2,
+              data: [85, 45, 20]
+            }]
           },
           draw: function() {},
           options: {
@@ -2626,25 +2607,23 @@ $.dore = function(element, options) {
               "Looking for work",
               "Retired"
             ],
-            datasets: [
-              {
-                label: "",
-                borderColor: [
-                  themeColor1,
-                  themeColor2,
-                  themeColor3,
-                  themeColor4
-                ],
-                backgroundColor: [
-                  themeColor1_10,
-                  themeColor2_10,
-                  themeColor3_10,
-                  themeColor4_10
-                ],
-                borderWidth: 2,
-                data: [15, 25, 20, 8]
-              }
-            ]
+            datasets: [{
+              label: "",
+              borderColor: [
+                themeColor1,
+                themeColor2,
+                themeColor3,
+                themeColor4
+              ],
+              backgroundColor: [
+                themeColor1_10,
+                themeColor2_10,
+                themeColor3_10,
+                themeColor4_10
+              ],
+              borderWidth: 2,
+              data: [15, 25, 20, 8]
+            }]
           },
           draw: function() {},
           options: {
@@ -2684,27 +2663,25 @@ $.dore = function(element, options) {
           type: "DoughnutWithShadow",
           data: {
             labels: ["Python", "JavaScript", "PHP", "Java", "C#"],
-            datasets: [
-              {
-                label: "",
-                borderColor: [
-                  themeColor1,
-                  themeColor2,
-                  themeColor3,
-                  themeColor4,
-                  themeColor5
-                ],
-                backgroundColor: [
-                  themeColor1_10,
-                  themeColor2_10,
-                  themeColor3_10,
-                  themeColor4_10,
-                  themeColor5_10
-                ],
-                borderWidth: 2,
-                data: [15, 25, 20, 8, 25]
-              }
-            ]
+            datasets: [{
+              label: "",
+              borderColor: [
+                themeColor1,
+                themeColor2,
+                themeColor3,
+                themeColor4,
+                themeColor5
+              ],
+              backgroundColor: [
+                themeColor1_10,
+                themeColor2_10,
+                themeColor3_10,
+                themeColor4_10,
+                themeColor5_10
+              ],
+              borderWidth: 2,
+              data: [15, 25, 20, 8, 25]
+            }]
           },
           draw: function() {},
           options: {
@@ -2759,8 +2736,7 @@ $.dore = function(element, options) {
           prevYear: "simple-icon-control-start",
           nextYear: "simple-icon-control-end"
         },
-        events: [
-          {
+        events: [{
             title: "Account",
             start: "2018-05-18"
           },
@@ -2800,9 +2776,8 @@ $.dore = function(element, options) {
         bLengthChange: false,
         destroy: true,
         info: false,
-        sDom:
-          '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
-        pageLength: 6,
+        sDom: '<"row view-filter"<"col-sm-12"<"pull-left"l><"pull-right"f><"clearfix">>>t<"row view-pager"<"col-sm-12"<"text-center"ip>>>',
+        pageLength: 10,
         language: {
           paginate: {
             previous: "<i class='simple-icon-arrow-left'></i>",
@@ -2825,52 +2800,48 @@ $.dore = function(element, options) {
 
     /* 03.12. Notification */
     function showNotification(placementFrom, placementAlign, type) {
-      $.notify(
-        {
-          title: "Bootstrap Notify",
-          message: "Here is a notification!",
-          target: "_blank"
+      $.notify({
+        title: "Bootstrap Notify",
+        message: "Here is a notification!",
+        target: "_blank"
+      }, {
+        element: "body",
+        position: null,
+        type: type,
+        allow_dismiss: true,
+        newest_on_top: false,
+        showProgressbar: false,
+        placement: {
+          from: placementFrom,
+          align: placementAlign
         },
-        {
-          element: "body",
-          position: null,
-          type: type,
-          allow_dismiss: true,
-          newest_on_top: false,
-          showProgressbar: false,
-          placement: {
-            from: placementFrom,
-            align: placementAlign
-          },
-          offset: 20,
-          spacing: 10,
-          z_index: 1031,
-          delay: 4000,
-          timer: 2000,
-          url_target: "_blank",
-          mouse_over: null,
-          animate: {
-            enter: "animated fadeInDown",
-            exit: "animated fadeOutUp"
-          },
-          onShow: null,
-          onShown: null,
-          onClose: null,
-          onClosed: null,
-          icon_type: "class",
-          template:
-            '<div data-notify="container" class="col-11 col-sm-3 alert  alert-{0} " role="alert">' +
-            '<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +
-            '<span data-notify="icon"></span> ' +
-            '<span data-notify="title">{1}</span> ' +
-            '<span data-notify="message">{2}</span>' +
-            '<div class="progress" data-notify="progressbar">' +
-            '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>' +
-            "</div>" +
-            '<a href="{3}" target="{4}" data-notify="url"></a>' +
-            "</div>"
-        }
-      );
+        offset: 20,
+        spacing: 10,
+        z_index: 1031,
+        delay: 4000,
+        timer: 2000,
+        url_target: "_blank",
+        mouse_over: null,
+        animate: {
+          enter: "animated fadeInDown",
+          exit: "animated fadeOutUp"
+        },
+        onShow: null,
+        onShown: null,
+        onClose: null,
+        onClosed: null,
+        icon_type: "class",
+        template: '<div data-notify="container" class="col-11 col-sm-3 alert  alert-{0} " role="alert">' +
+          '<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +
+          '<span data-notify="icon"></span> ' +
+          '<span data-notify="title">{1}</span> ' +
+          '<span data-notify="message">{2}</span>' +
+          '<div class="progress" data-notify="progressbar">' +
+          '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>' +
+          "</div>" +
+          '<a href="{3}" target="{4}" data-notify="url"></a>' +
+          "</div>"
+      });
     }
 
     $("body").on("click", ".notify-btn", function(event) {
@@ -2995,8 +2966,8 @@ $.dore = function(element, options) {
       $(".owl-dot").click(function() {
         var carouselReference = $(
           $(this)
-            .parents(".owl-container")
-            .find(".owl-carousel")
+          .parents(".owl-container")
+          .find(".owl-carousel")
         ).owlCarousel();
         carouselReference.trigger("to.owl.carousel", [$(this).index(), 300]);
       });
@@ -3005,8 +2976,8 @@ $.dore = function(element, options) {
         event.preventDefault();
         var carouselReference = $(
           $(this)
-            .parents(".owl-container")
-            .find(".owl-carousel")
+          .parents(".owl-container")
+          .find(".owl-carousel")
         ).owlCarousel();
         carouselReference.trigger("prev.owl.carousel", [300]);
       });
@@ -3015,8 +2986,8 @@ $.dore = function(element, options) {
         event.preventDefault();
         var carouselReference = $(
           $(this)
-            .parents(".owl-container")
-            .find(".owl-carousel")
+          .parents(".owl-container")
+          .find(".owl-carousel")
         ).owlCarousel();
         carouselReference.trigger("next.owl.carousel", [300]);
       });
@@ -3042,8 +3013,7 @@ $.dore = function(element, options) {
         customPaging: function(slider, i) {
           return '<button role="button" class="slick-dot"><span></span></button>';
         },
-        responsive: [
-          {
+        responsive: [{
             breakpoint: 1024,
             settings: {
               slidesToShow: 2,
@@ -3081,8 +3051,7 @@ $.dore = function(element, options) {
         customPaging: function(slider, i) {
           return '<button role="button" class="slick-dot"><span></span></button>';
         },
-        responsive: [
-          {
+        responsive: [{
             breakpoint: 992,
             settings: {
               slidesToShow: 3,
@@ -3131,7 +3100,7 @@ $.dore = function(element, options) {
     }
 
     /* 03.15. Form Validation */
-    var forms = document.getElementsByClassName("needs-validation");
+    /*var forms = document.getElementsByClassName("needs-validation");
     var validation = Array.prototype.filter.call(forms, function(form) {
       form.addEventListener(
         "submit",
@@ -3144,7 +3113,7 @@ $.dore = function(element, options) {
         },
         false
       );
-    });
+    });*/
 
     /* 03.16. Tooltip */
     if ($().tooltip) {
@@ -3153,7 +3122,9 @@ $.dore = function(element, options) {
 
     /* 03.17. Popover */
     if ($().popover) {
-      $('[data-toggle="popover"]').popover({ trigger: "focus" });
+      $('[data-toggle="popover"]').popover({
+        trigger: "focus"
+      });
     }
 
     /* 03.18. Select 2 */
@@ -3206,8 +3177,7 @@ $.dore = function(element, options) {
       $(".dropzone").dropzone({
         url: "/file/post",
         thumbnailWidth: 160,
-        previewTemplate:
-          '<div class="dz-preview dz-file-preview mb-3"><div class="d-flex flex-row "> <div class="p-0 w-30 position-relative"> <div class="dz-error-mark"><span><i class="simple-icon-exclamation"></i>  </span></div>      <div class="dz-success-mark"><span><i class="simple-icon-check-circle"></i></span></div>      <img data-dz-thumbnail class="img-thumbnail border-0" /> </div> <div class="pl-3 pt-2 pr-2 pb-1 w-70 dz-details position-relative"> <div> <span data-dz-name /> </div> <div class="text-primary text-extra-small" data-dz-size /> </div> <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>        <div class="dz-error-message"><span data-dz-errormessage></span></div>            </div><a href="#" class="remove" data-dz-remove> <i class="simple-icon-trash"></i> </a></div>'
+        previewTemplate: '<div class="dz-preview dz-file-preview mb-3"><div class="d-flex flex-row "> <div class="p-0 w-30 position-relative"> <div class="dz-error-mark"><span><i class="simple-icon-exclamation"></i>  </span></div>      <div class="dz-success-mark"><span><i class="simple-icon-check-circle"></i></span></div>      <img data-dz-thumbnail class="img-thumbnail border-0" /> </div> <div class="pl-3 pt-2 pr-2 pb-1 w-70 dz-details position-relative"> <div> <span data-dz-name /> </div> <div class="text-primary text-extra-small" data-dz-size /> </div> <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>        <div class="dz-error-message"><span data-dz-errormessage></span></div>            </div><a href="#" class="remove" data-dz-remove> <i class="simple-icon-trash"></i> </a></div>'
       });
     }
 
@@ -3456,7 +3426,9 @@ $.dore = function(element, options) {
     if (typeof Sortable !== "undefined") {
       $(".sortable").each(function() {
         if ($(this).find(".handle").length > 0) {
-          Sortable.create($(this)[0], { handle: ".handle" });
+          Sortable.create($(this)[0], {
+            handle: ".handle"
+          });
         } else {
           Sortable.create($(this)[0]);
         }
@@ -3518,8 +3490,7 @@ $.dore = function(element, options) {
     });
 
     /* 03.30. Typeahead */
-    var testData = [
-      {
+    var testData = [{
         name: "May",
         index: 0,
         id: "5a8a9bfd8bf389ba8d6bb211"
@@ -3622,7 +3593,9 @@ $.dore = function(element, options) {
     ];
 
     if ($().typeahead) {
-      $("#query").typeahead({ source: testData });
+      $("#query").typeahead({
+        source: testData
+      });
     }
 
     /* 03.31. Full Screen */
@@ -3683,52 +3656,112 @@ $.dore = function(element, options) {
         ["bold", "italic", "underline", "strike"],
         ["blockquote", "code-block"],
 
-        [{ header: 1 }, { header: 2 }],
-        [{ list: "ordered" }, { list: "bullet" }],
-        [{ script: "sub" }, { script: "super" }],
-        [{ indent: "-1" }, { indent: "+1" }],
-        [{ direction: "rtl" }],
+        [{
+          header: 1
+        }, {
+          header: 2
+        }],
+        [{
+          list: "ordered"
+        }, {
+          list: "bullet"
+        }],
+        [{
+          script: "sub"
+        }, {
+          script: "super"
+        }],
+        [{
+          indent: "-1"
+        }, {
+          indent: "+1"
+        }],
+        [{
+          direction: "rtl"
+        }],
 
-        [{ size: ["small", false, "large", "huge"] }],
-        [{ header: [1, 2, 3, 4, 5, 6, false] }],
+        [{
+          size: ["small", false, "large", "huge"]
+        }],
+        [{
+          header: [1, 2, 3, 4, 5, 6, false]
+        }],
 
-        [{ color: [] }, { background: [] }],
-        [{ font: [] }],
-        [{ align: [] }],
+        [{
+          color: []
+        }, {
+          background: []
+        }],
+        [{
+          font: []
+        }],
+        [{
+          align: []
+        }],
 
         ["clean"]
       ];
 
       var quillBubbleToolbarOptions = [
         ["bold", "italic", "underline", "strike"],
-        [{ list: "ordered" }, { list: "bullet" }],
-        [{ size: ["small", false, "large", "huge"] }],
-        [{ color: [] }],
-        [{ align: [] }]
+        [{
+          list: "ordered"
+        }, {
+          list: "bullet"
+        }],
+        [{
+          size: ["small", false, "large", "huge"]
+        }],
+        [{
+          color: []
+        }],
+        [{
+          align: []
+        }]
       ];
 
       var editor = new Quill("#quillEditor", {
-        modules: { toolbar: quillToolbarOptions },
+        modules: {
+          toolbar: quillToolbarOptions
+        },
         theme: "snow"
       });
 
       var editorBubble = new Quill("#quillEditorBubble", {
-        modules: { toolbar: quillBubbleToolbarOptions },
+        modules: {
+          toolbar: quillBubbleToolbarOptions
+        },
         theme: "bubble"
       });
     }
 
     if (typeof ClassicEditor !== "undefined") {
-      ClassicEditor.create(document.querySelector("#ckEditorClassic")).catch(
-        error => {}
-      );
+      var x = document.querySelectorAll(".ckEditorClassic");
+      var ii;
+      for (ii = 0; ii < x.length; ii++) {
+        ClassicEditor.create(x[ii],{
+          toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'undo', 'redo'],
+        heading: {
+            options: [
+                { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' }
+            ]
+        }
+        }).catch(
+          error => {}
+        );
+      }
+
     }
 
     /* 03.33. Showing Body */
     $("body > *")
       .stop()
       .delay(100)
-      .animate({ opacity: 1 }, 300);
+      .animate({
+        opacity: 1
+      }, 300);
     $("body").removeClass("show-spinner");
     $("main").addClass("default-transition");
     $(".sub-menu").addClass("default-transition");
@@ -3837,8 +3870,14 @@ $.dore = function(element, options) {
             name: "Copy",
             className: "simple-icon-docs"
           },
-          archive: { name: "Move to archive", className: "simple-icon-drawer" },
-          delete: { name: "Delete", className: "simple-icon-trash" }
+          archive: {
+            name: "Move to archive",
+            className: "simple-icon-drawer"
+          },
+          delete: {
+            name: "Delete",
+            className: "simple-icon-trash"
+          }
         }
       });
     }

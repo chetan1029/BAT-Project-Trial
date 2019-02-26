@@ -1,0 +1,43 @@
+<div class="library-app">
+  <div class="row list">
+    {% if parent_status_id != "parent" %}
+    <div class="col-12 mb-2">
+      {% if parent_status_id is Null %}
+      <button type="button" class="btn btn-xs btn-outline-dark mb-2" onclick="load_display_status('')"><i class="simple-icon-arrow-left"></i></button>
+      {% else %}
+      <button type="button" class="btn btn-xs btn-outline-dark mb-2" onclick="load_display_status({{parent_status_id}})"><i class="simple-icon-arrow-left"></i></button>
+      {% endif %}
+      <h5 class="d-inline ml-2">{{status_breadcrumbs}}</h5>
+    </div>
+    {% endif %}
+    {% for status in statuses %}
+    <div class="col-xxl-4 col-xl-6 col-12">
+      <div class="card d-flex flex-row mb-4 media-thumb-container" onclick="load_display_status({{status.pk}},{{status_id}})">
+        <a class="d-flex align-self-center media-thumbnail-icon" href="javascript:void()" onclick="load_display_status({{status.pk}},{{status_id}})">
+          <i class="iconsmind-Folder-Open"></i>
+        </a>
+        <div class="d-flex flex-grow-1 min-width-zero">
+          <div class="card-body align-self-center d-flex flex-column justify-content-between min-width-zero align-items-lg-center">
+            <a href="javascript:void()" onclick="load_display_status({{status.pk}},{{status_id}})" class="w-100">
+              <p class="list-item-heading mb-1 truncate">{{status.title}}</p>
+            </a>
+          </div>
+          <div class="custom-control custom-checkbox pl-1 align-self-center">
+            <label class="custom-control custom-checkbox mb-0">
+              <a href="javascript:void()" onclick="editstatus({{status.pk}},'{{status.title}}')" class="btn btn-outline-info icon-button "><i class="simple-icon-pencil"></i></a>
+              <a href="{% url 'settings:delete_status' pk=status.pk %}" class="btn btn-outline-danger icon-button "><i class="simple-icon-trash"></i></a>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <div class="col-12 col-xxl-2 col-xl-3">
+      <div class="text-center mt-4">
+        <button type="button" onclick="addstatus()" class="btn btn-outline-primary btn-sm mb-2">
+          <i class="simple-icon-plus btn-group-icon"></i>
+          Add Status</button>
+      </div>
+    </div>
+  </div>
+</div>

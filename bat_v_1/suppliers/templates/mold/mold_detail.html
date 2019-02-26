@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'suppliers_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ supplier.name }}</h1>
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:mold_list' pk=supplier.pk %}">Molds</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ mold.title }}</li>
+        </ol>
+      </nav>
+    </div>
+
+
+    {% include 'suppliers/menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
+        <div class="row">
+          <div class="col-12 mb-4">
+            <div class="card mb-4">
+              <div class="position-absolute card-top-buttons">
+                <a href="{% url 'suppliers:update_mold' pk=mold.pk %}" class="btn btn-outline-info icon-button ">
+                  <i class="simple-icon-pencil"></i>
+                </a>
+                <a href="{% url 'suppliers:delete_mold' pk=mold.pk %}" class="btn btn-outline-danger icon-button ">
+                  <i class="simple-icon-trash"></i>
+                </a>
+              </div>
+              <div class="card-body">
+                <h2>{{mold.title}}</h2>
+                {% include 'mold/menu.html' %}
+                <p class="text-muted text-small mb-2">Manufacturer</p>
+                <p class="mb-3">{{mold.supplier}}</p>
+                <div class="row">
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">X Units</p>
+                    <p class="mb-3">{{mold.x_units}}</p>
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Price</p>
+                    <p class="mb-3">{{mold.price}} {{mold.currency}}</p>
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">Paid By</p>
+                    <p class="mb-3">{{mold.paid_by}}</p>
+                  </div>
+                  <div class="col-3">
+                    <p class="text-muted text-small mb-2">No of Layers</p>
+                    <p class="mb-3">{{mold.no_of_layers}}</p>
+                  </div>
+                </div>
+                <p class="text-muted text-small mb-2">Production Date</p>
+                <p class="mb-3">{{mold.production_date| date:"d M Y"}}</p>
+                <p class="text-muted text-small mb-2">Category</p>
+                {% for moldcategory in mold.category.all %}
+                <span class="badge badge-pill badge-outline-dark mb-1 mt-1">{{ moldcategory.name }}</span>
+                {% endfor %}
+
+                <hr>
+                <div class="row">
+                  <div class="col-6">
+                    <p class="text-muted text-small mb-2">Created at</p>
+                    <p class="mb-3">{{mold.create_date| date:"d M Y h:i A"}}</p>
+                  </div>
+                  <div class="col-6">
+                    <p class="text-muted text-small mb-2">Updated at</p>
+                    <p class="mb-3">{{mold.update_date| date:"d M Y h:i A"}}</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

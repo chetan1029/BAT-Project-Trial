@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'suppliers_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ supplier.name }}</h1>
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:bank_list' pk=supplier.pk %}">Bank Details</a>
+          </li>
+          {% if not form.instance.pk %}
+          <li class="breadcrumb-item active" aria-current="page">Add Bank</li>
+          {% else %}
+          <li class="breadcrumb-item active" aria-current="page">Edit Bank</li>
+          {% endif %}
+        </ol>
+      </nav>
+    </div>
+
+
+    {% include 'suppliers/menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
+        <div class="tab-card h-100">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                {% if not form.instance.pk %}
+                <h5 class="card-title">Add Bank</h5>
+                {% else %}
+                <h5 class="card-title">Edit Bank</h5>
+                {% endif %}
+              </div>
+            </div>
+            <form method="POST" class="needs-validation" novalidate>
+              {% csrf_token %}
+              {{form|crispy}}
+              <button type="submit" class="btn btn-primary mb-0">Submit</button>
+              <a href="{% url 'suppliers:bank_list' supplier.pk %}" class="btn btn-danger mb-0">Cancel</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

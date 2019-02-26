@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+{% extends "amazon_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ amazonproduct.title }}</h1>
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'products:amazonproduct_list' %}">Amazon Products</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ amazonproduct.title|truncatewords:13 }}</li>
+        </ol>
+      </nav>
+    </div>
+
+   {% include 'amazonproduct/menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
+        <div class="row">
+          <div class="col-lg-4 col-12 mb-4">
+            <div class="card mb-4">
+              <div class="position-absolute card-top-buttons">
+                <a href="{% url 'products:update_amazonproduct' pk=amazonproduct.pk %}" class="btn btn-outline-info icon-button ">
+                  <i class="simple-icon-pencil"></i>
+                </a>
+                <a href="{% url 'products:delete_amazonproduct' pk=amazonproduct.pk %}" class="btn btn-outline-danger icon-button ">
+                  <i class="simple-icon-trash"></i>
+                </a>
+              </div>
+              <span class="badge badge-pill badge-dark position-absolute badge-top-left">{{ amazonproduct.status.title }}</span>
+              <img src="{{MEDIA_URL}}{{ amazonproduct.image }}" alt="{{ amazonproduct.title }}" class="card-img-top" />
+
+              <div class="card-body">
+                <p class="text-muted text-small mb-2">Main Product</p>
+                <p class="mb-3">
+                  <a href="{% url 'products:product_detail' pk=amazonproduct.product_id %}">{{ amazonproduct.product.title}}</a>
+                </p>
+                <p class="text-muted text-small mb-2">EAN</p>
+                <p class="mb-3">{{amazonproduct.product.ean}}</p>
+                {% if amazonproduct.product.sku %}
+                <p class="text-muted text-small mb-2">SKU</p>
+                <p class="mb-3">{{amazonproduct.product.sku}}</p>
+                {% endif %}
+                {% if amazonproduct.seller_sku %}
+                <p class="text-muted text-small mb-2">Seller SKU</p>
+                <p class="mb-3">{{amazonproduct.seller_sku}}</p>
+                {% endif %}
+                {% if amazonproduct.asin %}
+                <p class="text-muted text-small mb-2">ASIN</p>
+                <p class="mb-3">{{amazonproduct.asin}}</p>
+                {% endif %}
+                {% if amazonproduct.product.size %}
+                <p class="text-muted text-small mb-2">Size</p>
+                <p class="mb-3">{{amazonproduct.product.size}}</p>
+                {% endif %}
+                {% if amazonproduct.product.color %}
+                <p class="text-muted text-small mb-2">Color</p>
+                <p class="mb-3">{{amazonproduct.product.color}}</p>
+                {% endif %}
+                {% if amazonproduct.product.weight %}
+                <p class="text-muted text-small mb-2">Weight</p>
+                <p class="mb-3">{{amazonproduct.product.weight}} gm</p>
+                {% endif %}
+                <hr >
+                <p class="text-muted text-small mb-2">Created at</p>
+                <p class="mb-3">{{amazonproduct.create_date| date:"d M Y h:i A"}}</p>
+                <p class="text-muted text-small mb-2">Updated at</p>
+                <p class="mb-3">{{amazonproduct.update_date| date:"d M Y h:i A"}}</p>
+
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-12 col-lg-8">
+            <div class="row">
+              <div class="col-6 mb-4">
+                <div class="card dashboard-small-chart">
+                  <div class="card-body">
+                    <p class="lead color-theme-1 mb-1 value"></p>
+                    <p class="mb-0 label text-small"></p>
+                    <div class="chart">
+                      <canvas id="smallChart1"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 mb-4">
+                <div class="card dashboard-small-chart">
+                  <div class="card-body">
+                    <p class="lead color-theme-1 mb-1 value"></p>
+                    <p class="mb-0 label text-small"></p>
+                    <div class="chart">
+                      <canvas id="smallChart2"></canvas>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <div class="col-6 mb-4">
+                <div class="card dashboard-small-chart">
+                  <div class="card-body">
+                    <p class="lead color-theme-1 mb-1 value"></p>
+                    <p class="mb-0 label text-small"></p>
+                    <div class="chart">
+                      <canvas id="smallChart3"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 mb-4">
+                <div class="card dashboard-small-chart">
+                  <div class="card-body">
+                    <p class="lead color-theme-1 mb-1 value"></p>
+                    <p class="mb-0 label text-small"></p>
+                    <div class="chart">
+                      <canvas id="smallChart4"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-4">
+              <div class="card-body">
+                <p class="list-item-heading mb-4">Popularity</p>
+                <div class="chart-container">
+                  <canvas id="areaChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

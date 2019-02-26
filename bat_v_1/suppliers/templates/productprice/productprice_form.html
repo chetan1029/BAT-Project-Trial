@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'suppliers_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ supplier.name }}</h1>
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:productprice_list' pk=supplier.pk %}">Products</a>
+          </li>
+          {% if not form.instance.pk %}
+          <li class="breadcrumb-item active" aria-current="page">Add Product</li>
+          {% else %}
+          <li class="breadcrumb-item active" aria-current="page">Edit Product</li>
+          {% endif %}
+        </ol>
+      </nav>
+    </div>
+    {% include 'suppliers/menu.html' %}
+  </div>
+</div>
+<form class="" action="{% url 'suppliers:add_pricelist' %}" method="post">
+  {% csrf_token %}
+  <input type="hidden" name="supplier_id" value="{{supplier.pk}}">
+  <div class="row pokemon-selection" id="pokemon-selection">
+    {% for product in products %}
+    {% if product.product.all %}
+    <div class="col-md-4 col-xl-6 col-lg-4 mb-4">
+      {% else %}
+      <div class="col-md-4 col-xl-3 col-lg-4 mb-4">
+      {% endif %}
+      {% if product.product.all %}
+      <div class="card cursor-pointer de-flex flex-row" id="product{{product.pk}}">
+        <div class="w-50">
+          {% else %}
+          <div class="card cursor-pointer" id="product{{product.pk}}">
+          {% endif %}
+          <div class="position-relative">
+            {% if product.image %}
+            <img class="card-img-top" src="{{MEDIA_URL}}{{ product.image }}" alt="{{ product.title }}">
+            {% else %}
+            <img class="card-img-top" src="{{MEDIA_URL}}products/no-product-image.png" alt="{{ product.title }}">
+            {% endif %}
+            <span class="badge badge-pill badge-dark position-absolute badge-top-left">EAN: {{ product.ean }}</span>
+            <span class="badge badge-pill badge-dark position-absolute badge-top-left-2">{{product.category.name}}</span>
+          </div>
+          <div class="card-body">
+            <p class="list-item-heading mb-4" title="{{product.title}}">{{product.title}}</p>
+            <footer>
+              <input type="hidden" name="product_id" disabled value="{{product.pk}}">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <select class="form-control" name="currency{{product.pk}}" disabled>
+                    {% for c in currency %}
+                    {% if c.title == "RMB" %}
+                    <option value="{{c.id}}" selected>{{c.title}}</option>
+                    {% else %}
+                    <option value="{{c.id}}">{{c.title}}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+                <input type="number" step="0.01" min="0.01"  class="form-control" name="price{{product.pk}}" placeholder="Price" aria-label="price" disabled aria-describedby="basic-addon1">
+              </div>
+            </footer>
+
+          </div>
+
+        {% if product.product.all %}
+      </div>
+        <div class="w-50">
+          <div class="card-body">
+            {% for productbundle in product.product.all %}
+            <div class="form-group">
+              <p class="mb-1">{{productbundle.bundle_product.title}}</p>
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <select class="form-control" name="bcurrency{{productbundle.bundle_product.pk}}" disabled>
+                    {% for c in currency %}
+                    {% if c.title == "RMB" %}
+                    <option value="{{c.id}}" selected>{{c.title}}</option>
+                    {% else %}
+                    <option value="{{c.id}}">{{c.title}}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+                <input type="number" step="0.01" min="0.01" max="10000" class="form-control" name="bprice{{productbundle.bundle_product.pk}}" onchange="bundle_action({{productbundle.bundle_product.pk}},{{product.pk}})" placeholder="Price" aria-label="price" disabled aria-describedby="basic-addon1">
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+  <div class="row mt-4">
+    <div class="col-12 text-center">
+      <button type="submit" class="btn btn-secondary btn-lg mb-1">SUBMIT</button>
+    </div>
+  </div>
+</form>
+<script>
+  $(".card").click(function(e) {
+    if (e.target.nodeName == "INPUT" || e.target.nodeName == "SELECT") {} else {
+      $(this).toggleClass("active");
+      if ($(this).hasClass("active")) {
+        $(this).find("input").prop('disabled', false);
+        $(this).find("select").prop('disabled', false);
+      } else {
+        $(this).find("input").prop('disabled', true);
+        $(this).find("select").prop('disabled', true);
+      }
+    }
+  });
+
+  function bundle_action(product_id,product_parent_id){
+    original_price = $("input[name=price"+product_parent_id+"]").val();
+    if(original_price){
+      original_price = parseFloat(original_price);
+    }else{
+      original_price = 0;
+    }
+    child_price = $("input[name=bprice"+product_id+"]").val();
+    if(child_price){
+      child_price = parseFloat(child_price);
+    }else{
+      child_price = 0;
+    }
+    original_price = (original_price+child_price).toFixed(2);
+    $("input[name=price"+product_parent_id+"]").val(original_price);
+  }
+</script>
+{% endblock %}

@@ -2,20 +2,20 @@
 {% extends "base_menu.html" %}
 {% load staticfiles %}
 {% block content %}
-{% include 'menu.html' %}
+{% include 'suppliers_menu.html' %}
 <div class="row">
   <div class="col-12">
     <div class="mb-3">
-      <h1>Supplier Payment Terms</h1>
+      <h1>Payment Terms Template</h1>
       <div class="float-sm-right text-zero">
-        <a href="{% url 'suppliers:create_paymentterms' %}" class="btn btn-primary btn-lg mr-1">Add Payment Terms</a>
+        <a href="{% url 'suppliers:create_paymentterms' %}" class="btn btn-primary btn-lg mr-1">Add New Template</a>
       </div>
       <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
         <ol class="breadcrumb pt-0">
           <li class="breadcrumb-item">
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
-          <li class="breadcrumb-item active" aria-current="page">Payment Terms</li>
+          <li class="breadcrumb-item active" aria-current="page">Payment Terms Template</li>
         </ol>
       </nav>
 
@@ -32,9 +32,9 @@
           <thead>
             <tr>
               <th>Title</th>
-              <th>Identifier</th>
-              <th>Prepay</th>
-              <th>Days</th>
+              <th>Depost</th>
+              <th>Payment Terms</th>
+              <th>On Delivery</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -45,18 +45,15 @@
                 <p class="list-item-heading">{{ paymentterms.title }}</p>
               </td>
               <td>
-                <p class="list-item-heading">{{ paymentterms.identifier }}</p>
+                <p class="list-item-heading">{{ paymentterms.deposit }}%</p>
               </td>
               <td>
-                <p class="list-item-heading">{{ paymentterms.prepay }}%</p>
+                <p class="list-item-heading">{{ paymentterms.payment_term }}</p>
               </td>
               <td>
-                <p class="list-item-heading">{{ paymentterms.days }}</p>
+                <p class="list-item-heading">{{ paymentterms.on_delivery }}%</p>
               </td>
               <td>
-                <a href="{% url 'suppliers:update_paymentterms' pk=paymentterms.pk %}" class="btn btn-outline-info icon-button ">
-                  <i class="simple-icon-pencil"></i>
-                </a>
                 <a href="{% url 'suppliers:delete_paymentterms' pk=paymentterms.pk %}" class="btn btn-outline-danger icon-button ">
                   <i class="simple-icon-trash"></i>
                 </a>

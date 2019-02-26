@@ -23,10 +23,11 @@
     <link rel="stylesheet" href="{% static 'app/css/main.css'%}" />
     <link rel="stylesheet" href="{% static 'app/css/themes/dore.light.blue.min.css'%}" />
     <link rel="stylesheet" href="{% static 'app/css/vendor/bootstrap-float-label.min.css'%}" />
+    <script src="{% static 'app/js/vendor/jquery-3.3.1.min.js'%}"></script>
 </head>
 {% block body %}
 {% endblock %}
-<script src="{% static 'app/js/vendor/jquery-3.3.1.min.js'%}"></script>
+
 <script src="{% static 'app/js/vendor/bootstrap.bundle.min.js'%}"></script>
 <script src="{% static 'app/js/vendor/Chart.bundle.min.js'%}"></script>
 <script src="{% static 'app/js/vendor/chartjs-plugin-datalabels.js'%}"></script>
@@ -42,7 +43,9 @@
 <script src="{% static 'app/js/vendor/bootstrap-datepicker.js'%}"></script>
 <script src="{% static 'app/js/vendor/Sortable.js'%}"></script>
 <script src="{% static 'app/js/vendor/mousetrap.min.js'%}"></script>
+<script src="{% static 'app/js/vendor/ckeditor5-build-classic/ckeditor.js'%}"></script>
 <script src="{% static 'app/js/dore.script.js'%}"></script>
 <script src="{% static 'app/js/scripts.js'%}"></script>
-
+{% block script %}
+{% endblock %}
 </html>

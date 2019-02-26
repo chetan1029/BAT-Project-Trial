@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'shipping_menu.html' %}
+<div class="row">
+  <div class="col-8 list">
+    <div class="mb-2">
+      <h1>{{ shipment.name }}</h1>
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'shipping:shipment_list' %}">Shipment</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ shipment.name }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+  <div class="col-4">
+    <div class="text-right">
+      <a href="{% url 'shipping:update_shipment' pk=shipment.pk %}" class="btn btn-outline-info icon-button ">
+        <i class="simple-icon-pencil"></i>
+      </a>
+      <a href="{% url 'shipping:delete_shipment' pk=shipment.pk %}" class="btn btn-outline-danger icon-button ">
+        <i class="simple-icon-trash"></i>
+      </a>
+    </div>
+  </div>
+</div>
+<div class="tab-content">
+  <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
+    <div class="row">
+      <div class="col-12">
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4">
+                <img src="{{MEDIA_URL}}{{ shipment.amazonmarket.marketplace_image }}" class="img-fluid" style="width: 70px;" />
+              </div>
+              <div class="col-md-4 text-center">
+                <h2>{{ shipment.name }}</h2>
+                <p class="badge badge-pill badge-secondary mb-1">{{ shipment.status.title }}</p>
+              </div>
+              <div class="col-md-4 text-right">
+                <h2 class="mb-1 text-danger display-4">
+                  {% if shipment.type == "Sea" %}
+                  <i class="iconsmind-Ship"></i>
+                  {% else %}
+                  <i class="iconsmind-Plane-2"></i>
+                  {% endif %}
+                </h2>
+              </div>
+            </div>
+            <div class="row mt-5">
+              <div class="col-sm-6">
+                <h5 class="mb-3">Ship From</h5>
+                {% if shipment.invoice_agent %}
+                <h6 class="mb-2">{{shipment.invoice_agent.name}}</h6>
+                <p class="mb-2">{{shipment.invoice_agent.get_formatted_address|safe}}</p>
+                {% else %}
+                <p class="text-danger">Missing info</p>
+                {% endif %}
+              </div>
+              <div class="col-sm-6 text-right">
+                <h5 class="mb-3">Ship To</h5>
+                {% if shipment.shipmentfullfillment %}
+                <h6 class="mb-2">{{shipment.shipmentfullfillment.name}} <span class="font-weight-bold">({{shipment.shipmentfullfillment.center_id}})</span></h6>
+                <p class="mb-2">{{shipment.shipmentfullfillment.get_formatted_address|safe}}</p>
+                {% else %}
+                <p class="text-warning">Info provided by Amazon</p>
+                {% endif %}
+              </div>
+            </div>
+            <table class="table mt-3">
+              <tr>
+                <th></th>
+                <th>Product</th>
+                <th>Quantity</th>
+              </tr>
+              {% for shipmentproduct in shipment.shipmentproduct_set.all %}
+              <tr>
+                <td>
+                  {% if shipmentproduct.amazonproduct.image %}
+                  <img src="{{MEDIA_URL}}{{ shipmentproduct.amazonproduct.image }}" class="img-fluid" style="width: 80px;" />
+                  {% else %}
+                  <img src="{{MEDIA_URL}}products/no-product-image.png" alt="{{ shipmentproduct.amazonproduct.product.title }}" class="card-img-top" style="width: 80px;" />
+                  {% endif %}
+                </td>
+                <td>
+                  <p class="mb-3">{{shipmentproduct.amazonproduct.product.title}}</p>
+                  <p class="mb-1 text-muted text-small">EAN: {{shipmentproduct.amazonproduct.product.ean}}, ASIN: {{shipmentproduct.amazonproduct.asin}}</p>
+                </td>
+                <td>{{shipmentproduct.quantity_send}}</td>
+              </tr>
+              {% endfor %}
+
+            </table>
+            <hr>
+            <h6>Invoice Detail</h6>
+            <div class="row">
+              <div class="col-md-3">
+                <p class="text-muted text-small mb-2">Invoice Value</p>
+                {% if not shipment.invoice_value is None %}
+                <p class="mb-3">{{shipment.invoice_value}} {{shipment.invoice_currency}}</p>
+                {% else %}
+                <p class="text-danger">Missing info</p>
+                {% endif %}
+              </div>
+              <div class="col-md-3">
+                <p class="text-muted text-small mb-2">Kg/CBM Price</p>
+                {% if not shipment.kg_cbm_price is None %}
+                <p class="mb-3">{{shipment.kg_cbm_price}} {{shipment.currency}}</p>
+                {% else %}
+                <p class="text-danger">Missing info</p>
+                {% endif %}
+              </div>
+            </div>
+            <hr>
+            <h6>VAT Detail</h6>
+            <div class="row">
+            {% if shipment.is_prepaid_vat == "Yes" %}
+            <div class="col-md-3">
+              <p class="text-muted text-small mb-2">Prepaid VAT</p>
+              {% if not shipment.prepaid_vat is None %}
+              <p class="mb-3">{{shipment.prepaid_vat}} {{shipment.vat_currency}}</p>
+              {% else %}
+              <p class="text-danger">Missing info</p>
+              {% endif %}
+            </div>
+            {% endif %}
+            {% if shipment.status.title != "Pending" %}
+            <div class="col-md-3">
+              <p class="text-muted text-small mb-2">Actual VAT</p>
+              {% if not shipment.actual_vat is None %}
+              <p class="mb-3">{{shipment.actual_vat}} {{shipment.vat_currency}}</p>
+              {% else %}
+              <p class="text-danger">Missing info</p>
+              {% endif %}
+            </div>
+            <div class="col-md-3">
+              <p class="text-muted text-small mb-2">Claimed VAT</p>
+              {% if not shipment.vat_claimed is None %}
+              <p class="mb-3">{{shipment.vat_claimed}} {{shipment.vat_currency}}</p>
+              {% else %}
+              <p class="text-danger">Missing info</p>
+              {% endif %}
+            </div>
+            {% endif %}
+            </div>
+            <hr>
+            <h6>Shipping Date Detail</h6>
+            <div class="row">
+            <div class="col-md-3">
+              <p class="text-muted text-small mb-2">Pickup Date</p>
+              {% if not shipment.pickup_date is None %}
+              <p class="mb-3">{{shipment.pickup_date| date:"d M Y"}}</p>
+              {% else %}
+              <p class="text-danger">Missing info</p>
+              {% endif %}
+            </div>
+            <div class="col-md-3">
+              <p class="text-muted text-small mb-2">ETD</p>
+              {% if not shipment.etd is None %}
+              <p class="mb-3">{{shipment.etd| date:"d M Y"}}</p>
+              {% else %}
+              <p class="text-danger">Missing info</p>
+              {% endif %}
+            </div>
+            <div class="col-md-3">
+              <p class="text-muted text-small mb-2">ETA</p>
+              {% if not shipment.eta is None %}
+              <p class="mb-3">{{shipment.eta| date:"d M Y"}}</p>
+              {% else %}
+              <p class="text-danger">Missing info</p>
+              {% endif %}
+            </div>
+            </div>
+            <hr>
+            <h6>Shipping Documentations</h6>
+            <div class="row">
+            {% for shipmentdoc in shipment.shipmentfiles_set.all %}
+            <div class="col-md-3">
+              <p class="text-muted text-small mb-2">{{shipmentdoc.title}}</p>
+              <a href="{{MEDIA_URL}}{{ shipmentdoc.file_url }}" target="_blank" class="btn btn-info icon-button ">
+                <i class="simple-icon-cloud-download"></i>
+              </a>
+            </div>
+            {% endfor %}
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-6">
+                <p class="text-muted text-small mb-2">Created at</p>
+                <p class="mb-3">{{shipment.create_date| date:"d M Y h:i A"}}</p>
+              </div>
+              <div class="col-6 text-right">
+                <p class="text-muted text-small mb-2">Updated at</p>
+                <p class="mb-3">{{shipment.update_date| date:"d M Y h:i A"}}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 text-center">
+                {% if shipment.status.title == "Pending" %}
+                <div class="alert alert-warning rounded" role="alert">
+                  Please enter all the required info to activate this shipment for Amazon <a href="{% url 'shipping:update_shipment' pk=shipment.pk %}">Click here to enter</a>
+                </div>
+                {% elif shipment.status.title == "Ready for Amazon" %}
+                <a href="{% url 'shipping:create_amazon_shipment' pk=shipment.pk %}" class="btn btn-danger mb-1">Create Amazon Shipment</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% block content %}
+{% include 'suppliers_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ supplier.name }}</h1>
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Contacts</li>
+        </ol>
+      </nav>
+    </div>
+
+
+    {% include 'suppliers/menu.html' %}
+    <input type="hidden" id="ajax_url" contact-type-url="{% url 'suppliers:change_contact_type' %}" />
+    <div class="tab-content">
+      <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                <h5 class="card-title">Vendor Contacts</h5>
+              </div>
+              <div class="col-6">
+                <div class="float-sm-right text-zero">
+                  <a href="{% url 'suppliers:create_contact' pk=supplier.pk %}" class="btn btn-primary mr-1">Add Contact</a>
+                </div>
+              </div>
+            </div>
+            <h6 class="mt-4 mb-2">Active Contacts</h6>
+            <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Job Title</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Wechat</th>
+                  <th>Skype</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for contact in contact_active %}
+                <tr>
+                  <td>
+                    <span class="badge badge-{{ contact.type|lower }}">{{ contact.type }}</span>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ contact.job_title }}</p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ contact.first_name }} {{ contact.last_name }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ contact.phone }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ contact.email }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ contact.wechat }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ contact.skype }}</p>
+                  </td>
+                  <td>
+                    <a href="{% url 'suppliers:update_contact' contact.pk %}" class="btn btn-outline-info icon-button ">
+                      <i class="simple-icon-pencil"></i>
+                    </a>
+                    <a href="javascript:void()" onclick="change_contact_type({{ contact.id }},'Archived')" class="btn btn-outline-danger icon-button ">
+                      <i class="simple-icon-trash"></i>
+                    </a>
+                    {% if contact.type == "Secondary" %}
+                    <a href="javascript:void()" title="Change to primary contact" onclick="change_contact_type({{ contact.id }},'Primary')" class="btn btn-outline-primary icon-button ">
+                      <i class="simple-icon-user"></i>
+                    </a>
+                    {% else %}
+                    <a href="javascript:void()" title="Change to secondary contact" onclick="change_contact_type({{ contact.id }},'Secondary')" class="btn btn-outline-secondary icon-button ">
+                      <i class="simple-icon-people"></i>
+                    </a>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <h6 class="mt-4 mb-2">Archived Contacts</h6>
+            <table class="data-table responsive nowrap" data-order="[[ 1, &quot;desc&quot; ]]">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Job Title</th>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Wechat</th>
+                  <th>Skype</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for contact in contact_archived %}
+                <tr>
+                  <td>
+                    <span class="badge badge-dark">{{ contact.type }}</span>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ contact.job_title }}</p>
+                  </td>
+                  <td>
+                    <p class="list-item-heading">{{ contact.first_name }} {{ contact.last_name }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ contact.phone }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ contact.email }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ contact.wechat }}</p>
+                  </td>
+                  <td>
+                    <p class="text-muted">{{ contact.skype }}</p>
+                  </td>
+                  <td>
+                    <a href="javascript:void()" title="Change to primary contact" onclick="change_contact_type({{ contact.id }},'Primary')" class="btn btn-outline-primary icon-button ">
+                      <i class="simple-icon-user"></i>
+                    </a>
+                    <a href="javascript:void()" title="Change to secondary contact" onclick="change_contact_type({{ contact.id }},'Secondary')" class="btn btn-outline-secondary icon-button ">
+                      <i class="simple-icon-people"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  function change_contact_type(contact_id,type){
+    var url = $("#ajax_url").attr("contact-type-url");
+    $.ajax({
+      url: url,
+      data: {
+        'contact_id': contact_id,
+        'type': type
+      },
+      success: function(data) {
+        if(data.success){
+          location.reload();
+        }
+      }
+    })
+  }
+</script>
+{% endblock %}

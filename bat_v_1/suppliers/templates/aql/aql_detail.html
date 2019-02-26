@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'suppliers_menu.html' %}
+<div class="row">
+  <div class="col-12">
+    <div class="mb-2">
+      <h1>AQL {{aql.category.name}} {{ aql.version }}</h1>
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:aql_list' %}">AQL</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ aql.version }}</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="separator mb-5"></div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-12 list">
+    <div class="tab-content">
+      <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
+        <div class="row">
+          <div class="col-12 mb-4">
+            <div class="card mb-4">
+
+              <div class="card-body">
+                <p class="text-muted text-small mb-2">Version</p>
+                <p class="mb-3">{{aql.version}}</p>
+                <p class="text-muted text-small mb-2">Category</p>
+                <p class="mb-3">{{aql.category.name}}</p>
+                <p class="text-muted text-small mb-2">Detail</p>
+                <p class="mb-3">{{aql.detail}}</p>
+                <hr>
+                <h5 class="mb-4">Uploaded Files</h5>
+                <div class="row mb-4">
+                  <div class="col-md-2">
+                    <p class="text-muted text-small mb-2">SOP File</p>
+                    <a href="{{MEDIA_URL}}{{ aql.sop_file }}" target="_blank" class="btn btn-info icon-button ">
+                      <i class="simple-icon-cloud-download"></i>
+                    </a>
+                  </div>
+                  <div class="col-md-2">
+                    <p class="text-muted text-small mb-2">MD File</p>
+                    <a href="{{MEDIA_URL}}{{ aql.md_file }}" target="_blank" class="btn btn-info icon-button ">
+                      <i class="simple-icon-cloud-download"></i>
+                    </a>
+                  </div>
+                  <div class="col-md-2">
+                    <p class="text-muted text-small mb-2">BOM File</p>
+                    <a href="{{MEDIA_URL}}{{ aql.bom_file }}" target="_blank" class="btn btn-info icon-button ">
+                      <i class="simple-icon-cloud-download"></i>
+                    </a>
+                  </div>
+                  <div class="col-md-2">
+                    <p class="text-muted text-small mb-2">IPQC File</p>
+                    <a href="{{MEDIA_URL}}{{ aql.ipqc_file }}" target="_blank" class="btn btn-info icon-button ">
+                      <i class="simple-icon-cloud-download"></i>
+                    </a>
+                  </div>
+                  <div class="col-md-2">
+                    <p class="text-muted text-small mb-2">AQL File</p>
+                    <a href="{{MEDIA_URL}}{{ aql.aql_file }}" target="_blank" class="btn btn-info icon-button ">
+                      <i class="simple-icon-cloud-download"></i>
+                    </a>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-6">
+                    <p class="text-muted text-small mb-2">Created at</p>
+                    <p class="mb-3">{{aql.create_date| date:"d M Y h:i A"}}</p>
+                  </div>
+                  <div class="col-6">
+                    <p class="text-muted text-small mb-2">Updated at</p>
+                    <p class="mb-3">{{aql.update_date| date:"d M Y h:i A"}}</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

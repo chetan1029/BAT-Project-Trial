@@ -1,0 +1,117 @@
+<hr>
+<h5>Variations</h5>
+<div class="row mt-3">
+  {% if colors %}
+  <div class="col">
+    <label>Color</label>
+  </div>
+  {% endif %}
+  {% if sizes %}
+  <div class="col">
+    <label>Size</label>
+  </div>
+  {% endif %}
+  <div class="col">
+    <label>EAN</label>
+  </div>
+  <div class="col">
+    <label>SKU</label>
+  </div>
+  <div class="col">
+    <label>Manufacturer Part Number*</label>
+  </div>
+  {% if colors and sizes %}
+  <div class="col-1">
+  </div>
+  {% endif %}
+</div>
+{% if colors and sizes %}
+{% for size in sizes %}
+{% for color in colors %}
+<div class="row" id="variation{{color|slugify}}{{size|slugify}}">
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="color{{color|slugify}}{{size|slugify}}" required value="{{color}}">
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="size{{color|slugify}}{{size|slugify}}" required value="{{size}}">
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="ean{{color|slugify}}{{size|slugify}}" value="" placeholder="EAN">
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="sku{{color|slugify}}{{size|slugify}}" value="" placeholder="SKU">
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="manufacturer_part_number{{color|slugify}}{{size|slugify}}" required value="" placeholder="Manufacturer Part Number">
+    </div>
+  </div>
+  <div class="col-1">
+    <div class="text-center mt-2">
+    <a href="javascript:void()" onclick="delete_variation('variation{{color|slugify}}{{size|slugify}}')" class="text-danger mt-2"><i class="simple-icon-trash"></i></a>
+  </div>
+</div>
+</div>
+{% endfor %}
+{% endfor %}
+{% elif colors %}
+{% for color in colors %}
+<div class="row" id="variation{{color|slugify}}">
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="color{{color|slugify}}" required value="{{color}}">
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="ean{{color|slugify}}" value="" placeholder="EAN">
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="sku{{color|slugify}}" value="" placeholder="SKU">
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="manufacturer_part_number{{color|slugify}}" required value="" placeholder="Manufacturer Part Number">
+    </div>
+  </div>
+
+</div>
+{% endfor %}
+{% elif sizes %}
+{% for size in sizes %}
+<div class="row" id="variation{{color|slugify}}{{size|slugify}}">
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="size{{size|slugify}}" required value="{{size}}">
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="ean{{size|slugify}}" value="" placeholder="EAN">
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="sku{{size|slugify}}" value="" placeholder="SKU">
+    </div>
+  </div>
+  <div class="col">
+    <div class="form-group">
+      <input type="text" class="form-control" name="manufacturer_part_number{{size|slugify}}" required value="" placeholder="Manufacturer Part Number">
+    </div>
+  </div>
+
+</div>
+{% endfor %}
+{% endif %}

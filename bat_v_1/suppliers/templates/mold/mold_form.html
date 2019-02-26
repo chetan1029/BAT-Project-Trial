@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% include 'suppliers_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ supplier.name }}</h1>
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:mold_list' pk=supplier.pk %}">Molds</a>
+          </li>
+          {% if not form.instance.pk %}
+          <li class="breadcrumb-item active" aria-current="page">Add Mold</li>
+          {% else %}
+          <li class="breadcrumb-item active" aria-current="page">Edit Mold</li>
+          {% endif %}
+        </ol>
+      </nav>
+    </div>
+
+
+    {% include 'suppliers/menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
+        <div class="tab-card h-100">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                {% if not form.instance.pk %}
+                <h5 class="card-title">Add Mold</h5>
+                {% else %}
+                <h5 class="card-title">Edit Mold</h5>
+                {% endif %}
+              </div>
+            </div>
+            <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+              {% csrf_token %}
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.title|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.x_units|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.price|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.currency|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row d-none">
+                <div class="col-md-12">
+                  {{ form.paid_by|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row mb-1 paid_by">
+                <div class="col-md-12">
+                  <label class="col-form-label">Paid By<span class="asteriskField">*</span></label><br />
+                  <button type="button" id="vendor" onclick="paid_by_switch('Vendor','vendor')" class="btn btn-outline-dark btn-sm mb-1">Vendor</button>
+                  <button type="button" id="bmab" onclick="paid_by_switch('BMAB','bmab')" class="btn btn-outline-dark btn-sm mb-1">BMAB</button>
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.no_of_layers|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row">
+                <div class="col-md-12">
+                  {{ form.production_date|as_crispy_field }}
+                </div>
+              </div>
+              <div class="row form-row d-none">
+                <div class="col-md-12">
+                  {{ form.category|as_crispy_field }}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="" class="col-form-label">Category<span class="asteriskField">*</span></label>
+                <div id="container"></div>
+                {% for e in form.category.errors %}
+                <p class="invalid-feedback d-block"><strong>{{e}}</strong></p>
+                {% endfor %}
+              </div>
+
+              <button type="submit" class="btn btn-primary mb-0">Submit</button>
+              <a href="{% url 'suppliers:mold_list' supplier.pk %}" class="btn btn-danger mb-0">Cancel</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+function paid_by_switch(value,id){
+  $(".paid_by button").removeClass("btn-dark").addClass("btn-outline-dark");
+  $("#"+id).removeClass("btn-outline-dark").addClass("btn-dark");
+  $("input[name='paid_by']").val(value);
+}
+{% if form.instance.pk %}
+paid_by_switch("{{paid_by}}","{{paid_by|lower}}");
+{% endif %}
+</script>
+<script src="{% static 'app/js/vendor/tree.min.js'%}"></script>
+<style>
+  ul.treejs-nodes{
+    margin-top:5px;
+  }
+  li.treejs-node{
+    margin-bottom: 5px;
+  }
+</style>
+<script>
+    // prettier-ignore
+    let treeData = [{{cat_data|safe}}];
+    let tree = new Tree('#container', {
+        data: treeData,
+        {% if form.instance.pk %}
+        values: [{{category_list}}],
+        {% endif %}
+        onChange: function() {
+          values = this.values;
+          $.each(values, function(i,e){
+            $("#id_category option[value='" + e + "']").prop("selected", true);
+          });
+        }
+    })
+</script>
+{% endblock %}

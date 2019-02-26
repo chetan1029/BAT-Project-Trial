@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+{% extends "amazon_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h1>Delete MWS Auth</h1>
+    <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+      <ol class="breadcrumb pt-0">
+        <li class="breadcrumb-item">
+          <a href="{% url 'dashboard' %}">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{% url 'settings:amazonmwsauth_list' %}">MWS Auth</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Delete MWS Auth</li>
+      </ol>
+    </nav>
+    <div class="separator mb-5"></div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-12">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="mb-4">Delete MWS Auth</h5>
+        <form action="" method="post">{% csrf_token %}
+        <p>Are you sure you want to delete "{{ object }}"?</p>
+        <input class='btn btn-danger' type="submit" value="Confirm" />
+        <a href="{% url 'settings:amazonmwsauth_list' %}" class="btn btn-info mb-0">Cancel</a>
+      </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

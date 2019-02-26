@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ product.title }}</h1>
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'products:product_list' %}">Products</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
+        </ol>
+      </nav>
+    </div>
+   {% include 'products/menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="mb-4">Delete Product</h5>
+            <form action="" method="post">{% csrf_token %}
+            <p>Are you sure you want to delete "{{ object }}"?</p>
+            <input class='btn btn-danger' type="submit" value="Confirm" />
+            <a href="{% url 'products:productbundle_list' pk=product.pk %}" class="btn btn-info mb-0">Cancel</a>
+          </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

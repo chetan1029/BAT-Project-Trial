@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% block content %}
+{% include 'suppliers_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ supplier.name }}</h1>
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Orders</li>
+        </ol>
+      </nav>
+    </div>
+
+
+    {% include 'suppliers/menu.html' %}
+    <div class="row">
+      <div class="col-6">
+        <h5 class="card-title">Orders</h5>
+      </div>
+      <div class="col-6">
+        <div class="float-sm-right text-zero">
+          <a href="{% url 'suppliers:create_order' pk=supplier.pk %}" class="btn btn-primary mr-1">Generate Order</a>
+        </div>
+      </div>
+    </div>
+    {% include 'order/order_menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="mb-3">Pending PO's</h6>
+            {% for pending_po in pending_pos %}
+            <form class="" action="{% url 'suppliers:confirm_po' %}" method="post">
+              <div class="card mb-3 cursor-pointer" onclick="window.open('{% url 'suppliers:order_detail' pk=pending_po.pk %}','_self')">
+                <div class="card-body">
+                  {% csrf_token %}
+                  <input type="hidden" name="order_id" value="{{pending_po.pk}}">
+                  <h5 class="card-title">Order #{{pending_po.pk}}</h5>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <h6>From</h6>
+                      <p class="mb-1">{{pending_po.user.username}}</p>
+                      <p class="mb-1">{{pending_po.user.email}}</p>
+                    </div>
+                    <div class="col-sm-6 text-right">
+                      <h6>To</h6>
+                      <p class="mb-1">{{pending_po.contact.first_name}} {{pending_po.contact.last_name}}</p>
+                      <p class="mb-1">{{pending_po.contact.email}}</p>
+                      <p class="mb-1">{{pending_po.contact.phone}}</p>
+                    </div>
+                  </div>
+                  <table class="table mt-4">
+                    <tr>
+                      <th>Product</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
+                      <th>Total</th>
+                    </tr>
+                    {% for product in pending_po.orderproduct_set.all %}
+                    <tr>
+                      <td>
+                        <h6 class="mb-2">{{product.productprice.product.title}}</h6>
+                        <p class="mb-1 text-muted text-small">AQL: {{product.aql.category.name}} {{product.aql.version}}</p>
+                        <p class="mb-1 text-muted text-small">Payment Term: {{product.paymentterms}}</p>
+                      </td>
+                      <td>
+                        <p class="mb-1 text-muted">{{product.quantity}}</p>
+                      </td>
+                      <td>
+                        <p class="mb-1 text-muted">{{product.productprice.price|floatformat:"2"}} {{product.productprice.currency}}</p>
+                      </td>
+                      <td>
+                        <p class="mb-1 text-muted">{% widthratio product.productprice.price 1 product.quantity %} {{product.productprice.currency}}</p>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                      <td></td>
+                      <td>
+                        <p class="mb-2 text-muted">{{pending_po.quantity}}</p>
+                      </td>
+                      <td></td>
+                      <td>
+                        <p class="mb-2 text-muted">{{pending_po.amount|floatformat:"2"}} {{pending_po.currency}}</p>
+                      </td>
+                    </tr>
+                  </table>
+                  <div class="row">
+                    <div class="col-sm-8">
+                      <div class="alert alert-warning rounded" role="alert">
+                        Waiting for PO confirmation
+                      </div>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="float-right">
+                        <button type="submit" class="btn btn-primary btn-sm">Confirm PO</button>
+                        <a href="{% url 'suppliers:delete_order' pk=pending_po.pk %}" class="btn btn-outline-danger icon-button">
+                          <i class="simple-icon-trash"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+            {% endfor %}
+          </div>
+          <div class="col-md-6">
+            <h6 class="mb-3">Awaiting PI's</h6>
+            {% for awaiting_pi in awaiting_pis %}
+            <div class="card mb-3 cursor-pointer" onclick="window.open('{% url 'suppliers:order_detail' pk=awaiting_pi.pk %}','_self')">
+              <div class="card-body">
+                {% csrf_token %}
+                <input type="hidden" name="order_id" value="{{pending_po.pk}}">
+                <h5 class="card-title">Order #{{awaiting_pi.pk}}</h5>
+                <div class="row">
+                  <div class="col-sm-6">
+                    <h6>From</h6>
+                    <p class="mb-1">{{awaiting_pi.user.username}}</p>
+                    <p class="mb-1">{{awaiting_pi.user.email}}</p>
+                  </div>
+                  <div class="col-sm-6 text-right">
+                    <h6>To</h6>
+                    <p class="mb-1">{{awaiting_pi.contact.first_name}} {{awaiting_pi.contact.last_name}}</p>
+                    <p class="mb-1">{{awaiting_pi.contact.email}}</p>
+                    <p class="mb-1">{{awaiting_pi.contact.phone}}</p>
+                  </div>
+                </div>
+                <table class="table mt-4">
+                  <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                  </tr>
+                  {% for product in awaiting_pi.orderproduct_set.all %}
+                  <tr>
+                    <td>
+                      <h6 class="mb-2">{{product.productprice.product.title}}</h6>
+                      <p class="mb-1 text-muted text-small">AQL: {{product.aql.category.name}} {{product.aql.version}}</p>
+                      <p class="mb-1 text-muted text-small">Payment Term: {{product.paymentterms}}</p>
+                    </td>
+                    <td>
+                      <p class="mb-1 text-muted">{{product.quantity}}</p>
+                    </td>
+                    <td>
+                      <p class="mb-1 text-muted">{{product.productprice.price|floatformat:"2"}} {{product.productprice.currency}}</p>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  <tr>
+                    <td></td>
+                    <td>
+                      <p class="mb-2 text-muted">{{awaiting_pi.quantity}}</p>
+                    </td>
+                    <td>
+                      <p class="mb-2 text-muted">{{awaiting_pi.amount|floatformat:"2"}} {{awaiting_pi.currency}}</p>
+                    </td>
+                  </tr>
+                </table>
+                <div class="row">
+                  <div class="col-sm-10">
+                    <div class="alert alert-warning rounded" role="alert">
+                      PO File is missing please upload
+                    </div>
+                  </div>
+                  <div class="col-sm-2">
+                    <div class="float-right">
+                      <a href="{% url 'suppliers:delete_order' pk=awaiting_pi.pk %}" class="btn btn-outline-danger icon-button">
+                        <i class="simple-icon-trash"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

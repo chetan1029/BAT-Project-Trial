@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% block content %}
+{% include 'suppliers_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>{{ supplier.name }}</h1>
+
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="{% url 'suppliers:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Orders</li>
+        </ol>
+      </nav>
+    </div>
+
+
+    {% include 'suppliers/menu.html' %}
+    <div class="row">
+      <div class="col-6">
+        <h5 class="card-title">Orders</h5>
+      </div>
+      <div class="col-6">
+        <div class="float-sm-right text-zero">
+          <a href="{% url 'suppliers:create_order' pk=supplier.pk %}" class="btn btn-primary mr-1">Generate Order</a>
+        </div>
+      </div>
+    </div>
+    {% include 'order/order_menu.html' %}
+    <div class="tab-content">
+      <div class="tab-pane show active" id="active" role="tabpanel" aria-labelledby="active-tab">
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="mb-3">Active Orders</h6>
+            {% for active_order in active_orders %}
+            <div class="card mb-3 cursor-pointer" onclick="window.open('{% url 'suppliers:order_detail' pk=active_order.pk %}','_self')">
+              <div class="position-absolute card-top-buttons">
+                <button class="btn btn-header-light icon-button">
+                  <i class="simple-icon-refresh"></i>
+                </button>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Order #{{active_order.pk}}</h5>
+                <div class="mb-4">
+                  <p class="mb-2">Total Payment
+                    <span class="float-right text-muted">{{active_order.paid_amount}}/{{active_order.amount}} {{active_order.currency}}</span>
+                  </p>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="{{active_order.amount_percentage}}" aria-valuemin="0" aria-valuemax="100" style="width: {{active_order.amount_percentage}}%;"></div>
+                  </div>
+                </div>
+                <div class="mb-4">
+                  <p class="mb-2">Total Quantity
+                    <span class="float-right text-muted">{{active_order.quantity_send}}/{{active_order.quantity}}</span>
+                  </p>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="{{active_order.quantity_percentage}}" aria-valuemin="0" aria-valuemax="100" style="width: {{active_order.quantity_percentage}}%;"></div>
+                  </div>
+                </div>
+                <h6 class="mt-2 mb-3">Products</h6>
+                {% for product in active_order.products %}
+                <div class="mb-4">
+                  <div class="row mb-1">
+                    <div class="col-md-2">
+                      {% if product.image %}
+                      <img src="{{MEDIA_URL}}{{ product.image }}" class="img-fluid" />
+                      {% else %}
+                      <img src="{{MEDIA_URL}}products/no-product-image.png" alt="{{ product.title }}" class="card-img-top" />
+                      {% endif %}
+                    </div>
+                    <div class="col-md-7">
+                      <h6>{{product.title}}</h6>
+                      <p class="mb-1">EAN: {{product.ean}}</p>
+                      <p>Price: {{product.price}} {{product.currency}}</p>
+                    </div>
+                    <div class="col-md-3">
+                      <span class="float-right text-muted">{{product.quantity_send}}/{{product.quantity}}</span>
+                    </div>
+                  </div>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="{{product.quantity_percentage}}" aria-valuemin="0" aria-valuemax="100" style="width: {{product.quantity_percentage}}%;"></div>
+                  </div>
+                </div>
+                {% endfor %}
+
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="col-md-6">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

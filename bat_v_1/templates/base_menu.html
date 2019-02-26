@@ -39,48 +39,63 @@
             <span class="logo-mobile d-block d-xs-none"></span>
         </a>
 
-        <div class="navbar-right">
-            <div class="header-icons d-inline-block align-middle">
+      <div class="navbar-right">
+  <div class="header-icons d-inline-block align-middle">
+    <div class="dropdown d-inline-block">
+      <button class="btn btn-sm btn-outline-primary dropdown-toggle mb-1" type="button" id="dropdown1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Global
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdown1">
+        <a class="dropdown-item" href="{% url 'dashboard' %}">Global</a>
+        <a class="dropdown-item" href="{% url 'amazondashboard' %}">Amazon</a>
+      </div>
+    </div>
 
-                <button class="header-icon btn btn-empty d-none d-sm-inline-block" type="button" id="fullScreenButton">
-                    <i class="simple-icon-size-fullscreen"></i>
-                    <i class="simple-icon-size-actual"></i>
-                </button>
+    <button class="header-icon btn btn-empty d-none d-sm-inline-block" type="button" id="fullScreenButton">
+      <i class="simple-icon-size-fullscreen"></i>
+      <i class="simple-icon-size-actual"></i>
+    </button>
 
-            </div>
+  </div>
 
-            <div class="user d-inline-block">
-                <button class="btn btn-empty p-0" type="button" data-toggle="dropdown" aria-haspopup="true"
-                    aria-expanded="false">
-                    <span class="name">{{ user.username }}</span>
-                    <span>
-                        <img alt="Profile Picture" src="{% static 'app/images/profile-pic-l.jpg'%}" />
-                    </span>
-                </button>
+  <div class="user d-inline-block">
+    <button class="btn btn-empty p-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="name">{{ user.username }}</span>
+      <span>
+        <img alt="Profile Picture" src="{% static 'app/images/profile-pic-l-9.jpg'%}" />
+      </span>
+    </button>
 
-                <div class="dropdown-menu dropdown-menu-right mt-3">
-                    <a class="dropdown-item" href="#">Account</a>
-                    <a class="dropdown-item" href="#">Features</a>
-                    <a class="dropdown-item" href="#">History</a>
-                    <a class="dropdown-item" href="#">Support</a>
-                    <a class="dropdown-item" href="{% url 'accounts:logout' %}">Sign out</a>
-                </div>
-            </div>
-        </div>
+    <div class="dropdown-menu dropdown-menu-right mt-3">
+      <a class="dropdown-item" href="#">Account</a>
+      <a class="dropdown-item" href="#">Features</a>
+      <a class="dropdown-item" href="#">History</a>
+      <a class="dropdown-item" href="#">Support</a>
+      <a class="dropdown-item" href="{% url 'accounts:logout' %}">Sign out</a>
+    </div>
+  </div>
+</div>
     </nav>
     <div class="sidebar">
         <div class="main-menu">
             <div class="scroll">
                 <ul class="list-unstyled">
                     <li {% if active_menu.menu1 == 'dashboard' %}class="active"{% endif %}>
-                        <a href="#dashboard">
+                        <a href="{% url 'dashboard' %}">
                             <i class="iconsmind-Shop-4"></i>
-                            <span>Dashboards</span>
+                            <span>Dashboard</span>
                         </a>
                     </li>
                     <li {% if active_menu.menu1 == 'basic' %}class="active"{% endif %}>
                         <a href="#basic">
-                            <i class="iconsmind-Digital-Drawing"></i> Basic
+                            <i class="iconsmind-Recycling-2"></i>
+                            <span>Supply Chain</span>
+                        </a>
+                    </li>
+                    <li {% if active_menu.menu1 == 'setting' %}class="active"{% endif %}>
+                        <a href="#setting">
+                            <i class="iconsmind-Gear"></i>
+                            <span>Setting</span>
                         </a>
                     </li>
                 </ul>
@@ -89,49 +104,40 @@
 
         <div class="sub-menu">
             <div class="scroll">
-                <ul class="list-unstyled" data-link="dashboard">
-                    <li {% if active_menu.menu2 == 'basic' %}class="active"{% endif %}>
-                        <a href="{% url 'dashboard' %}">
-                            <i class="simple-icon-rocket"></i> Basic
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="simple-icon-pie-chart"></i> Advanced
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="simple-icon-basket-loaded"></i> Sales
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <i class="simple-icon-doc"></i> PPC
-                        </a>
-                    </li>
-                </ul>
+
                 <ul class="list-unstyled" data-link="basic">
-                    <li {% if active_menu.menu2 == 'products' %}class="active"{% endif %}>
+                   <li {% if active_menu.menu2 == 'products' %}class="active"{% endif %}>
                         <a href="{% url 'products:product_list' %}">
-                            <i class="simple-icon-rocket"></i> Products
+                            <i class="iconsmind-Add-Bag"></i> Product Catalog
                         </a>
                     </li>
                     <li {% if active_menu.menu2 == 'suppliers' %}class="active"{% endif %}>
                         <a href="{% url 'suppliers:supplier_list' %}">
-                            <i class="simple-icon-pie-chart"></i> Suppliers
+                            <i class="iconsmind-Factory"></i> Vendors
                         </a>
                     </li>
-                    <li>
-                        <a href="#">
-                            <i class="simple-icon-basket-loaded"></i> WareHouses
-                        </a>
+                    <li {% if active_menu.menu2 == 'shipping' %}class="active"{% endif %}>
+                          <a href="{% url 'shipping:shipment_list' %}">
+                              <i class="simple-icon-plane"></i> Shipping
+                          </a>
                     </li>
-                    <li>
-                        <a href="#">
-                            <i class="simple-icon-doc"></i> Courier Companies
-                        </a>
-                    </li>
+                </ul>
+                <ul class="list-unstyled" data-link="setting">
+                  <li {% if active_menu.menu2 == 'category' %}class="active"{% endif %}>
+                      <a href="{% url 'settings:category_list' %}">
+                          <i class="simple-icon-organization"></i> Category Management
+                      </a>
+                  </li>
+                  <li {% if active_menu.menu2 == 'status' %}class="active"{% endif %}>
+                      <a href="{% url 'settings:status_list' %}">
+                          <i class="simple-icon-flag"></i> Status Management
+                      </a>
+                  </li>
+                  <li {% if active_menu.menu2 == 'catalog' %}class="active"{% endif %}>
+                      <a href="{% url 'settings:currency_list' %}">
+                          <i class="iconsmind-Gears"></i> Catalog Management
+                      </a>
+                  </li>
                 </ul>
             </div>
         </div>

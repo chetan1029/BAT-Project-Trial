@@ -2,28 +2,20 @@
 {% extends "base_menu.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-{% include 'menu.html' %}
+{% include 'suppliers_menu.html' %}
 <div class="row">
   <div class="col-12 list">
 
     <div class="mb-2">
       <h1>{{ supplier.name }}</h1>
-      <div class="float-sm-right">
-        <button type="button" class="btn btn-lg btn-outline-primary dropdown-toggle dropdown-toggle-split top-right-button top-right-button-single" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          ACTIONS
-        </button>
-        <div class="dropdown-menu dropdown-menu-right">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-        </div>
-      </div>
+
       <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
         <ol class="breadcrumb pt-0">
           <li class="breadcrumb-item">
             <a href="{% url 'dashboard' %}">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="{% url 'suppliers:supplier_list' %}">Suppliers</a>
+            <a href="{% url 'suppliers:supplier_list' %}">Vendors</a>
           </li>
           <li class="breadcrumb-item active" aria-current="page">{{ supplier.name }}</li>
         </ol>
@@ -33,17 +25,24 @@
 
     {% include 'suppliers/menu.html' %}
     <div class="tab-content">
+      <input type="hidden" id="ajax_url" supplier-type-url="{% url 'suppliers:change_supplier_type' %}" />
       <div class="tab-pane show active" id="first" role="tabpanel" aria-labelledby="first-tab">
         <div class="row">
           <div class="col-lg-4 col-12 mb-4">
             <div class="card mb-4">
               <div class="position-absolute card-top-buttons">
-                <a href="{% url 'suppliers:update_supplier' pk=supplier.pk %}" class="btn btn-outline-info icon-button ">
+                <a href="{% url 'suppliers:update_supplier' pk=supplier.pk %}" class="btn btn-info icon-button ">
                   <i class="simple-icon-pencil"></i>
                 </a>
-                <a href="{% url 'suppliers:delete_supplier' pk=supplier.pk %}" class="btn btn-outline-danger icon-button ">
+                {% if supplier.type == "Archived" %}
+                <a href="javascript:void()" onclick="change_type({{ supplier.id }},'Active')" class="btn btn-success icon-button ">
+                  <i class="simple-icon-action-undo"></i>
+                </a>
+                {% else %}
+                <a href="javascript:void()" onclick="change_type({{ supplier.id }},'Archived')" class="btn btn-danger icon-button ">
                   <i class="simple-icon-trash"></i>
                 </a>
+                {% endif %}
               </div>
               <span class="badge badge-pill position-absolute badge-top-left">{{ supplier.status }}</span>
               <img src="{{MEDIA_URL}}{{ supplier.logo }}" alt="{{ supplier.name }}" class="card-img-top" />
@@ -55,7 +54,7 @@
                 <p class="mb-3">{{supplier.alternate_name}}</p>
                 {% endif %}
                 <p class="text-muted text-small mb-2">Address</p>
-                <p class="mb-3">{{supplier.get_formatted_address}}</p>
+                <p class="mb-3">{{supplier.get_formatted_address|safe}}</p>
                 <p class="text-muted text-small mb-2">Detail</p>
                 <p class="mb-3">
                   {{ supplier.detail }}
@@ -129,13 +128,27 @@
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
-
     </div>
-
   </div>
 </div>
+<script type="text/javascript">
+  function change_type(supplier_id,type){
+    var url = $("#ajax_url").attr("supplier-type-url");
+    $.ajax({
+      url: url,
+      data: {
+        'supplier_id': supplier_id,
+        'type': type
+      },
+      success: function(data) {
+        if(data.success){
+          location.reload();
+        }
+      }
+    })
+  }
+</script>
 {% endblock %}

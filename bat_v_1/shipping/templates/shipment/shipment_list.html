@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+{% extends "base_menu.html" %}
+{% load staticfiles %}
+{% block content %}
+{% include 'shipping_menu.html' %}
+<div class="row">
+  <div class="col-12 list">
+
+    <div class="mb-2">
+      <h1>Shipments</h1>
+      <nav class="breadcrumb-container d-none d-sm-block d-lg-inline-block" aria-label="breadcrumb">
+        <ol class="breadcrumb pt-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">Shipment</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</div>
+{% include 'shipment/shipment_status_menu.html' %}
+<div class="tab-content">
+  <div class="tab-pane show active" id="second" role="tabpanel" aria-labelledby="second-tab">
+    <div class="row">
+      {% for shipment in shipment_list %}
+      <div class="col-md-6 mb-4">
+        <div class="card h-100 cursor-pointer" onclick="window.open('{% url 'shipping:shipment_detail' pk=shipment.pk %}','_self')">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4">
+                <img src="{{MEDIA_URL}}{{ shipment.amazonmarket.marketplace_image }}" class="img-fluid" style="width: 70px;" />
+              </div>
+              <div class="col-md-4 text-center">
+                <h2>{{ shipment.name }}</h2>
+                <p class="badge badge-pill badge-secondary mb-1">{{ shipment.status.title }}</p>
+              </div>
+              <div class="col-md-4 text-right">
+                <h2 class="mb-1 text-danger display-4">
+                  {% if shipment.type == "Sea" %}
+                  <i class="iconsmind-Ship"></i>
+                  {% else %}
+                  <i class="iconsmind-Plane-2"></i>
+                  {% endif %}
+                </h2>
+              </div>
+            </div>
+            <h6 class="mt-2 mb-3">Products</h6>
+            {% for shipmentproduct in shipment.shipmentproduct_set.all %}
+            <div class="mb-4">
+              <div class="row mb-1">
+                <div class="col-md-2">
+                  {% if shipmentproduct.amazonproduct.image %}
+                  <img src="{{MEDIA_URL}}{{ shipmentproduct.amazonproduct.image }}" class="img-fluid" />
+                  {% else %}
+                  <img src="{{MEDIA_URL}}products/no-product-image.png" alt="{{ shipmentproduct.amazonproduct.image }}" class="card-img-top" />
+                  {% endif %}
+                </div>
+                <div class="col-md-7">
+                  <h6>{{shipmentproduct.amazonproduct.product.title}}</h6>
+                  <p class="mb-1">EAN: {{shipmentproduct.amazonproduct.product.ean}}, ASIN: {{shipmentproduct.amazonproduct.asin}}</p>
+                  <p class="mb-1">Batch ID: {% for orderdelivery in shipmentproduct.shipmentproductorderdelivery_set.all  %}{% if not forloop.first %}, {%endif%}{{orderdelivery.orderdelivery.batch_id}}{% endfor %}</p>
+                </div>
+                <div class="col-md-3">
+                  <h6 class="float-right text-muted">{{shipmentproduct.quantity_send}}</h6>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

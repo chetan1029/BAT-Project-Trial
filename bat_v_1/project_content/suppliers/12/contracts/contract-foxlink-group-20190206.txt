@@ -1,0 +1,8 @@
+primary-action	date-stranded	date-classified-as-unsellable	status-primary	status-secondary	error-message	stranded-reason	asin	sku	fnsku	product-name	condition	fulfilled-by	fulfillable-qty	your-price	unfulfillable-qty	reserved-quantity	inbound-shipped-qty
+Relist	02/04/2019		Suppressed		Quality Alert	Listing closed	B07JHNDZTL	JKDK954	X001X8M2TB	Equilibrium+ A-C USB 2.0 2M Green Replacement	New	Amazon	57	22.00	0	43	0
+Relist	02/04/2019		Suppressed		Quality Alert	Listing closed	B07JG5F3RL	GFDG84	X001X8QZVR	Equilibrium+ A-C USB 2.0 1M RED Replacement	New	Amazon	58	22.00	0	42	0
+Relist	02/04/2019		Suppressed		Quality Alert	Listing closed	B07L6LDCBZ	MGREEN_REPL	X001Z61JIB	Micro 3M_Blue_REPL	New	Amazon	83	20.00	0	11	0
+Relist	02/04/2019		Suppressed		Quality Alert	Listing closed	B07JHJ8YM3	FV9834	X001X7T59R	Equilibrium+ A-C USB 2.0 3M Blue Replacement	New	Amazon	63	22.00	0	37	0
+Relist	02/04/2019		Suppressed		Quality Alert	Listing closed	B07L6K9DW8	MBLUE_REPL	X001Z6PZK9	Micro 2M_Green_REPL	New	Amazon	84	20.00	0	10	0
+Relist	02/04/2019		Suppressed		Quality Alert	Listing closed	B07L6LP8VQ	MRED_REPL	X001Z6Q04J	Micro 1M_RED_REPL	New	Amazon	87	20.00	0	11	0
+Relist	02/04/2019		Suppressed		Quality Alert	Listing closed	B07JHC7797	JGDK58	X001X8QZYJ	Equilibrium+ A-C USB 2.0 0.3M Yellow Replacement	New	Amazon	53	22.00	0	47	0
